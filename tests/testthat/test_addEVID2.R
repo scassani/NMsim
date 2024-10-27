@@ -127,3 +127,41 @@ test_that("EVID=0",{
     }
     
 })
+
+
+test_that("time after dose",{
+    fileRef <- "testReference/addEVID2_07.rds"
+    df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+    df.doses
+    seq.time <- c(0,4,12,24)
+
+    res <- addEVID2(df.doses,TAPD=seq.time,CMT=2)
+    res
+    expect_equal_to_reference(res,fileRef)
+
+    if(F){
+        res
+        readRDS(fileRef)
+    }
+
+
+})
+
+
+test_that("TIME and TAPD",{
+    fileRef <- "testReference/addEVID2_08.rds"
+    df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+    df.doses
+    seq.time <- c(0,4,12,24)
+
+    res <- addEVID2(df.doses,TIME=seq.time,TAPD=3,CMT=2)
+    res
+    expect_equal_to_reference(res,fileRef)
+
+    if(F){
+        res
+        readRDS(fileRef)
+    }
+
+
+})

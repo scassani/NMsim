@@ -4,16 +4,21 @@
 \alias{addEVID2}
 \title{Add simulation records to dosing records}
 \usage{
-addEVID2(doses, time.sim, CMT, EVID = 2, as.fun)
+addEVID2(data, TIME, TAPD, CMT, EVID = 2, as.fun, doses, time.sim)
 }
 \arguments{
-\item{doses}{dosing records Nonmem style (EVID==1 records from a
-data set)}
+\item{data}{Nonmem-style data set. If using `TAPD` an `EVID`
+column must contain 1 for dosing records.}
 
-\item{time.sim}{A numerical vector with simulation times. Can also
-be a data.frame in which case it must contain a `TIME` column
-and is merged with subjects found in `doses`. The latter
-feature is experimental.}
+\item{TIME}{A numerical vector with simulation times. Can also be
+a data.frame in which case it must contain a `TIME` column and
+is merged with `data`.}
+
+\item{TAPD}{A numerical vector with simulation times, relative to
+previous dose. When this is used, `data` must contain rows
+with `EVID=1` events and a `TIME` column. `TAPD` can also be a
+data.frame in which case it must contain a `TAPD` column and
+is merged with `data`.}
 
 \item{CMT}{The compartment in which to insert the EVID=2
 records. If longer than one, the records will be repeated in
@@ -28,14 +33,19 @@ a function (say `tibble::as_tibble`) in as.fun to convert to
 something else. If data.tables are wanted, use
 as.fun="data.table". The default can be configured using
 NMdataConf.}
+
+\item{doses}{Deprecated. Use `data`.}
+
+\item{time.sim}{Deprecated. Use `TIME`.}
 }
 \value{
 A data.frame with dosing records
 }
 \description{
-Performs the simple job of adding simulation events to all
-subjects in a data set. Copies over columns that are not varying
-at subject level (i.e. non-variying covariates).
+Adds simulation events to all subjects in a data set. Copies over
+columns that are not varying at subject level (i.e. non-variying
+covariates). Can add simulation events relative to previous dosing
+time.
 }
 \details{
 The resulting data set is ordered by ID, TIME, and
@@ -43,13 +53,13 @@ The resulting data set is ordered by ID, TIME, and
 }
 \examples{
 (doses1 <- NMcreateDoses(TIME=c(0,12,24,36),AMT=c(2,1)))
-addEVID2(doses1,time.sim=seq(0,28,by=4),CMT=2)
+addEVID2(doses1,TIME=seq(0,28,by=4),CMT=2)
 
 ## two named compartments
 dt.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
 seq.time <- c(0,4,12,24)
 dt.cmt <- data.frame(CMT=c(2,3),analyte=c("parent","metabolite"))
-res <- addEVID2(dt.doses,time.sim=seq.time,CMT=dt.cmt)
+res <- addEVID2(dt.doses,TIME=seq.time,CMT=dt.cmt)
 
 ## Separate sampling schemes depending on covariate values
 dt.doses <- NMcreateDoses(TIME=data.frame(regimen=c("SD","MD","MD"),TIME=c(0,0,12)),AMT=10,CMT=1)
@@ -57,7 +67,7 @@ dt.doses <- NMcreateDoses(TIME=data.frame(regimen=c("SD","MD","MD"),TIME=c(0,0,1
 seq.time.sd <- data.frame(regimen="SD",TIME=seq(0,6))
 seq.time.md <- data.frame(regimen="MD",TIME=c(0,4,12,24))
 seq.time <- rbind(seq.time.sd,seq.time.md)
-addEVID2(dt.doses,time.sim=seq.time,CMT=2)
+addEVID2(dt.doses,TIME=seq.time,CMT=2)
 
 ## an observed sample scheme and additional simulation times
 df.doses <- NMcreateDoses(TIME=0,AMT=50,addl=list(ADDL=2,II=24))
@@ -68,6 +78,15 @@ time.all <- c(dense,dense+24*3,trough,sim.extra)
 time.all <- sort(unique(time.all))
 dt.sample <- data.frame(TIME=time.all)
 dt.sample$isobs <- as.numeric(dt.sample$TIME\%in\%c(dense,trough))
-dat.sim <- addEVID2(dt.doses,time.sim=dt.sample,CMT=2)
+dat.sim <- addEVID2(dt.doses,TIME=dt.sample,CMT=2)
 
+## TAPD - time after previous dose
+df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+seq.time <- c(0,4,12,24)
+addEVID2(df.doses,TAPD=seq.time,CMT=2)
+
+## TIME and TAPD
+df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+seq.time <- c(0,4,12,24)
+addEVID2(df.doses,TIME=seq.time,TAPD=3,CMT=2)
 }

@@ -1,15 +1,20 @@
 ##' Add simulation records to dosing records
 ##'
-##' Performs the simple job of adding simulation events to all
-##' subjects in a data set. Copies over columns that are not varying
-##' at subject level (i.e. non-variying covariates).
+##' Adds simulation events to all subjects in a data set. Copies over
+##' columns that are not varying at subject level (i.e. non-variying
+##' covariates). Can add simulation events relative to previous dosing
+##' time.
 ##' 
-##' @param doses dosing records Nonmem style (EVID==1 records from a
-##'     data set)
-##' @param time.sim A numerical vector with simulation times. Can also
-##'     be a data.frame in which case it must contain a `TIME` column
-##'     and is merged with subjects found in `doses`. The latter
-##'     feature is experimental.
+##' @param data Nonmem-style data set. If using `TAPD` an `EVID`
+##'     column must contain 1 for dosing records.
+##' @param TIME A numerical vector with simulation times. Can also be
+##'     a data.frame in which case it must contain a `TIME` column and
+##'     is merged with `data`.
+##' @param TAPD A numerical vector with simulation times, relative to
+##'     previous dose. When this is used, `data` must contain rows
+##'     with `EVID=1` events and a `TIME` column. `TAPD` can also be a
+##'     data.frame in which case it must contain a `TAPD` column and
+##'     is merged with `data`.
 ##' @param CMT The compartment in which to insert the EVID=2
 ##'     records. If longer than one, the records will be repeated in
 ##'     all the specified compartments. If a data.frame, covariates
@@ -21,17 +26,19 @@
 ##'     something else. If data.tables are wanted, use
 ##'     as.fun="data.table". The default can be configured using
 ##'     NMdataConf.
+##' @param doses Deprecated. Use `data`.
+##' @param time.sim Deprecated. Use `TIME`.
 ##' @details The resulting data set is ordered by ID, TIME, and
 ##'     EVID. You may have to reorder for your specific needs.
 ##' @examples
 ##' (doses1 <- NMcreateDoses(TIME=c(0,12,24,36),AMT=c(2,1)))
-##' addEVID2(doses1,time.sim=seq(0,28,by=4),CMT=2)
+##' addEVID2(doses1,TIME=seq(0,28,by=4),CMT=2)
 ##'
 ##' ## two named compartments
 ##' dt.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
 ##' seq.time <- c(0,4,12,24)
 ##' dt.cmt <- data.frame(CMT=c(2,3),analyte=c("parent","metabolite"))
-##' res <- addEVID2(dt.doses,time.sim=seq.time,CMT=dt.cmt)
+##' res <- addEVID2(dt.doses,TIME=seq.time,CMT=dt.cmt)
 ##' 
 ##' ## Separate sampling schemes depending on covariate values
 ##' dt.doses <- NMcreateDoses(TIME=data.frame(regimen=c("SD","MD","MD"),TIME=c(0,0,12)),AMT=10,CMT=1)
@@ -39,7 +46,7 @@
 ##' seq.time.sd <- data.frame(regimen="SD",TIME=seq(0,6))
 ##' seq.time.md <- data.frame(regimen="MD",TIME=c(0,4,12,24))
 ##' seq.time <- rbind(seq.time.sd,seq.time.md)
-##' addEVID2(dt.doses,time.sim=seq.time,CMT=2)
+##' addEVID2(dt.doses,TIME=seq.time,CMT=2)
 ##'
 ##' ## an observed sample scheme and additional simulation times
 ##' df.doses <- NMcreateDoses(TIME=0,AMT=50,addl=list(ADDL=2,II=24))
@@ -50,61 +57,138 @@
 ##' time.all <- sort(unique(time.all))
 ##' dt.sample <- data.frame(TIME=time.all)
 ##' dt.sample$isobs <- as.numeric(dt.sample$TIME%in%c(dense,trough))
-##' dat.sim <- addEVID2(dt.doses,time.sim=dt.sample,CMT=2)
-##' 
+##' dat.sim <- addEVID2(dt.doses,TIME=dt.sample,CMT=2)
+##'
+##' ## TAPD - time after previous dose
+##' df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+##' seq.time <- c(0,4,12,24)
+##' addEVID2(df.doses,TAPD=seq.time,CMT=2)
+##'
+##' ## TIME and TAPD
+##' df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+##' seq.time <- c(0,4,12,24)
+##' addEVID2(df.doses,TIME=seq.time,TAPD=3,CMT=2)
 ##' @import data.table
 ##' @import NMdata
 ##' @return A data.frame with dosing records
 ##' @export 
 
 
-addEVID2 <- function(doses,time.sim,CMT,EVID=2,as.fun){
+addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,as.fun,doses,time.sim){
     
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
+    . <- NULL
+    ..EVID <- EVID
+    DOSN <- NULL
     DV <- NULL
-    MDV <- NULL
     ID <- NULL
-    TIME <- NULL
-    ..EVID <- NULL
+    MDV <- NULL
+    PDOSN <- NULL
+    TDOS <- NULL
 
 ### Section end: Dummy variables, only not to get NOTE's in pacakge checks
     
     if(missing(as.fun)) as.fun <- NULL
     as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
 
+    if(missing(doses)) doses <- NULL
+    if(missing(time.sim)) time.sim <- NULL
+    if(missing(TIME)) TIME <- NULL
+    if(missing(TAPD)) TAPD <- NULL
 
-    if(is.data.table(doses)) {
-        doses <- copy(doses)
-    } else {
-        doses <- as.data.table(doses)
+    ### this requires NMdata 0.1.7
+    ## args <- NMdata:::getArgs(sys.call(),parent.frame())
+    ## data <- NMdata:::deprecatedArg("doses","data",args=args)
+    ## TIME <- NMdata:::deprecatedArg("time.sim","TIME",args=args)
+    if(!is.null(doses)){
+        message("Argument doses is deprecated. Please use data instead.")
+        data <- doses
     }
-    
-    
-    to.use <- setdiff(colnames(doses),c("TIME","EVID","CMT","AMT","RATE","MDV","SS","II","ADDL","DV"))
-    covs.doses <- findCovs(doses[,to.use,with=FALSE],by="ID",as.fun="data.table")
+    if(!is.null(time.sim)){
+        message("Argument time.sim is deprecated. Use TIME instead.")
+        TIME <- time.sim
+    }
 
-    if(!is.data.frame(time.sim)){
-        dt.obs <- data.table(TIME=time.sim)
-        dt.obs <- egdt(dt.obs,covs.doses,quiet=TRUE)
+    
+    if(is.data.table(data)) {
+        data <- copy(data)
     } else {
-        if(!"TIME"%in%colnames(time.sim)) stop("When time.sim is a data.frame, it must contain a column called TIME.")
-        time.sim <- as.data.table(time.sim)
-        cols.by <- intersect(colnames(time.sim),colnames(covs.doses))
+        data <- as.data.table(data)
+    }
+
+    
+
+    
+    to.use <- setdiff(colnames(data),c("TIME","EVID","CMT","AMT","RATE","MDV","SS","II","ADDL","DV"))
+    covs.data <- findCovs(data[,to.use,with=FALSE],by="ID",as.fun="data.table")
+
+    dt.obs <- NULL
+### handle time
+    if(!is.null(TIME)){
+        if(!is.data.frame(TIME)){
+            TIME <- data.table(TIME=TIME)
+            ## dt.obs <- egdt(dt.obs,covs.data,quiet=TRUE)
+        }
+
+        if(!"TIME"%in%colnames(TIME)) stop("When TIME is a data.frame, it must contain a column called TIME.")
+        TIME <- as.data.table(TIME)
+        cols.by <- intersect(colnames(TIME),colnames(covs.data))
         if(length(cols.by) == 0){
-            ## message("time.sim is a data,frame but no column names overlap with column names in doses. Only the TIME column from time.sim used.")
-            ## return(addEVID2(doses,time.sim$TIME,CMT,as.fun))
-            dt.obs <- egdt(time.sim,covs.doses,quiet=TRUE)
+            dt.obs <- egdt(TIME,covs.data,quiet=TRUE)
         } else {
-            dt.obs <- merge(time.sim,covs.doses,all.x=TRUE,allow.cartesian = TRUE)
+            dt.obs <- merge(TIME,covs.data,all.x=TRUE,allow.cartesian = TRUE)
         }
     }
+
+#### handle TAPD - add to time
+    if(!is.null(TAPD)){
+
+        if(!is.data.frame(TAPD)){
+            TAPD <- data.table(TAPD=TAPD)
+        }
+
+        if(!"TAPD"%in%colnames(TAPD)) stop("When TAPD is a data.frame, it must contain a column called TAPD.")
+        TAPD <- as.data.table(TAPD)
+        cols.by <- intersect(colnames(TAPD),colnames(covs.data))
+        if(length(cols.by) == 0){
+            dt.tapd <- egdt(TAPD,covs.data,quiet=TRUE)
+        } else {
+            dt.tapd <- merge(TAPD,covs.data,all.x=TRUE,allow.cartesian = TRUE)
+        }
+
+        
+        
+        
+        doses.tmp <- data[EVID==1,.(TDOS=TIME)]
+        doses.tmp[,DOSN:=.I]
+
+        ## setnames(dt.tapd,"TIME","TAPD")
+        dt.obs.1 <- doses.tmp[,dt.tapd[],by=doses.tmp]
+        dt.obs.1[,TIME:=TDOS+TAPD]
+        dt.obs.1[,EVID:=..EVID]
+        dos2 <- doses.tmp[,EVID:=1] |> setnames(c("TDOS","DOSN"),c("TIME","PDOSN"))
+        dt.obs.2 <- rbind(doses.tmp,dt.obs.1,fill=TRUE)
+        setorder(dt.obs.2,TIME,EVID)
+        dt.obs.2[,PDOSN:=nafill(PDOSN,type="locf")]
+
+        
+        
+        dt.obs.3 <- dt.obs.2[EVID==..EVID&DOSN==PDOSN]
+        dt.obs.3 <- dt.obs.3[,c("TIME",intersect(colnames(dt.tapd),colnames(dt.obs.3))),with=FALSE]
+        dt.obs <- rbind(dt.obs,dt.obs.3,fill=TRUE) |> setorder(TIME)
+    }
+    
+
+
+    
     dt.obs[
        ,EVID:=..EVID][
-       ## ,DV:=NA_real_][
+        ## ,DV:=NA_real_][
        ,MDV:=1]
     
 
+    
 ### add CMT
     if (!is.data.frame(CMT)){
         CMT <- data.table(CMT=CMT)
@@ -115,10 +199,10 @@ addEVID2 <- function(doses,time.sim,CMT,EVID=2,as.fun){
     
     dt.obs <- dt.obs[,setdiff(colnames(dt.obs),colnames(CMT)),with=FALSE]
     dt.obs <- egdt(dt.obs,CMT,quiet=TRUE)
-    
+
     
     ## dat.sim <- egdt(typsubj[,!(c("ID"))],doses.ref)
-    dat.sim <- rbind(doses,dt.obs,fill=T)
+    dat.sim <- rbind(data,dt.obs,fill=T)
 
 #### not sure how to allow flexible sorting. For now, NB order is naive.
     setorder(dat.sim,ID,TIME,EVID)

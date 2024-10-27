@@ -33,9 +33,9 @@ test_that("Expand columns",{
 })
 
 test_that("makes no sense to expand TIME",{
-                                        #expect_error(
-    NMcreateDoses(TIME=c(0),AMT=c(0,10),CMT=2)
-                                        #)
+    expect_error(
+        NMcreateDoses(TIME=c(0),AMT=c(0,10),CMT=2)
+    )
 })
 
 
@@ -56,7 +56,67 @@ test_that("II/ADDL",{
     res <- NMcreateDoses(TIME=c(0,12),AMT=10,addl=list(II=12,ADDL=3),CMT=2)
 
     expect_equal_to_reference(res,fileRef)
+
 })
+
+
+## II/ADDL should only be applied to last event. addl.lastonly
+## argument?
+test_that("ADDL and II one by one",{
+    fileRef <- "testReference/NMcreateDoses_04b.rds"
+    res1 <- NMcreateDoses(TIME=c(0,12),AMT=10,II=12,ADDL=3,CMT=2)
+    res2 <- NMcreateDoses(TIME=c(0,12),AMT=10,addl=list(II=12,ADDL=3),CMT=2)
+
+    res <- list(
+        res1
+       ,
+        res2
+    )
+    expect_equal_to_reference(res,fileRef)
+
+    ## this should be an error
+    expect_error( NMcreateDoses(TIME=c(0,12),AMT=10,II=12,ADDL=2,addl=list(II=12,ADDL=3),CMT=2))
+
+})
+
+
+test_that("II and ADDL must be of equal length",{
+    fileRef <- "testReference/NMcreateDoses_04c.rds"
+    ## one longer than the other
+    expect_error(NMcreateDoses(TIME=c(0,12),AMT=10,II=c(0,12),ADDL=3,CMT=2))
+    expect_error(NMcreateDoses(TIME=c(0,12),AMT=10,addl=list(II=c(0,12),ADDL=3),CMT=2))
+    ##  leaving out II
+    expect_error(
+        NMcreateDoses(TIME=c(0,12),AMT=10,ADDL=3,CMT=2)
+    )
+
+})
+
+## II/ADDL should only be applied to last event. addl.lastonly
+## argument?
+test_that("II and ADDL of length=1",{
+    fileRef <- "testReference/NMcreateDoses_04d.rds"
+    ##NMcreateDoses(TIME=c(0,12),AMT=data.table(dos=1:2,AMT=c(10,20)),CMT=2)
+    res <- NMcreateDoses(TIME=c(0,12),AMT=data.table(dos=1:2,AMT=c(10,20)),II=12,ADDL=3,CMT=2)
+
+    res
+    expect_equal_to_reference(res,fileRef)
+
+    readRDS(fileRef)
+})
+
+test_that("NA columns",{
+
+    ## options(warn=2)
+    fileRef <- "testReference/NMcreateDoses_04e.rds"
+    res <- NMcreateDoses(TIME=c(0,12),AMT=data.table(dos=1:2,AMT=c(10,20)),CMT=NA)
+
+    expect_equal_to_reference(res,fileRef)
+
+})
+
+
+
 
 ### covariates
 test_that("covariates basics",{
@@ -82,6 +142,10 @@ test_that("covariates not spanning same covariate values",{
     res <- NMcreateDoses(TIME=data.table(regimen=c("SD","MD","MD"),TIME=c(0,0,12)),AMT=10,CMT=1,addl=list(II=12,ADDL=3,regimen="MD"))
     ##res
     expect_equal_to_reference(res,fileRef)
+    if(F){
+        res
+        readRDS(fileRef)
+    }
 })
 
 
@@ -99,8 +163,13 @@ test_that("covariates spanning same covariate values - addl",{
     ## This looks OK.
     fileRef <- "testReference/NMcreateDoses_09.rds"
 
-    res <- NMcreateDoses(TIME=data.table(regimen=c("SD","MD","MD"),TIME=c(0,0,12)),AMT=10,CMT=1,addl=data.table(II=c(0,0,0,12),ADDL=c(0,0,0,3),regimen=c("SD",rep("MD",3))))
+    res <- NMcreateDoses(TIME=data.table(regimen=c("SD","MD","MD","MD"),TIME=c(0,0,12,24)),AMT=10,CMT=1,addl=data.table(II=c(0,0,0,12),ADDL=c(0,0,0,3),regimen=c("SD",rep("MD",3))))
+
     expect_equal_to_reference(res,fileRef)
+    if(F){
+        res
+        readRDS(fileRef)
+    }
 })
 
 
@@ -148,3 +217,50 @@ test_that("data.frames accepted",{
 })
 
 
+test_that("col.id",{
+    fileRef <- "testReference/NMcreateDoses_13.rds"
+    res <- NMcreateDoses(TIME=0,AMT=10,col.id="NOOOO")
+    expect_equal_to_reference(res,fileRef)
+
+    fileRef <- "testReference/NMcreateDoses_14.rds"
+    res <- NMcreateDoses(TIME=0,AMT=10,col.id=NA)
+    expect_equal_to_reference(res,fileRef)
+})
+
+test_that("covs in multiple arguments",{
+    fileRef <- "testReference/NMcreateDoses_15.rds"
+
+    dt.amt <- data.table(DOSE1=c(100))[,AMT:=DOSE1*1000]
+    dt.time <- data.table(TIME=c(0,288,0,432),trtp=rep(c("Treatment 1","Treatment 2"),each=2))
+    ## dt.amt
+    ## dt.time
+    res <- NMcreateDoses(TIME=dt.time,AMT=dt.amt)
+    
+    expect_equal_to_reference(res,fileRef)
+
+    if(F){
+        res
+        readRDS(fileRef)
+    }
+})
+
+test_that("No AMT",{
+    fileRef <- "testReference/NMcreateDoses_16.rds"
+
+    res <- NMcreateDoses(TIME=0)
+    expect_equal_to_reference(res,fileRef)
+
+    if(F){
+        res
+        readRDS(fileRef)
+    }
+})
+
+test_that("Suppress EVID",{
+    fileRef <- "testReference/NMcreateDoses_17.rds"
+
+    res1 <- NMcreateDoses(TIME=0,EVID=NULL)
+    res2 <- NMcreateDoses(TIME=0,EVID=NA)
+    expect_equal(res1,res2)
+
+})

@@ -413,34 +413,42 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     est <- NULL
     fn.data <- NULL
     f.exists <- NULL
+    fn.sim.predata <- NULL
     files.needed <- NULL
     files.res <- NULL
     fn.sim.tmp <- NULL
     fn <- NULL
     fn.mod <- NULL
     fn.sim <- NULL
+    funs.transform <- NULL
     i <- NULL
     ID <- NULL
     is.data <- NULL
     known <- NULL
+    lst <- NULL
     MDV <- NULL
     model <- NULL
     mod <- NULL
+    n <- NULL
     name.mod <- NULL
     NEWMODEL <- NULL
     nmsim <- NULL
-    n <- NULL
+    NMsimTime <- NULL
+    NMsimVersion <- NULL
+n.fn.sim <- NULL
     none <- NULL
     psn <- NULL
     par.type <- NULL
     path.rds <- NULL
     path.results <- NULL
     pathResFromists <- NULL
+    pathResFromSims <- NULL
     pathSimsFromRes <- NULL
     path.sim <- NULL
     path.digests <- NULL
     path.sim.lst <- NULL
     path.data <- NULL
+    path.rds.exists <- NULL
     ROW <- NULL
     ROWMODEL <- NULL
     ROWMODEL2 <- NULL
@@ -451,17 +459,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     tab.ext <- NULL
     text <- NULL
     textmod <- NULL
-    ##typical <- NULL
     value <- NULL
     variable <- NULL
     
-    funs.transform <- NULL
-    lst <- NULL
-    NMsimTime <- NULL
-    NMsimVersion <- NULL
-    fn.sim.predata <- NULL
-    path.rds.exists <- NULL
-    pathResFromSims <- NULL
     
     ## Section end: Dummy variables, only not to get NOTE's in pacakge checks
 
@@ -473,12 +473,15 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         res
     }
 
-paste.end <- function(x,add,...){
+    paste.end <- function(x,add,...){
         c(x[0:(length(x)-1)],
           paste(x[length(x)],add,...)
           )
     }
 
+    ## as.fun
+    if(missing(as.fun)) as.fun <- NULL
+    as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
     returnSimres <- function(simres){
         simres <- as.fun(simres)
         addClass(simres,"NMsimRes")
@@ -523,7 +526,7 @@ paste.end <- function(x,add,...){
 
 
 ### Moved to NMexec()
-##  if(NMsimConf$metod.execute=="nmsim" && nc>1){message("\nNotice: nc>1 still does not work with method.execute=\"nmsim\". Expect single-core performance. Notice there are other and most often more efficient methods to speed up simulations. See discussions on the NMsim website.")}
+    ##  if(NMsimConf$metod.execute=="nmsim" && nc>1){message("\nNotice: nc>1 still does not work with method.execute=\"nmsim\". Expect single-core performance. Notice there are other and most often more efficient methods to speed up simulations. See discussions on the NMsim website.")}
     
 
     ## args.psn.execute
@@ -595,9 +598,6 @@ paste.end <- function(x,add,...){
     if(missing(col.row)) col.row <- NULL
     col.row <- NMdata:::NMdataDecideOption("col.row",col.row)
 
-    ## as.fun
-    if(missing(as.fun)) as.fun <- NULL
-    as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
     
     input.archive <- inputArchiveDefault
 
@@ -876,7 +876,7 @@ paste.end <- function(x,add,...){
     if(reuse.results && all(path.rds.exists==TRUE)){
         if(!quiet) message(sprintf("Reading from simulation results on file:\n%s",dt.models[,paste(unique(path.rds),collapse="\n")]))
         
-        simres <- try(NMreadSim(dt.models[,path.rds],wait=wait,quiet=quiet,progress=progress))
+        simres <- try(NMreadSim(dt.models[,path.rds],wait=wait,quiet=quiet,progress=progress,as.fun=as.fun))
         if(!inherits(simres,"try-error")) {
             return(returnSimres(simres))
         }
@@ -1360,7 +1360,7 @@ paste.end <- function(x,add,...){
 ##### Messaging user
 ### we are controlling this messaging better from NMreadSim()
         ## if(!quiet) message("* Collecting Nonmem results")
-        simres <- NMreadSim(unlist(files.rds),wait=wait,progress=progress,quiet=quiet)
+        simres <- NMreadSim(unlist(files.rds),wait=wait,progress=progress,quiet=quiet,as.fun=as.fun)
     }
     
 ### Section end: Read results if requested

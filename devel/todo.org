@@ -135,8 +135,8 @@ Currently, the user is warned about the existence
 In $PK. Example
 ; include study 4 even though ANP3AC=0
 IF(PRED_IGNORE_DATA_TEST==1) THEN
-  PRED_IGNORE_DATA=0
-  IF(ANP3AC.NE.1.AND.STUDY.NE.4) PRED_IGNORE_DATA=1
+PRED_IGNORE_DATA=0
+IF(ANP3AC.NE.1.AND.STUDY.NE.4) PRED_IGNORE_DATA=1
 RETURN ;Assures no additional computation code in INFN is executed
 ENDIF
 
@@ -279,27 +279,36 @@ https://nmhelp.tingjieguo.com/$etasphis.htm
 As if submodel structure does not support n=1. For now, just give an
 error to avoid some weird message.
 ** NMcreateDoses
-*** TODO Wrong replicates in some cases
+*** DONE Wrong replicates in some cases
+This bug was fixed by including unique before egdt here:
+#+begin_src R
+  egdt(
+    melt(elem,measure.vars=name)
+   ,
+    unique(combs[,setdiff(names(combs),names(elem)),with=FALSE])
+   ,quiet=T)
+#+end_src
 this is supposed to return 4 doses, not 8
 #+begin_src R
-dt.amt.13 <- data.table(DOSE1=c(100))[,AMT:=DOSE1*1000]
-dt.time.13 <- data.table(TIME=c(0,288,0,432),trtp=rep(c("VX-548 - VX-548 + Omeprazole","VX-548 - VX-548 + Rifampin"),each=2))
-dt.dos.13 <- NMcreateDoses(TIME=dt.time.13,AMT=dt.amt.13)
-dt.dos.13[,ID:=NULL]
+  dt.amt.13 <- data.table(DOSE1=c(100))[,AMT:=DOSE1*1000]
+  dt.time.13 <- data.table(TIME=c(0,288,0,432),trtp=rep(c("VX-548 - VX-548 + Omeprazole","VX-548 - VX-548 + Rifampin"),each=2))
+  dt.dos.13 <- NMcreateDoses(TIME=dt.time.13,AMT=dt.amt.13)
+  dt.dos.13[,ID:=NULL]
 #+end_src
-*** TODO No CMT by default?
+*** DONE No CMT by default?
 Not all models use CMT so it shouldnt be required
-*** TODO [#A] II and ADDL should be separate args
+
+This is done by CMT=NA for now
+*** DONE II and ADDL should be separate args
 Check that they are of equal length
-*** TODO II/ADDL should only be applied to last event.
+*** DONE II/ADDL should only be applied to last event.
 addl.lastonly argument
-*** TODO [#B] TIME must be full length
+*** DONE TIME must be full length
 ## NMcreateDoses(TIME=c(0,1,4),AMT=c(2,1,4,2))
 ## NMcreateDoses(TIME=c(0,1,4),AMT=c(2,1,4,2),CMT=1)
-
-*** TODO No NA's should be allowed anywhere? Or?
+*** DONE a NA value of an arg should drop the column
 *** TODO if a cov is found in multiple arguments, it must span same values
-
+Not sure if true
 *** DONE Should CMT have a default? Or be required?
 For now, required
 
@@ -310,6 +319,9 @@ If ID not in covs, everything is replicated. It can be a data.table
 too, meaning that we replicate within covariates. Maybe we have to be
 able to use a known set of ID's and covs? Or use ID?
 @param ID ID's to replicate for. Default is 1. Use NULL to omit.
+
+*** DONE col.id column
+col.id=NA will drop ID if there is only one set of doses (one set of cov values).
 
 ** addEVID2
 

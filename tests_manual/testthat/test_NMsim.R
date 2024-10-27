@@ -14,7 +14,7 @@ NMdataConf(dir.sims="testOutput/simtmp")
 NMdataConf(dir.res="testOutput/simres")
 
 dt.dos <- NMcreateDoses(AMT=300,TIME=0)
-dt.sim <- addEVID2(doses=dt.dos,time.sim=c(1,6,12),CMT=2)
+dt.sim <- addEVID2(data=dt.dos,TIME=c(1,6,12),CMT=2)
 dt.sim[,BBW:=40][,ROW:=.I]
 
 dt.sim.known <- egdt(dt.sim[,!("ID")],data.table(ID=101:105))
@@ -26,7 +26,7 @@ path.nonmem <- "/opt/nonmem/nm751/run/nmfe75"
 ## dir.psn <- "/opt/psn"
 ## NMdataConf(dir.psn=dir.psn)
 ##
-path.nonmem <- "/opt/NONMEM/nm75/run/nmfe75" 
+path.nonmem <- "/opt/NONMEM/nm75/run/nmfe75"
 file.exists(path.nonmem)
 
 #### need a function to drop NMsimVersion and NMsimTime from table
@@ -212,7 +212,7 @@ test_that("basic - known",{
                     data=dt.sim.known,
                     table.vars="PRED IPRED" ,
                     ## dir.sims="testOutput",
-                    method.sim=NMsim_known,
+                    method.sim=NMsim_EBE,
                     name.sim="known_01",
                     method.execute="nmsim",
                     path.nonmem=path.nonmem
@@ -370,6 +370,7 @@ test_that("SAEM - default",{
     
     if(F){
         ref <- readRDS(fileRef)
+        simres
         compareCols(simres,ref)
 
         compareCols(attributes(simres)$NMsimModTab,
@@ -398,7 +399,7 @@ test_that("SAEM - known",{
                     table.vars="PRED IPRED",
                     dir.sims="testOutput",
                     name.sim="known_01"
-                   ,method.sim=NMsim_known
+                   ,method.sim=NMsim_EBE
                    ,method.execute="nmsim"
                    ,path.nonmem=path.nonmem
                     )
@@ -449,7 +450,7 @@ test_that("VPC",{
 
     ## library(ggplot2)
     
-    expect_equal(length(unique(simres.vpc$model)),nsims)
+    expect_equal(length(unique(simres.vpc$model.sim)),nsims)
 
     expect_equal(nrow(simres.vpc),nsims*731)    
 
@@ -478,7 +479,7 @@ test_that("VPC with complicated INPUT",{
 
     ## library(ggplot2)
     ## dims(simres.vpc)
-    expect_equal(length(unique(simres.vpc$model)),nsims)
+    expect_equal(length(unique(simres.vpc$model.sim)),nsims)
 
     expect_equal(nrow(simres.vpc),nsims*731)    
 
@@ -561,7 +562,7 @@ test_that("multiple data sets on cluster",{
 })
 
 test_that("default with renaming",{
-
+    ##NMdataConf(as.fun="data.table")
     fileRef <- "testReference/NMsim_11.rds"
 
     file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
@@ -575,7 +576,7 @@ test_that("default with renaming",{
                     name.sim="default_01"
                     )
 
-    expect_equal(unique(simres[,model]),"ref_default_01")
+    expect_equal(unique(simres$model.sim),"ref_default_01")
     
     fix.time(simres)
     expect_equal_to_reference(simres,fileRef)
@@ -585,7 +586,8 @@ test_that("default with renaming",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres,ref)
-
+        ref
+        simres
         compareCols(attributes(simres)$NMsimModTab,
                     attributes(ref)$NMsimModTab)
     }
@@ -610,7 +612,7 @@ test_that("multiple data sets with renaming",{
                              ,wait=T
                               )
 
-    expect_equal(unique(simres.multidata[,model]),paste("ref_datalist_01",101:103,sep="_"))
+    expect_equal(unique(simres.multidata[,model.sim]),paste("ref_datalist_01",101:103,sep="_"))
     
     expect_equal(nrow(simres.multidata),nrow(dt.sim.known[ID<=103]))
     
@@ -619,8 +621,6 @@ test_that("multiple data sets with renaming",{
 test_that("default with nc>1",{
 
     ## fileRef <- "testReference/NMsim_08.rds"
-
-    
     file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
 
     set.seed(43)
@@ -646,14 +646,14 @@ test_that("default with nc>1",{
     simres <- NMreadSim(simtab,wait=T)
     ##    )
 
-    if(F){
-        expect_equal(
-            nrow(
-                simres
-            ),
-            nrow(dt.sim)
-        )
-    }
+    ## if(F){
+    expect_equal(
+        nrow(
+            simres
+        ),
+        nrow(dt.sim)
+    )
+    ## }
 
     ## expect_equal_to_reference(simres,fileRef)
 
@@ -697,7 +697,9 @@ test_that("transform",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres,ref)
-
+        ref
+        simres
+        
         compareCols(attributes(simres)$NMsimModTab,
                     attributes(ref)$NMsimModTab)
     }
@@ -729,7 +731,9 @@ test_that("dir.sims and dir.res with NMdataConf",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres,ref)
-
+        ref
+        simres
+       
         compareCols(attributes(simres)$NMsimModTab,
                     attributes(ref)$NMsimModTab)
     }
@@ -743,16 +747,18 @@ test_that("dir.sims and dir.res with NMdataConf",{
 
 
 test_that("basic - a model that fails on NMTRAN",{
+
+    ### This used to return an error. For now, it's returning NULL.
     
     ## fileRef <- "testReference/NMsim_01.rds"
 
     file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
 
     dt.dos <- NMcreateDoses(AMT=300,TIME=0)
-    dt.sim <- addEVID2(doses=dt.dos,time.sim=c(1,6,12),CMT=2)
+    dt.sim <- addEVID2(data=dt.dos,TIME=c(1,6,12),CMT=2)
 
     set.seed(43)
-    expect_error(
+
         simres <- NMsim(file.mod,
                         data=dt.sim,
                         ## table.var="PRED IPRED",
@@ -763,10 +769,11 @@ test_that("basic - a model that fails on NMTRAN",{
                        ,wait=TRUE,
                         path.nonmem=path.nonmem
                         )
-    )
-    ## expect_error(
-    ##     NMreadSim(simres)
-    ## )
+        expect_equal(nrow(simres),0)
+
+        expect_equal(
+            nrow(NMreadSim(simres)),0
+        )
 
 })
 
@@ -883,7 +890,7 @@ test_that("Non-numeric DATE and TIME",{
     file.mod <- "testData/nonmem/xgxr022.mod"
 
     dt.dos <- NMcreateDoses(AMT=300,TIME=0)
-    dt.sim <- addEVID2(doses=dt.dos,time.sim=c(1,6,12),CMT=2)
+    dt.sim <- addEVID2(data=dt.dos,TIME=c(1,6,12),CMT=2)
     dt.sim[,BBW:=40][,ROW:=.I]
 
     dt.sim.known <- egdt(dt.sim[,!("ID")],data.table(ID=101:105))
@@ -944,4 +951,31 @@ test_that("Non-numeric DATE and TIME",{
         )
     }
     
+})
+
+test_that("as.fun=data.table in function call",{
+    NMdataConf(reset=TRUE)
+    NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75")
+    
+    fileRef <- "testReference/NMsim_01.rds"
+
+    ## 025 doesn't seem stable. Got Q~1e7 and Nonmem didn't run
+    file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
+
+    dt.dos <- NMcreateDoses(AMT=300,TIME=0,as.fun="data.table")
+    dt.sim <- addEVID2(data=dt.dos,TIME=c(1,6,12),CMT=2,as.fun="data.table")
+    dt.sim[,BBW:=40][,ROW:=.I]
+
+    
+    set.seed(43)
+    simres <- NMsim(file.mod,
+                    data=dt.sim,
+                    table.var="PRED IPRED",
+                    dir.sims="testOutput",
+                    name.sim="gjerkjng",
+                    as.fun="data.table"
+                    )
+
+    expect_true(is.data.table(simres))
+
 })

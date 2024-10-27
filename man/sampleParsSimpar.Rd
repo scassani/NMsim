@@ -4,7 +4,7 @@
 \alias{sampleParsSimpar}
 \title{Sample model parameters using the `simpar` package}
 \usage{
-sampleParsSimpar(file.mod, nsim, format = "ext")
+sampleParsSimpar(file.mod, nsim, format = "ext", as.fun)
 }
 \arguments{
 \item{file.mod}{Path to model control stream. Will be used for
@@ -15,6 +15,12 @@ automatically be replaced by `.ext` and `.cov`.}
 to `simpar`.}
 
 \item{format}{"ext" (default) or "wide".}
+
+\item{as.fun}{The default is to return data as a data.frame. Pass
+a function (say `tibble::as_tibble`) in as.fun to convert to
+something else. If data.tables are wanted, use
+as.fun="data.table". The default can be configured using
+NMdataConf.}
 }
 \value{
 A table with sampled model parameters

@@ -17,8 +17,6 @@
 
 sampleParsSimpar <- function(file.mod,nsim,format="ext",as.fun){
 
-    if(missing(as.fun)) as.fun <- NULL
-    as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
     
     if(packageVersion("NMdata")<"0.1.7.905"){
         stop("sampleParsSimpar requires NMdata 0.1.8 or later.")
@@ -29,6 +27,9 @@ sampleParsSimpar <- function(file.mod,nsim,format="ext",as.fun){
     iblock  <- NULL
     par.type <- NULL
     value <- NULL
+
+    if(missing(as.fun)) as.fun <- NULL
+    as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
     
     loadres <- requireNamespace("simpar",quietly=TRUE)
     if(!loadres) {

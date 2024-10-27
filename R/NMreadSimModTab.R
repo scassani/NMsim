@@ -113,6 +113,8 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     path.results.read <- NULL
     path.lst.read <- NULL
     ROWTMP <- NULL
+    simres <- NULL
+    variable <- NULL
     
     if(missing(progress)) progress <- NULL
     if(is.null(progress)) progress <- TRUE
@@ -250,6 +252,7 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
 ### this is needed for nc>1
     ## Sys.sleep(5)
     res.list <- lapply(1:nsplits,function(count){
+        
         dat <- tab.split[[count]]
         bycols <- intersect(c("ROWMODEL2","model"),colnames(dat))
         res <- dat[,{
@@ -264,6 +267,7 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
             if(! "quiet" %in% names(args.NM)){
                 args.NM$quiet <- TRUE
             }
+
             
             ## put this in try and report better info if broken
             this.res <- try(do.call(NMscanData,
@@ -282,14 +286,16 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
 
             if(!is.null(.SD$funs.transform)){
                 this.funs <- .SD[1,funs.transform][[1]]
-                this.res <- do.call(wrap.trans,c(list(dt=this.res),this.funs))
-                this.res
+                if(!is.null(this.funs)){
+                    this.res <- do.call(wrap.trans,c(list(dt=this.res),this.funs))
+                }
             }
 
 
             this.res
         },by=bycols]
-        setcolorder(simres,setdiff(colnames(simres),"model"))
+        
+        setcolorder(res,setdiff(colnames(res),intersect(colnames(res),c("model.sim","model"))))
 
         if(do.pb){
             setTxtProgressBar(pb, count)

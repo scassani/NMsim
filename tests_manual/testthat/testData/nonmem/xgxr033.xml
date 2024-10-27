@@ -5,13 +5,17 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://namespaces.oreilly.com/xmlnut/address output.xsd"
 xmlns:nm="http://namespaces.oreilly.com/xmlnut/address"
 >
-<nm:start_datetime>2023-12-03T20:52:28.015</nm:start_datetime>
+<nm:start_datetime>2024-10-27T13:42:48.602</nm:start_datetime>
 <nm:control_stream><![CDATA[
 $PROBLEM    032 but will only work when respecting $INPUT
-$INPUT      ROW ID NOMTIME TIME EVID CMT AMT DV FLAG STUDY BLQ CYCLE
-            DOSE2 PART PROFDAY PROFTIME WEIGHTB eff0
+
+$INPUT ROW ID NOMTIME TIME EVID CMT AMT DV FLAG STUDY
+BLQ CYCLE DOSE2 PART PROFDAY PROFTIME WEIGHTB eff0
+
 $DATA      xgxr2.csv IGNORE=@ IGNORE=(FLAG.NE.0) IGNORE(DOSE2.LT.30)
+
 $SUBROUTINE ADVAN4 TRANS4
+
 $PK
 LTVKA=THETA(1)*DOSE2**(-.05)
 LTVV2=THETA(2)
@@ -45,30 +49,31 @@ $ERROR
   Y=F+F*ERR(1)+ERR(2)
 
 ;-----------------------INITIAL ESTIMATES---------------------------------
-$THETA  .1 ; LTVKA
-$THETA  3 ; LTVV2
-$THETA  1 ; LTVCL
-$THETA  4 ; LTVV3
-$THETA  -1 ; LTVQ
-$OMEGA  0  FIX
-$OMEGA  0.1
-$OMEGA  0.1
-$OMEGA  0  FIX
-$OMEGA  0  FIX
-$SIGMA  0.1
-$SIGMA  0  FIX
+$THETA  (.1)             ; LTVKA
+$THETA  (3)             ; LTVV2
+$THETA  (1)             ; LTVCL
+$THETA  (4)             ; LTVV3
+$THETA  (-1)             ; LTVQ
+
+$OMEGA 0 FIX
+$OMEGA 0.1
+$OMEGA 0.1
+$OMEGA 0 FIX
+$OMEGA 0 FIX
+
+$SIGMA 0.1
+$SIGMA 0 FIX
+
 ;; $ESTIMATION METHOD=1 POSTHOC INTER MAXEVAL=9999 NSIG=2 SIGL=9
 ;;            PRINT=10 NOABORT MSFO=xgxr032.msf
-$ESTIMATION METHOD=SAEM INTERACTION NOABORT NBURN=1000 NITER=1000
-            CTYPE=3 MAX=99999 NSIG=3 SEED=3442 PRINT=10 RANMETHOD=P
-            MSFO=xgxr032.msf
-$ESTIMATION METHOD=IMP INTERACTION EONLY=1 NITER=20 PRINT=1
-            ISAMPLE=5000 RANMETHOD=P
-$COVARIANCE PRINT=E
-$TABLE      ROW KA V2 V3 CL Q PRED IPRED Y NOPRINT
-            FILE=xgxr032_res.txt
-$TABLE      ETAS(1:LAST) NOAPPEND NOPRINT FILE=xgxr032_etas.txt
+$ESTIMATION METHOD=SAEM INTERACTION NOABORT NBURN=1000 NITER=1000 CTYPE=3 MAX=99999 NSIG=3 SEED=3442 PRINT=10 RANMETHOD=P MSFO=xgxr032.msf
 
+$ESTIMATION METHOD=IMP INTERACTION EONLY=1 NITER=20 PRINT=1 ISAMPLE=5000 RANMETHOD=P
+																	
+$COV PRINT=E
+
+$TABLE ROW KA V2 V3 CL Q PRED IPRED Y NOPRINT FILE=xgxr032_res.txt
+$TABLE ETAS(1:LAST) NOAPPEND NOPRINT FILE=xgxr032_etas.txt
 ]]></nm:control_stream>
 <nm:nmtran><![CDATA[
 
@@ -90,9 +95,9 @@ $TABLE      ETAS(1:LAST) NOAPPEND NOPRINT FILE=xgxr032_etas.txt
 <nm:nonmem nm:version='7.5.0'>
 <nm:license_information><![CDATA[
 License Registered to: Vertex Pharmaceuticals Inc
-Expiration Date:    14 JAN 2024
-Current Date:        3 DEC 2023
-Days until program expires :  46
+Expiration Date:    14 JAN 2025
+Current Date:       27 OCT 2024
+Days until program expires :  82
 ]]></nm:license_information>
 <nm:program_information><![CDATA[
 1NONLINEAR MIXED EFFECTS MODEL PROGRAM (NONMEM) VERSION 7.5.0
@@ -299,7 +304,7 @@ Days until program expires :  46
  EXCLUDE NON-INFLUENTIAL (NON-INFL.) ETAS
        IN SHRINKAGE (ETASTYPE):             NO
  NON-INFL. ETA CORRECTION (NONINFETA):      0
- RAW OUTPUT FILE (FILE): psn.ext
+ RAW OUTPUT FILE (FILE): xgxr033.ext
  EXCLUDE TITLE (NOTITLE):                   NO
  EXCLUDE COLUMN LABELS (NOLABEL):           NO
  FORMAT FOR ADDITIONAL FILES (FORMAT):      S1PE12.5
@@ -342,13 +347,13 @@ Days until program expires :  46
  nm:cond_estim='yes' nm:centered_eta='no' nm:epseta_interaction='yes' nm:laplace='no' nm:predflag='0' nm:maxfn='99999'
  nm:nsig='3' nm:msfo='yes' nm:abort='no' nm:objsort='no' nm:numder='0' nm:optmap='0' nm:etader='0' nm:mceta='0' nm:siglo='100'
  nm:sigl='100' nm:noprior='0' nm:nocov='0' nm:dercont='0' nm:atol='0' nm:fnleta='1' nm:etastype='0' nm:noninfeta='0'
- nm:file='psn.ext' nm:notitle='0' nm:nolabel='0' nm:format='s1pe12.5' nm:order='tsol' nm:knuthsumoff='0' nm:lntwopi='0'
- nm:priorc='0' nm:olntwopi='0' nm:estimation_method='saem' nm:mum='BLANK' nm:grd='BLANK' nm:auto='0' nm:ctype='3'
- nm:cinterval='10' nm:citer='10' nm:calpha='5.000000000000000E-02' nm:nburn='1000' nm:mapiters='0' nm:niter='1000'
- nm:constrain='1' nm:anneal='BLANK' nm:seed='3442' nm:clockseed='0' nm:isample='2' nm:ranmethod='3up' nm:eonly='0'
- nm:iscale_min='1.000000000000000E-06' nm:iscale_max='1000000.00000000' nm:iaccept='0.400000000000000'
- nm:isample_m1='2' nm:isample_m1a='0' nm:isample_m1b='2' nm:isample_m2='2' nm:isample_m3='2'
- nm:ikappa='1.00000000000000' nm:massreset='-1'
+ nm:file='xgxr033.ext' nm:notitle='0' nm:nolabel='0' nm:format='s1pe12.5' nm:order='tsol' nm:knuthsumoff='0'
+ nm:lntwopi='0' nm:priorc='0' nm:olntwopi='0' nm:estimation_method='saem' nm:mum='BLANK' nm:grd='BLANK' nm:auto='0'
+ nm:ctype='3' nm:cinterval='10' nm:citer='10' nm:calpha='5.000000000000000E-02' nm:nburn='1000' nm:mapiters='0'
+ nm:niter='1000' nm:constrain='1' nm:anneal='BLANK' nm:seed='3442' nm:clockseed='0' nm:isample='2' nm:ranmethod='3up'
+ nm:eonly='0' nm:iscale_min='1.000000000000000E-06' nm:iscale_max='1000000.00000000'
+ nm:iaccept='0.400000000000000' nm:isample_m1='2' nm:isample_m1a='0' nm:isample_m1b='2' nm:isample_m2='2'
+ nm:isample_m3='2' nm:ikappa='1.00000000000000' nm:massreset='-1'
 />
 <nm:monitor>
 <nm:obj nm:iteration='-1000'>990.83363640978314</nm:obj>
@@ -563,11 +568,11 @@ Days until program expires :  46
 <nm:col nm:cname='EPS2'>100.00000000000000</nm:col>
 </nm:row>
 </nm:epsshrinkvr>
-<nm:estimation_elapsed_time>31.73</nm:estimation_elapsed_time>
+<nm:estimation_elapsed_time>26.03</nm:estimation_elapsed_time>
 <nm:covariance_information><![CDATA[
 ]]></nm:covariance_information>
 <nm:covariance_status nm:error='0' nm:numnegeigenvalues='0' nm:mineigenvalue='0.20360782735985869' nm:maxeigenvalue='11405.102934068396' nm:rms='0.0000000000000000'/>
-<nm:covariance_elapsed_time>0.01</nm:covariance_elapsed_time>
+<nm:covariance_elapsed_time>0.06</nm:covariance_elapsed_time>
 <nm:final_objective_function_text>FINAL VALUE OF LIKELIHOOD FUNCTION</nm:final_objective_function_text>
 <nm:final_objective_function>-2270.8598625211821</nm:final_objective_function>
 <nm:theta>
@@ -1745,7 +1750,7 @@ Days until program expires :  46
  EXCLUDE NON-INFLUENTIAL (NON-INFL.) ETAS
        IN SHRINKAGE (ETASTYPE):             NO
  NON-INFL. ETA CORRECTION (NONINFETA):      0
- RAW OUTPUT FILE (FILE): psn.ext
+ RAW OUTPUT FILE (FILE): xgxr033.ext
  EXCLUDE TITLE (NOTITLE):                   NO
  EXCLUDE COLUMN LABELS (NOLABEL):           NO
  FORMAT FOR ADDITIONAL FILES (FORMAT):      S1PE12.5
@@ -1784,12 +1789,12 @@ Days until program expires :  46
  nm:cond_estim='yes' nm:centered_eta='no' nm:epseta_interaction='yes' nm:laplace='no' nm:predflag='0' nm:maxfn='99999'
  nm:nsig='3' nm:msfo='yes' nm:abort='no' nm:objsort='no' nm:numder='0' nm:optmap='0' nm:etader='0' nm:mceta='0' nm:siglo='100'
  nm:sigl='100' nm:noprior='0' nm:nocov='0' nm:dercont='0' nm:atol='0' nm:fnleta='1' nm:etastype='0' nm:noninfeta='0'
- nm:file='psn.ext' nm:notitle='0' nm:nolabel='0' nm:format='s1pe12.5' nm:order='tsol' nm:knuthsumoff='0' nm:lntwopi='0'
- nm:priorc='0' nm:olntwopi='0' nm:estimation_method='imp' nm:mum='BLANK' nm:grd='BLANK' nm:auto='0' nm:ctype='3'
- nm:cinterval='1' nm:citer='10' nm:calpha='5.000000000000000E-02' nm:niter='20' nm:constrain='1' nm:anneal='BLANK'
- nm:seed='3442' nm:clockseed='0' nm:isample='5000' nm:ranmethod='3up' nm:eonly='1' nm:iscale_min='0.100000000000000'
- nm:iscale_max='10.0000000000000' nm:iaccept='0.400000000000000' nm:iacceptl='0.00000000000000' nm:df='0'
- nm:mapiter='1' nm:mapinter='0' nm:mapcov='1' nm:grdq='0.00000000000000'
+ nm:file='xgxr033.ext' nm:notitle='0' nm:nolabel='0' nm:format='s1pe12.5' nm:order='tsol' nm:knuthsumoff='0'
+ nm:lntwopi='0' nm:priorc='0' nm:olntwopi='0' nm:estimation_method='imp' nm:mum='BLANK' nm:grd='BLANK' nm:auto='0'
+ nm:ctype='3' nm:cinterval='1' nm:citer='10' nm:calpha='5.000000000000000E-02' nm:niter='20' nm:constrain='1'
+ nm:anneal='BLANK' nm:seed='3442' nm:clockseed='0' nm:isample='5000' nm:ranmethod='3up' nm:eonly='1'
+ nm:iscale_min='0.100000000000000' nm:iscale_max='10.0000000000000' nm:iaccept='0.400000000000000'
+ nm:iacceptl='0.00000000000000' nm:df='0' nm:mapiter='1' nm:mapinter='0' nm:mapcov='1' nm:grdq='0.00000000000000'
 />
 <nm:monitor>
 <nm:obj nm:iteration='0' nm:effective='5594.0077633425180' nm:sample='5000.0000000000000' nm:fitness='0.94133153422770599'>-1723.1126094749075</nm:obj>
@@ -1904,11 +1909,11 @@ Days until program expires :  46
 <nm:col nm:cname='EPS2'>100.00000000000000</nm:col>
 </nm:row>
 </nm:epsshrinkvr>
-<nm:estimation_elapsed_time>41.98</nm:estimation_elapsed_time>
+<nm:estimation_elapsed_time>37.12</nm:estimation_elapsed_time>
 <nm:covariance_information><![CDATA[
 ]]></nm:covariance_information>
 <nm:covariance_status nm:error='0' nm:numnegeigenvalues='0' nm:mineigenvalue='0.20467417447120742' nm:maxeigenvalue='11319.728184671500' nm:rms='0.0000000000000000'/>
-<nm:covariance_elapsed_time>177.60</nm:covariance_elapsed_time>
+<nm:covariance_elapsed_time>141.47</nm:covariance_elapsed_time>
 <nm:final_objective_function_text>FINAL VALUE OF OBJECTIVE FUNCTION</nm:final_objective_function_text>
 <nm:final_objective_function>-1723.0761666334649</nm:final_objective_function>
 <nm:theta>
@@ -3053,11 +3058,11 @@ Days until program expires :  46
 </nm:eigenvalues>
 </nm:estimation>
 <nm:post_process_times>
-<nm:post_elapsed_time>0.05</nm:post_elapsed_time>
-<nm:finaloutput_elapsed_time>0.03</nm:finaloutput_elapsed_time>
+<nm:post_elapsed_time>0.04</nm:post_elapsed_time>
+<nm:finaloutput_elapsed_time>0.21</nm:finaloutput_elapsed_time>
 </nm:post_process_times>
 </nm:problem>
 </nm:nonmem>
-<nm:stop_datetime>2023-12-03T20:56:39.536</nm:stop_datetime>
-<nm:total_cputime>251.444</nm:total_cputime>
+<nm:stop_datetime>2024-10-27T13:46:14.023</nm:stop_datetime>
+<nm:total_cputime>202.239</nm:total_cputime>
 </nm:output>

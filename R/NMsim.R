@@ -928,6 +928,9 @@ n.fn.sim <- NULL
         dt.models[,
         {
             if(!file.exists(fnExtension(file.mod,"lst"))){
+##:ess-bp-start::browser@nil:##
+browser(expr=is.null(.ESSBP.[["@6@"]]));##:ess-bp-end:##
+                
                 stop("When using method.update.inits=\"psn\", an output control stream with file name extensions .lst must be located next to the input control stream. Consider also `method.update.inits=\"nmsim\"`.")
             }
             cmd.update <- sprintf("%s --output_model=\"%s\" \"%s\"",normalizePath(cmd.update.inits,mustWork=FALSE),fn.sim.tmp,normalizePath(file.mod))

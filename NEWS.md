@@ -2,16 +2,27 @@
 
 ## New features
 
-* `sampleParsSimpar()` is a new function that automates sampling of parameter values from an estimated variance-variance matrix in a successful `$COVARIANCE` step using the `simpar` R package from Metrum Research Group. The package is currently not on CRAN
+* `sampleParsSimpar()` is a new function that automates sampling of
+  parameter values from an estimated variance-variance matrix in a
+  successful `$COVARIANCE` step using the `simpar` R package from
+  Metrum Research Group. `simpar` is currently not on CRAN, so the
+  user must install it from MPN or github to make use of
+  `sampleParsSimpar()`. The sampled parameter values can be fed
+  directly to `NMsim` using the `NMsim_VarCov` method making it very
+  easy to simulate with parameter uncertainty based on `simpar`.
 
-* `expandCovLists()`
+* `expandCovLists()` is a new function that puts together data sets
+  for univariately varying covariates while keeping other at reference
+  values. The function can derive both reference values and covariate
+  values to simulate at by using i.e. `median()` and `quantile()`.
 
-* `addEVID2()`
-
-* `NMsim()`
+* `NMsim()` 
 
   - Results are now equipped with three columns distinguishing
-    simulated models.
+    simulated models. This separation of information makes it easier to summarize simulation results within/across models and/or within/across simulation of models. 
+	- `model`: The run name derived from `file.mod`. 
+	- `name.sim`: The same as provided in the `name.sim` argument.
+	- `model.sim` The name of the generated model. In the simple case, this is `model` and `name.sim` combined. But in many cases, multiple models are being generated for each simulated control stream.
 
   - No longer requires a `.ext` file if updating parameter values using
   PSN's `update_inits`. It is still recommended to keep the `.ext`
@@ -43,10 +54,21 @@
     arguments. In contrast to other arguments, it does not make much
     sense to try to extrapolate the `TIME` argument.
 
+* `addEVID2()` now has two arguments, `TIME` and `TAPD` which allow
+  for specification of time since first dose and time after each  dose
+  at which to insert simulation records. The two can even be
+  combined. `TIME` replaces the now deprecated `time.sim` argument,
+  and `TAPD` is new.
+
+
 ## Bugfixes
 
-A bug most likely affecting most Windows users for execution of Nonmem
+* A bug most likely affecting most Windows users for execution of Nonmem
 has been fixed. If on Windows, you should upgrade to NMsim 0.1.4.
+
+* When using `method.execute="nmsim"` there was an issue with
+  parallellization. This was not a major problem in most simulation
+  applications, but it should now be fixed.
 
 * `NMsim()`
   - When not providing a simulation data set - typically a simulation

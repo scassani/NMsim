@@ -169,7 +169,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
     ## not needed with NMdata 0.1.6 or 0.1.7
     if(is.null(nc)) nc <- 64
     
-    if(NMsimConf$method.execute=="nmsim" && nc>1){message("\nNotice: nc>1 still does not work with method.execute=\"nmsim\". Expect single-core performance. Notice there are other and most often more efficient methods to speed up simulations. See discussions on the NMsim website.")}
+    ## if(NMsimConf$method.execute=="nmsim" && nc>1){message("\nNotice: nc>1 still does not work with method.execute=\"nmsim\". Expect single-core performance. Notice there are other and most often more efficient methods to speed up simulations. See discussions on the NMsim website.")}
 
     
     ## args.psn.execute
@@ -261,13 +261,16 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
         }
 
 
-        if((sge && nc > 1)||(sge && NMsimConf$method.execute=="psn")){
+        ##if((sge && nc > 1)||(sge && NMsimConf$method.execute=="psn")){
+        if( sge ){
             if(nc>1){
-                ## file.pnm <- file.path(rundir,"NMexec.pnm")
-                ## file.pnm <- fnExtension(file.mod,"pnm")
                 file.pnm <- file.path(rundir,fnExtension(basename(file.mod),"pnm"))
                 pnm <- NMgenPNM(nc=nc,file=file.pnm)
                 files.needed <- unique(c(files.needed,pnm) )
+            } else {
+                ## for nc=1, the pnm file setup does not seem to work.
+                if(!quiet) message("sge is disabled because nc=1")
+                sge <- FALSE
             }
         }
 
@@ -291,9 +294,11 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
         
         if(NMsimConf$method.execute=="nmsim"){
             
-            string.cmd <- NMexecDirectory(file.mod,NMsimConf$path.nonmem,files.needed=files.needed,system.type=NMsimConf$system.type,dir.data=dir.data,clean=clean)
+            string.cmd <- NMexecDirectory(file.mod,NMsimConf$path.nonmem,files.needed=files.needed,system.type=NMsimConf$system.type,dir.data=dir.data,clean=clean,sge,nc,pnm=pnm)
             dir.tmp <- dirname(string.cmd)
-            if(sge) {
+
+            if(F){
+                ##         if(sge) {
 
                 if(nc==1){
                     ## string.cmd <- sprintf("cd %s; qsub -terse -wd \'%s\' %s",getwd(),dirname(string.cmd),string.cmd)
@@ -318,20 +323,21 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
                                          ,nc
                                          ,jobname
                                          ,basename(string.cmd)
-                                         ##,basename(pnm)
+                                          ##,basename(pnm)
                                          ,getAbsolutePath(pnm)
                                          ,nc
                                          ,getwd())
                 }
                 wait <- TRUE
-            } else {
-                if(NMsimConf$system.type=="linux"){
-                    string.cmd <- sprintf("cd \"%s\"; \"./%s\"",dirname(string.cmd),basename(string.cmd))
-                } 
-                if(NMsimConf$system.type=="windows"){
-                    string.cmd <- sprintf("CD \"%s\";call \"%s\"",dirname(string.cmd),basename(string.cmd))
-                }
             }
+            ## } else { 
+            if(NMsimConf$system.type=="linux"){
+                string.cmd <- sprintf("cd \"%s\"; \"./%s\"",dirname(string.cmd),basename(string.cmd))
+            }
+            if(NMsimConf$system.type=="windows"){
+                string.cmd <- sprintf("CD \"%s\";call \"%s\"",dirname(string.cmd),basename(string.cmd))
+            }
+            ## }
         }
         
         if(NMsimConf$system.type=="windows"){
@@ -347,12 +353,15 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
             shell(shQuote(paste("call", path.script),type="cmd") )
         }
         if(NMsimConf$system.type=="linux"){
+            
             if(nmquiet) string.cmd <- paste(string.cmd, ">/dev/null 2>&1")
             if(!wait) string.cmd <- paste(string.cmd,"&")
             if(exists("dir.tmp") && !is.null(dir.tmp)) {          
                 writeTextFile(string.cmd,file.path(dir.tmp,"NMexec_command.txt"))
             }
-            system(string.cmd,ignore.stdout=nmquiet)
+            
+            procres <- system(string.cmd,ignore.stdout=nmquiet)
+            if(procres!=0) stop("Nonmem failed. Exiting.")
         }
     }
 

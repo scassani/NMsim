@@ -370,11 +370,18 @@ test_that("SAEM - default",{
     
     if(F){
         ref <- readRDS(fileRef)
+        ref
         simres
         compareCols(simres,ref)
 
-        compareCols(attributes(simres)$NMsimModTab,
-                    attributes(ref)$NMsimModTab)
+        attributes(simres)
+        attributes(ref)
+        
+        compareCols(
+            attributes(simres)$NMsimModTab
+           ,
+            attributes(ref)$NMsimModTab
+        )
     }
 
 
@@ -412,13 +419,16 @@ test_that("SAEM - known",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres,ref)
-
+        ref$IPRED
+        simres$IPRED
+        
         compareCols(attributes(simres)$NMsimModTab,
                     attributes(ref)$NMsimModTab)
         expect_equal(
             attributes(simres)$NMsimModTab
            ,
-            attributes(ref)$NMsimModTab)
+            attributes(ref)$NMsimModTab
+        )
     }
 
 
@@ -588,8 +598,11 @@ test_that("default with renaming",{
         compareCols(simres,ref)
         ref
         simres
-        compareCols(attributes(simres)$NMsimModTab,
-                    attributes(ref)$NMsimModTab)
+        compareCols(
+            attributes(simres)$NMsimModTab
+           ,
+            attributes(ref)$NMsimModTab
+        )
     }
 
 
@@ -632,7 +645,8 @@ test_that("default with nc>1",{
                     dir.sims="testOutput",
                     name.sim="default_nc"
                    ,method.execute="nmsim"
-                   ,nc=2
+                    ## ,method.execute="psn"
+                   ,nc=32
                    ,sge=TRUE
                    ,path.nonmem="/opt/NONMEM/nm75/run/nmfe75"
                    ,wait=F
@@ -733,7 +747,7 @@ test_that("dir.sims and dir.res with NMdataConf",{
         compareCols(simres,ref)
         ref
         simres
-       
+        
         compareCols(attributes(simres)$NMsimModTab,
                     attributes(ref)$NMsimModTab)
     }
@@ -748,7 +762,7 @@ test_that("dir.sims and dir.res with NMdataConf",{
 
 test_that("basic - a model that fails on NMTRAN",{
 
-    ### This used to return an error. For now, it's returning NULL.
+### This used to return an error. For now, it's returning NULL.
     
     ## fileRef <- "testReference/NMsim_01.rds"
 
@@ -759,21 +773,26 @@ test_that("basic - a model that fails on NMTRAN",{
 
     set.seed(43)
 
-        simres <- NMsim(file.mod,
-                        data=dt.sim,
-                        ## table.var="PRED IPRED",
-                        ## dir.sims="testOutput",
-                        name.sim="nmtranfail"
-                       ,sge=F
-                       ,nmquiet=F
-                       ,wait=TRUE,
-                        path.nonmem=path.nonmem
-                        )
-        expect_equal(nrow(simres),0)
+    expect_error(
 
-        expect_equal(
-            nrow(NMreadSim(simres)),0
-        )
+        NMsim(file.mod,
+              data=dt.sim,
+              ## table.var="PRED IPRED",
+              ## dir.sims="testOutput",
+              name.sim="nmtranfail"
+             ,sge=F
+             ,nmquiet=F
+             ,wait=TRUE,
+              path.nonmem=path.nonmem
+              )
+
+    )
+
+    ## expect_equal(nrow(simres),0)
+
+    ## expect_equal(
+    ##     nrow(NMreadSim(simres)),0
+    ## )
 
 })
 

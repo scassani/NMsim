@@ -1,9 +1,13 @@
-Sun Dec  3 20:52:22 EST 2023
+Sun Oct 27 13:42:42 EDT 2024
 $PROBLEM    032 but will only work when respecting $INPUT
-$INPUT      ROW ID NOMTIME TIME EVID CMT AMT DV FLAG STUDY BLQ CYCLE
-            DOSE2 PART PROFDAY PROFTIME WEIGHTB eff0
+
+$INPUT ROW ID NOMTIME TIME EVID CMT AMT DV FLAG STUDY
+BLQ CYCLE DOSE2 PART PROFDAY PROFTIME WEIGHTB eff0
+
 $DATA      xgxr2.csv IGNORE=@ IGNORE=(FLAG.NE.0) IGNORE(DOSE2.LT.30)
+
 $SUBROUTINE ADVAN4 TRANS4
+
 $PK
 LTVKA=THETA(1)*DOSE2**(-.05)
 LTVV2=THETA(2)
@@ -37,30 +41,31 @@ $ERROR
   Y=F+F*ERR(1)+ERR(2)
 
 ;-----------------------INITIAL ESTIMATES---------------------------------
-$THETA  .1 ; LTVKA
-$THETA  3 ; LTVV2
-$THETA  1 ; LTVCL
-$THETA  4 ; LTVV3
-$THETA  -1 ; LTVQ
-$OMEGA  0  FIX
-$OMEGA  0.1
-$OMEGA  0.1
-$OMEGA  0  FIX
-$OMEGA  0  FIX
-$SIGMA  0.1
-$SIGMA  0  FIX
+$THETA  (.1)             ; LTVKA
+$THETA  (3)             ; LTVV2
+$THETA  (1)             ; LTVCL
+$THETA  (4)             ; LTVV3
+$THETA  (-1)             ; LTVQ
+
+$OMEGA 0 FIX
+$OMEGA 0.1
+$OMEGA 0.1
+$OMEGA 0 FIX
+$OMEGA 0 FIX
+
+$SIGMA 0.1
+$SIGMA 0 FIX
+
 ;; $ESTIMATION METHOD=1 POSTHOC INTER MAXEVAL=9999 NSIG=2 SIGL=9
 ;;            PRINT=10 NOABORT MSFO=xgxr032.msf
-$ESTIMATION METHOD=SAEM INTERACTION NOABORT NBURN=1000 NITER=1000
-            CTYPE=3 MAX=99999 NSIG=3 SEED=3442 PRINT=10 RANMETHOD=P
-            MSFO=xgxr032.msf
-$ESTIMATION METHOD=IMP INTERACTION EONLY=1 NITER=20 PRINT=1
-            ISAMPLE=5000 RANMETHOD=P
-$COVARIANCE PRINT=E
-$TABLE      ROW KA V2 V3 CL Q PRED IPRED Y NOPRINT
-            FILE=xgxr032_res.txt
-$TABLE      ETAS(1:LAST) NOAPPEND NOPRINT FILE=xgxr032_etas.txt
+$ESTIMATION METHOD=SAEM INTERACTION NOABORT NBURN=1000 NITER=1000 CTYPE=3 MAX=99999 NSIG=3 SEED=3442 PRINT=10 RANMETHOD=P MSFO=xgxr032.msf
 
+$ESTIMATION METHOD=IMP INTERACTION EONLY=1 NITER=20 PRINT=1 ISAMPLE=5000 RANMETHOD=P
+																	    
+$COV PRINT=E
+
+$TABLE ROW KA V2 V3 CL Q PRED IPRED Y NOPRINT FILE=xgxr032_res.txt
+$TABLE ETAS(1:LAST) NOAPPEND NOPRINT FILE=xgxr032_etas.txt
 
 NM-TRAN MESSAGES
   
@@ -80,9 +85,9 @@ NM-TRAN MESSAGES
  IT IS POSSIBLE THAT SOME WARNING MESSAGES WERE SUPPRESSED.
 
 License Registered to: Vertex Pharmaceuticals Inc
-Expiration Date:    14 JAN 2024
-Current Date:        3 DEC 2023
-Days until program expires :  46
+Expiration Date:    14 JAN 2025
+Current Date:       27 OCT 2024
+Days until program expires :  82
 1NONLINEAR MIXED EFFECTS MODEL PROGRAM (NONMEM) VERSION 7.5.0
  ORIGINALLY DEVELOPED BY STUART BEAL, LEWIS SHEINER, AND ALISON BOECKMANN
  CURRENT DEVELOPERS ARE ROBERT BAUER, ICON DEVELOPMENT SOLUTIONS,
@@ -268,7 +273,7 @@ Days until program expires :  46
  EXCLUDE NON-INFLUENTIAL (NON-INFL.) ETAS
        IN SHRINKAGE (ETASTYPE):             NO
  NON-INFL. ETA CORRECTION (NONINFETA):      0
- RAW OUTPUT FILE (FILE): psn.ext
+ RAW OUTPUT FILE (FILE): xgxr033.ext
  EXCLUDE TITLE (NOTITLE):                   NO
  EXCLUDE COLUMN LABELS (NOLABEL):           NO
  FORMAT FOR ADDITIONAL FILES (FORMAT):      S1PE12.5
@@ -474,8 +479,8 @@ Days until program expires :  46
  REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
   
  #TERE:
- Elapsed estimation  time in seconds:    31.73
- Elapsed covariance  time in seconds:     0.01
+ Elapsed estimation  time in seconds:    26.03
+ Elapsed covariance  time in seconds:     0.06
 1
  
  
@@ -1045,7 +1050,7 @@ Days until program expires :  46
  EXCLUDE NON-INFLUENTIAL (NON-INFL.) ETAS
        IN SHRINKAGE (ETASTYPE):             NO
  NON-INFL. ETA CORRECTION (NONINFETA):      0
- RAW OUTPUT FILE (FILE): psn.ext
+ RAW OUTPUT FILE (FILE): xgxr033.ext
  EXCLUDE TITLE (NOTITLE):                   NO
  EXCLUDE COLUMN LABELS (NOLABEL):           NO
  FORMAT FOR ADDITIONAL FILES (FORMAT):      S1PE12.5
@@ -1141,8 +1146,8 @@ Days until program expires :  46
  TOTAL EFFECTIVE ETAS (NIND*NETA):                           180
   
  #TERE:
- Elapsed estimation  time in seconds:    41.98
- Elapsed covariance  time in seconds:   177.60
+ Elapsed estimation  time in seconds:    37.12
+ Elapsed covariance  time in seconds:   141.47
 1
  
  
@@ -1677,8 +1682,8 @@ Days until program expires :  46
  
          8.88E-02  3.11E-01  4.20E-01  6.18E-01  8.11E-01  9.90E-01  1.32E+00  3.45E+00
  
- Elapsed postprocess time in seconds:     0.05
- Elapsed finaloutput time in seconds:     0.03
- #CPUT: Total CPU Time in Seconds,      251.444
+ Elapsed postprocess time in seconds:     0.04
+ Elapsed finaloutput time in seconds:     0.21
+ #CPUT: Total CPU Time in Seconds,      202.239
 Stop Time:
-Sun Dec  3 20:56:39 EST 2023
+Sun Oct 27 13:46:15 EDT 2024

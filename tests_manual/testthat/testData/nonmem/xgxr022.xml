@@ -5,7 +5,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://namespaces.oreilly.com/xmlnut/address output.xsd"
 xmlns:nm="http://namespaces.oreilly.com/xmlnut/address"
 >
-<nm:start_datetime>2024-08-20T13:30:17.676</nm:start_datetime>
+<nm:start_datetime>2024-10-27T13:37:18.595</nm:start_datetime>
 <nm:control_stream><![CDATA[
 $PROBLEM    021 with CL:V2 corr
 $INPUT      ROW ID NOMTIME TIME EVID CMT AMT DV FLAG STUDY BLQ CYCLE
@@ -78,8 +78,8 @@ $TABLE      ROW TVKA TVV2 TVV3 TVCL KA V2 V3 CL Q PRED IPRED Y NOPRINT
 <nm:license_information><![CDATA[
 License Registered to: Vertex Pharmaceuticals Inc
 Expiration Date:    14 JAN 2025
-Current Date:       20 AUG 2024
-Days until program expires : 149
+Current Date:       27 OCT 2024
+Days until program expires :  82
 ]]></nm:license_information>
 <nm:program_information><![CDATA[
 1NONLINEAR MIXED EFFECTS MODEL PROGRAM (NONMEM) VERSION 7.5.0
@@ -427,11 +427,11 @@ Days until program expires : 149
 <nm:col nm:cname='EPS2'>100.00000000000000</nm:col>
 </nm:row>
 </nm:epsshrinkvr>
-<nm:estimation_elapsed_time>1.46</nm:estimation_elapsed_time>
+<nm:estimation_elapsed_time>1.30</nm:estimation_elapsed_time>
 <nm:covariance_information><![CDATA[
 ]]></nm:covariance_information>
 <nm:covariance_status nm:error='0' nm:numnegeigenvalues='-1' nm:mineigenvalue='0.0000000000000000' nm:maxeigenvalue='0.0000000000000000' nm:rms='0.0000000000000000'/>
-<nm:covariance_elapsed_time>2.17</nm:covariance_elapsed_time>
+<nm:covariance_elapsed_time>1.89</nm:covariance_elapsed_time>
 <nm:final_objective_function_text>MINIMUM VALUE OF OBJECTIVE FUNCTION</nm:final_objective_function_text>
 <nm:final_objective_function>-1710.3735054308333</nm:final_objective_function>
 <nm:theta>
@@ -1566,11 +1566,11 @@ Days until program expires : 149
 </nm:invcovariance>
 </nm:estimation>
 <nm:post_process_times>
-<nm:post_elapsed_time>0.04</nm:post_elapsed_time>
-<nm:finaloutput_elapsed_time>0.03</nm:finaloutput_elapsed_time>
+<nm:post_elapsed_time>0.03</nm:post_elapsed_time>
+<nm:finaloutput_elapsed_time>0.05</nm:finaloutput_elapsed_time>
 </nm:post_process_times>
 </nm:problem>
 </nm:nonmem>
-<nm:stop_datetime>2024-08-20T13:30:21.527</nm:stop_datetime>
-<nm:total_cputime>3.851</nm:total_cputime>
+<nm:stop_datetime>2024-10-27T13:37:22.259</nm:stop_datetime>
+<nm:total_cputime>3.381</nm:total_cputime>
 </nm:output>

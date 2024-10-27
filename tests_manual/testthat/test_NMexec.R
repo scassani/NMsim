@@ -114,6 +114,20 @@ test_that("default - specify no of threads",{
 
 })
 
+test_that("default - specify no of threads - method.execute=nmsim",{
+
+    fileRef <- "testReference/NMexec_04b.rds"
+
+    file.mod <- "testData/nonmem/xgxr033.mod"
+
+    ## set.seed(43)
+    res <- NMexec(file.mod,nc=72,path.nonmem=path.nonmem)
+
+    expect_equal_to_reference(res,fileRef)
+
+})
+
+
 
 test_that("multiple $TABLE",{
 

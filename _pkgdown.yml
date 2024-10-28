@@ -7,13 +7,7 @@ template:
         async src="//gc.zgo.at/count.js"></script>
 navbar:
   structure:
-    left:
-    - home
-    - articles
-    - reference
-    - pub
-    - news
-    - github
+    left: [home, articles, reference, pub, news, github]
   components:
    home:
     title: Simulation of Nonmem models from R

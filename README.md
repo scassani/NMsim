@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# NMsim
+# NMdata<a href='https://philipdelff.github.io/NMdata/'><img src='man/figures/NMsimlogo_alternate.png' align="right" height="120" /></a>
 
 <!-- badges: start -->
 

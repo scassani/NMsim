@@ -17,8 +17,7 @@ library(NMsim)
 NMdataConf(reset=TRUE)
 ```
 
-
-# NMsim
+# NMdata<a href='https://philipdelff.github.io/NMdata/'><img src='man/figures/NMsimlogo_alternate.png' align="right" height="120" /></a>
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN status](https://www.r-pkg.org/badges/version/NMsim)](https://CRAN.R-project.org/package=NMsim)

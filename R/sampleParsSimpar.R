@@ -15,21 +15,18 @@
 ##' @author Sanaya Shroff, Philip Delff
 ##' @export
 
-sampleParsSimpar <- function(file.mod,nsim,format="ext",as.fun){
+sampleParsSimpar <- function(file.mod,nsim,format="ext",as.fun,seed.R){
 
     
     if(packageVersion("NMdata")<"0.1.7.905"){
         stop("sampleParsSimpar requires NMdata 0.1.8 or later.")
     }
 
-
     DF2 <- NULL 
     iblock  <- NULL
     par.type <- NULL
     value <- NULL
 
-    if(missing(as.fun)) as.fun <- NULL
-    as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
     
     loadres <- requireNamespace("simpar",quietly=TRUE)
     if(!loadres) {
@@ -37,6 +34,13 @@ sampleParsSimpar <- function(file.mod,nsim,format="ext",as.fun){
         return(NULL)        
     }
 
+    if(missing(as.fun)) as.fun <- NULL
+    as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
+    
+    if(!missing(seed.R) && !is.null(seed.R)) {
+        set.seed(seed=seed.R)
+    }
+    
     ## read param distributions from ext file
     pars <- NMreadExt(file=file.mod,as.fun="data.table")
 

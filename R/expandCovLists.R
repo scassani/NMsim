@@ -35,7 +35,7 @@
 ##' }
 ##' @export
 
-expandCovLists <- function(...,data,col.id,sigdigs=2){
+expandCovLists <- function(...,data,col.id="ID",sigdigs=2){
 
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####

@@ -39,9 +39,9 @@ navbar:
         href: articles/NMsim-ReuseSimSubjects.html
       - text: Debugging, Speed, and Disk Space
         href: articles/NMsim-speed.html
-  pub:
-    text: Publications
-    href: articles/NMsim-publications.html
-  news:
-    text: News
-    href: news/index.html
+   pub:
+      text: "Publications"
+      href: articles/NMsim-publications.html
+   news:
+      text: News
+      href: news/index.html

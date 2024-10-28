@@ -10,7 +10,10 @@ NMexecDirectory(
   files.needed,
   dir.data = "..",
   system.type,
-  clean
+  clean,
+  sge = nc > 1,
+  nc = 1,
+  pnm
 )
 }
 \arguments{

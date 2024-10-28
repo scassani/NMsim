@@ -35,6 +35,7 @@ dat.sim[,ROW:=.I]
 dat.sim[,BBW:=75]
 
 if(F){
+
     ## testOutput/NMsim_xgxr021_sd1_NMreadSim_paths.rds
     file.mod <- "testData/nonmem/xgxr021.mod"
 
@@ -52,85 +53,87 @@ if(F){
 
 
 
-if(F){
-    test_that("Basic",{
-        fileRef <- "testReference/NMreadSim_01.rds"
-        ## ref <- readRDS(fileRef)
-        res1 <- NMreadSim("testData/simres/xgxr021_sd1_NMreadSim_MetaData.rds")
+## if(F){
+test_that("Basic",{
+    fileRef <- "testReference/NMreadSim_01.rds"
+    ## ref <- readRDS(fileRef)
+    res1 <- NMreadSim("testData/simres/xgxr021_sd1_NMreadSim_MetaData.rds")
 
-        fix.time(res1)
-        
-        expect_equal_to_reference(res1,fileRef)
+    fix.time(res1)
+    
+    expect_equal_to_reference(res1,fileRef)
 
-        if(F){
-            ref <- readRDS(fileRef)
-            compareCols(res1,ref)
+    if(F){
+        ref <- readRDS(fileRef)
+        compareCols(res1,ref)
 
-            compareCols(
-                attributes(res1)$NMsimModTab
-               ,
-                attributes(ref)$NMsimModTab
-               ,keep.names=FALSE)
-        }
+        compareCols(
+            attributes(res1)$NMsimModTab
+           ,
+            attributes(ref)$NMsimModTab
+           ,keep.names=FALSE)
+    }
 
-    })
-}
+})
+## }
 
-if(F){
-    test_that("Reading fst directly",{
-        ## NMdataConf(as.fun="data.table")
-        
-        fileRef <- "testReference/NMreadSim_02.rds"
-        ## ref <- readRDS(fileRef)
-        res1 <- NMreadSim("testData/simres/xgxr021_sd1_NMreadSim_ResultsData.fst")
-        ## library(fst)
-        ## res1 <- read_fst("testOutput/xgxr021_sd1_NMreadSim_paths_res.fst",as.data.table=T)
+## if(F){
+test_that("Reading fst directly",{
+    ## NMdataConf(as.fun="data.table")
+    
+    fileRef <- "testReference/NMreadSim_02.rds"
+    ## ref <- readRDS(fileRef)
+    res1 <- NMreadSim("testData/simres/xgxr021_sd1_NMreadSim_ResultsData.fst")
+    ## library(fst)
+    ## res1 <- read_fst("testOutput/xgxr021_sd1_NMreadSim_paths_res.fst",as.data.table=T)
 
-        fix.time(res1)
-        
-        expect_equal_to_reference(res1,fileRef)
+    fix.time(res1)
+    
+    expect_equal_to_reference(res1,fileRef)
 
-        if(F){
-            ref <- readRDS(fileRef)
-            compareCols(res1,ref)
+    if(F){
+        ref <- readRDS(fileRef)
+        compareCols(res1,ref)
 
 ### attributes(res1)$NMsimModTab does not exist - thats why one should read the rds
-            ## compareCols(
-            ##     attributes(res1)$NMsimModTab
-            ##    ,
-            ##             attributes(ref)$NMsimModTab
-            ##            ,keep.names=FALSE
-            ##             )
-        }
+        ## compareCols(
+        ##     attributes(res1)$NMsimModTab
+        ##    ,
+        ##             attributes(ref)$NMsimModTab
+        ##            ,keep.names=FALSE
+        ##             )
+    }
 
-    })
+})
 
-}
-if(F){
-    test_that("From different wd",{
-        setwd("..")
-        fileRef <- "testReference/NMreadSim_03.rds"
-        ## ref <- readRDS(fileRef)
-        res1 <- NMreadSim("testthat/testData/simres/xgxr021_sd1_NMreadSim_MetaData.rds")
+## }
 
-        setwd("testthat")
-        
-        fix.time(res1)
-        
-## this should compare to _01 results instead
-        expect_equal_to_reference(res1,fileRef)
+## if(F){
+test_that("From different wd",{
+##    setwd("..")
+    fileRef <- "testReference/NMreadSim_03.rds"
+    ## ref <- readRDS(fileRef)
+    res1 <- NMreadSim("testData/simres/xgxr021_sd1_NMreadSim_MetaData.rds")
 
-        
-        if(F){
-            ref <- readRDS(fileRef)
-            compareCols(res1,ref)
+    ## setwd("testthat")
+    
+    fix.time(res1)
+    
+    ## this should compare to _01 results instead
+    expect_equal_to_reference(res1,fileRef)
 
-            compareCols(
-                attributes(res1)$NMsimModTab
-               ,
-                attributes(ref)$NMsimModTab
-               ,keep.names=FALSE)
-        }
+    
+    if(F){
+        ref <- readRDS(fileRef)
+        compareCols(res1,ref)
 
-    })
-}
+        compareCols(
+            attributes(res1)$NMsimModTab
+           ,
+            attributes(ref)$NMsimModTab
+           ,keep.names=FALSE)
+    }
+
+
+})
+## }

@@ -5,8 +5,9 @@ cleaningPatterns <- function(clean){
     c("nonmem","worker*","FDATA*","fort.*","WK_*")
 }
 
-
+##' Internal function to run Nonmem on linux
 ##' @param fn.mod Just the file name, not including path
+##' @keywords internal
 NMrunLin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,sge,nc,pnm){
 
     name <- NULL

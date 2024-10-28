@@ -26,10 +26,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: metrumresearchgroup/actions/mpn-latest@v1
       - name: Set up R ${{ matrix.r-version }}
         uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
         with:
           r-version: ${{ matrix.r-version }}
+          extra-repositories: 'https://mpn.metworx.com/snapshots/stable/${{ env.MPN_LATEST }}'
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::simpar
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))

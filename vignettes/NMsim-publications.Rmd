@@ -1,0 +1,34 @@
+---
+title: "NMsim related publications"
+output:
+rmarkdown::html_vignette:
+    toc: true
+    code_folding: show
+Suggests: markdown
+VignetteBuilder: knitr
+vignette: >
+  %\VignetteIndexEntry{Typical}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+header-includes:
+- \usepackage{ae}
+---
+
+```{r,include = FALSE}
+##knitr::opts_chunk$set(dev = "cairo_pdf")
+knitr::opts_chunk$set(
+                      collapse = TRUE
+                     ,comment = "#>"
+                     ,fig.width=7
+                     ,cache=FALSE
+                  )
+
+## this changes data.table syntax. I think we can do without.
+## knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60), tidy=TRUE)
+```
+
+## ACOP 2024
+
+NMsim - Seamless Nonmem Simulation Platform in R
+Authors: Philip Delff
+Supplementary material:

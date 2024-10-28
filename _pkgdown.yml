@@ -12,6 +12,7 @@ navbar:
     - articles
     - reference
     - news
+    - publications
     - github
   components:
    home:
@@ -47,3 +48,6 @@ navbar:
   news:
     text: News
     href: news/index.html
+  publications:
+    text: Publications
+    href: articles/publications.html

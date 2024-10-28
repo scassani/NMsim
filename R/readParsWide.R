@@ -74,7 +74,7 @@ readParsWide <- function(data,col.model=NULL,strings.par.type=c(THETA="^T.*",OME
 
 
 ###  Section end: Dummy variables, only not to get NOTE's in pacakge checks
-
+    
     
     if(!is.data.frame(data)){
         data <- fread(data)

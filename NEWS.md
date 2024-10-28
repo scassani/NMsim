@@ -9,7 +9,11 @@
   user must install it from MPN or github to make use of
   `sampleParsSimpar()`. The sampled parameter values can be fed
   directly to `NMsim` using the `NMsim_VarCov` method making it very
-  easy to simulate with parameter uncertainty based on `simpar`.
+  easy to simulate with parameter uncertainty based on `simpar`. I
+  want to thank Sanaya Shroff for her outstanding work on this
+  functionality and for her exciting work summarizing the available
+  methods for simulation with parameter uncertainty which she will be
+  sharing at ACoP 2024.
 
 * `expandCovLists()` is a new function that puts together data sets
   for univariately varying covariates while keeping other at reference

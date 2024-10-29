@@ -4,7 +4,7 @@
 \alias{expandCovLists}
 \title{Create data set where each covariate is univariately varied}
 \usage{
-expandCovLists(..., data, col.id, sigdigs = 2)
+expandCovLists(..., data, col.id = "ID", sigdigs = 2)
 }
 \arguments{
 \item{...}{Covariates provided as lists - see examples. The

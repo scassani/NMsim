@@ -21,6 +21,14 @@
 ##'     can be specified.
 ##' @param EVID The value to put in the EVID column for the created
 ##'     rows. Default is 2 but 0 may be prefered even for simulation.
+##' @param args.NMexpandDoses Only relevant - and likely not needed -
+##'     if data contains ADDL and II columns. If those columns are
+##'     included, `addEVID2()` will use `NMdata::NMexpanDoses()` to
+##'     evaluate the time of each dose. Other than the `data`
+##'     argument, `addEVID2()` relies on the default `NMexpanDoses()`
+##'     argument values. If this is insufficient, you can specify
+##'     other argument values in a list, or you can call
+##'     `NMdata::NMexpanDoses()` manually before calling `addEVID2()`.
 ##' @param as.fun The default is to return data as a data.frame. Pass
 ##'     a function (say `tibble::as_tibble`) in as.fun to convert to
 ##'     something else. If data.tables are wanted, use
@@ -74,7 +82,7 @@
 ##' @export 
 
 
-addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,as.fun,doses,time.sim){
+addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,as.fun,doses,time.sim){
     
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
@@ -96,6 +104,7 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,as.fun,doses,time.sim){
     if(missing(time.sim)) time.sim <- NULL
     if(missing(TIME)) TIME <- NULL
     if(missing(TAPD)) TAPD <- NULL
+    if(missing(args.NMexpandDoses)) args.NMexpandDoses <- NULL
 
     ### this requires NMdata 0.1.7
     ## args <- NMdata:::getArgs(sys.call(),parent.frame())
@@ -158,10 +167,13 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,as.fun,doses,time.sim){
         }
 
         
+        if(is.null(args.NMexpandDoses)) args.NMexpandDoses <- list()
+        args.NMexpandDoses$data <- data[EVID==1]
+        if(is.null(args.NMexpandDoses$quiet)) args.NMexpandDoses$quiet <- TRUE
+        doses.tmp <- do.call(NMexpandDoses,args.NMexpandDoses)
         
+        doses.tmp <- doses.tmp[,.(TDOS=TIME)][,DOSN:=.I]
         
-        doses.tmp <- data[EVID==1,.(TDOS=TIME)]
-        doses.tmp[,DOSN:=.I]
 
         ## setnames(dt.tapd,"TIME","TAPD")
         dt.obs.1 <- doses.tmp[,dt.tapd[],by=doses.tmp]

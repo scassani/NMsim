@@ -4,7 +4,7 @@
 \alias{sampleParsSimpar}
 \title{Sample model parameters using the `simpar` package}
 \usage{
-sampleParsSimpar(file.mod, nsim, format = "ext", as.fun)
+sampleParsSimpar(file.mod, nsim, format = "ext", seed.R, as.fun)
 }
 \arguments{
 \item{file.mod}{Path to model control stream. Will be used for
@@ -15,6 +15,8 @@ automatically be replaced by `.ext` and `.cov`.}
 to `simpar`.}
 
 \item{format}{"ext" (default) or "wide".}
+
+\item{seed.R}{seed value passed to set.seed().}
 
 \item{as.fun}{The default is to return data as a data.frame. Pass
 a function (say `tibble::as_tibble`) in as.fun to convert to

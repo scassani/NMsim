@@ -4,7 +4,17 @@
 \alias{addEVID2}
 \title{Add simulation records to dosing records}
 \usage{
-addEVID2(data, TIME, TAPD, CMT, EVID = 2, as.fun, doses, time.sim)
+addEVID2(
+  data,
+  TIME,
+  TAPD,
+  CMT,
+  EVID = 2,
+  args.NMexpandDoses,
+  as.fun,
+  doses,
+  time.sim
+)
 }
 \arguments{
 \item{data}{Nonmem-style data set. If using `TAPD` an `EVID`
@@ -27,6 +37,15 @@ can be specified.}
 
 \item{EVID}{The value to put in the EVID column for the created
 rows. Default is 2 but 0 may be prefered even for simulation.}
+
+\item{args.NMexpandDoses}{Only relevant - and likely not needed -
+if data contains ADDL and II columns. If those columns are
+included, `addEVID2()` will use `NMdata::NMexpanDoses()` to
+evaluate the time of each dose. Other than the `data`
+argument, `addEVID2()` relies on the default `NMexpanDoses()`
+argument values. If this is insufficient, you can specify
+other argument values in a list, or you can call
+`NMdata::NMexpanDoses()` manually before calling `addEVID2()`.}
 
 \item{as.fun}{The default is to return data as a data.frame. Pass
 a function (say `tibble::as_tibble`) in as.fun to convert to

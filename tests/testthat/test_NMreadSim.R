@@ -6,6 +6,8 @@ fix.time <- function(x){
     ## meta.x$time.call <- as.POSIXct("2020-02-01 00:01:01",tz="UTC")
     meta.x$NMsimVersion <- NULL
     meta.x$NMsimTime <- NULL
+
+    meta.x$path.lst.read <- NULL
     
     setattr(x,"NMsimModTab",meta.x)
     invisible(x)

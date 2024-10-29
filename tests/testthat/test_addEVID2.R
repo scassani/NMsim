@@ -165,3 +165,30 @@ test_that("TIME and TAPD",{
 
 
 })
+
+test_that("TAPD with ADDL/II",{
+    fileRef <- "testReference/addEVID2_09.rds"
+    df.doses <- NMcreateDoses(TIME=c(0),ADDL=2,II=12,AMT=10,CMT=1)
+
+    seq.time <- c(0,2,4,18,24)
+
+    ## res0 is when doses are expanded in advance
+    df.doses.0 <- NMexpandDoses(df.doses)
+    
+    res0 <- addEVID2(df.doses.0,TAPD=seq.time,CMT=2)
+    
+    res1 <- addEVID2(df.doses,TAPD=seq.time,CMT=2)
+
+    expect_equal_to_reference(res1,fileRef)
+
+    expect_equal(as.data.table(res0)[EVID==2],
+                 as.data.table(res1)[EVID==2])
+    
+    
+    if(F){
+        res
+        readRDS(fileRef)
+    }
+
+
+})

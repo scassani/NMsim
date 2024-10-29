@@ -5,6 +5,7 @@
 ##' @param nsim Number of sets of parameter values to generate. Passed
 ##'     to `simpar`.
 ##' @param format "ext" (default) or "wide".
+##' @param seed.R seed value passed to set.seed().
 ##' @param as.fun The default is to return data as a data.frame. Pass
 ##'     a function (say `tibble::as_tibble`) in as.fun to convert to
 ##'     something else. If data.tables are wanted, use
@@ -15,7 +16,7 @@
 ##' @author Sanaya Shroff, Philip Delff
 ##' @export
 
-sampleParsSimpar <- function(file.mod,nsim,format="ext",as.fun,seed.R){
+sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
 
     
     if(packageVersion("NMdata")<"0.1.7.905"){

@@ -3,7 +3,8 @@ context("expandCovLists")
 test_that("basic",{
 
     fileRef <- "testReference/expandCovLists_01.rds"
-    file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMdata")
+    ## file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMdata")
+    file.mod <- "testData/nonmem/xgxr134.mod"
     modres <- NMdata::NMscanData(file.mod)
     
     res <- expandCovLists(

@@ -17,7 +17,7 @@ library(NMsim)
 NMdataConf(reset=TRUE)
 ```
 
-# NMdata<a href='https://NMautoverse.github.io/NMdata/'><img src='man/figures/NMsimlogo_alternate.png' align="right" height="120" /></a>
+# NMsim<a href='https://NMautoverse.github.io/NMsim/'><img src='man/figures/NMsimlogo240.png' align="right" height="120" /></a>
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN status](https://www.r-pkg.org/badges/version/NMsim)](https://CRAN.R-project.org/package=NMsim)
@@ -69,7 +69,7 @@ simres <- NMsim(file.mod=system.file("examples/nonmem/xgxr021.mod",package="NMsi
 simres <- NMreadSim("vignettes/simulate-results/xgxr021_noname_MetaData.rds")
 ```
 
-```{r,simple-sim,eval=TRUE,fig.height = 4, fig.width = 7}
+```{r,simple-sim-show,eval=FALSE,fig.height = 4, fig.width = 7}
 library(ggplot2)
 datl <- as.data.table(simres) |>
     melt(measure.vars=cc(PRED,IPRED,Y))
@@ -79,6 +79,19 @@ ggplot(datl,aes(TIME,value,colour=variable))+
     geom_point(data=function(x)x[variable=="Y"])+
     labs(x="Hours since first dose",y="Concentration (ng/mL)")
 ```
+
+```{r,simple-sim,eval=TRUE,fig.height = 4, fig.width = 7,include=FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+datl <- as.data.table(simres) |>
+    melt(measure.vars=cc(PRED,IPRED,Y))
+
+ggplot(datl,aes(TIME,value,colour=variable))+
+    geom_line(data=function(x)x[variable!="Y"])+
+    geom_point(data=function(x)x[variable=="Y"])+
+    labs(x="Hours since first dose",y="Concentration (ng/mL)")
+```
+
 
 This example was a simulation of a multiple dose regimen with a loading dose using a model estimated on single dose data. It is from the first vignette [`NMsim-basics.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-basics.html).
 

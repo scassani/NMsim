@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# NMdata<a href='https://philipdelff.github.io/NMdata/'><img src='man/figures/NMsimlogo_alternate.png' align="right" height="120" /></a>
+# NMsim<a href='https://NMautoverse.github.io/NMsim/'><img src='man/figures/NMsimlogo240.png' align="right" height="120" /></a>
 
 <!-- badges: start -->
 
@@ -12,13 +12,13 @@ status](https://www.r-pkg.org/badges/version/NMsim)](https://CRAN.R-project.org/
 [![CRAN
 downloads](https://cranlogs.r-pkg.org/badges/NMsim)](https://cran.r-project.org/package=NMsim)
 [![Codecov test
-coverage](https://codecov.io/gh/philipdelff/NMsim/branch/main/graph/badge.svg)](https://app.codecov.io/gh/philipdelff/NMsim?branch=main)
+coverage](https://codecov.io/gh/NMautoverse/NMsim/branch/main/graph/badge.svg)](https://app.codecov.io/gh/NMautoverse/NMsim?branch=main)
 
-<!-- [![R-CMD-check](https://github.com/philipdelff/NMsim/workflows/R-CMD-check/badge.svg)](https://github.com/philipdelff/NMsim/actions) -->
+<!-- [![R-CMD-check](https://github.com/NMautoverse/NMsim/workflows/R-CMD-check/badge.svg)](https://github.com/NMautoverse/NMsim/actions) -->
 <!-- badges: end -->
 
 Please make sure to read this at
-[`The NMsim website`](https://philipdelff.github.io/NMsim/) where you
+[`The NMsim website`](https://NMautoverse.github.io/NMsim/) where you
 can browse several vignettes with examples on specific topics.
 
 `NMsim` is an R package that can simulate Nonmem models (using the
@@ -63,12 +63,10 @@ ggplot(datl,aes(TIME,value,colour=variable))+
     labs(x="Hours since first dose",y="Concentration (ng/mL)")
 ```
 
-<img src="man/figures/README-simple-sim-1.png" width="100%" />
-
 This example was a simulation of a multiple dose regimen with a loading
 dose using a model estimated on single dose data. It is from the first
 vignette
-[`NMsim-basics.html`](https://philipdelff.github.io/NMsim/articles/NMsim-basics.html).
+[`NMsim-basics.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-basics.html).
 
 ## Supported types of simulations
 
@@ -95,7 +93,7 @@ simulation control stream
 
 To learn how to run these simulations on your Nonmem models, get started
 with
-[`NMsim-basics.html`](https://philipdelff.github.io/NMsim/articles/NMsim-basics.html).
+[`NMsim-basics.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-basics.html).
 It is really easy.
 
 In addition, `NMsim` can simulate multiple models at a time. E.g., if a
@@ -166,7 +164,7 @@ interpretation may depend on other values.
 The input data set must contain whatever variables are needed by the
 Nonmem model. A common issue is if the Nonmem model uses a covariate
 that is not in the simulation input data set. `NMdata`’s
-[NMcheckData](https://philipdelff.github.io/NMdata/reference/NMcheckData.html)
+[NMcheckData](https://NMautoverse.github.io/NMdata/reference/NMcheckData.html)
 is a good help identifying input data issues before running Nonmem - and
 when Nonmem acts unexpectedly.
 
@@ -258,5 +256,5 @@ be able to use `NMsim`.
 install.packages("NMsim")
 ## From github
 library(remotes)
-install_github("philipdelff/NMsim")
+install_github("NMautoverse/NMsim")
 ```

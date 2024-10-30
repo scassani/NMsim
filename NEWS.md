@@ -13,7 +13,8 @@
   want to thank Sanaya Shroff for her outstanding work on this
   functionality and for her exciting work summarizing the available
   methods for simulation with parameter uncertainty which she will be
-  sharing at ACoP 2024.
+  sharing at ACoP 2024. Also a big thanks to Eric Anderson for helping
+  out with adjusting the github workflows to pull `simpar` from MPN.
 
 * `expandCovLists()` is a new function that puts together data sets
   for univariately varying covariates while keeping other at reference

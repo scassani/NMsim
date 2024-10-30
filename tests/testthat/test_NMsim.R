@@ -138,6 +138,28 @@ test_that("NMsim_EBE",{
 
 })
 
+
+test_that("typical",{
+
+    fileRef <- "testReference/NMsim_04.rds"
+
+    file.mod <- "testData/nonmem/xgxr025.mod"
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "sd1",
+                  seed.nm=2342,
+                  typical=TRUE,
+                  execute=FALSE,
+                  method.update.inits="nmsim")
+
+    ## ref <- readRDS(fileRef)
+    expect_equal_to_reference(sim1,fileRef)
+
+})
+## }
+
+
 if(F){
     test_that("NMsim_VarCov",{
 
@@ -163,3 +185,4 @@ if(F){
 
     })
 }
+

@@ -68,8 +68,9 @@
 
 ## Bugfixes
 
-* A bug most likely affecting most Windows users for execution of Nonmem
-has been fixed. If on Windows, you should upgrade to NMsim 0.1.4.
+* A bug most likely affecting most Windows users for execution of
+Nonmem has been fixed. If on Windows, you should upgrade to NMsim
+0.1.4. Thank you to Boris Grinshpun for reporting this!
 
 * When using `method.execute="nmsim"` there was an issue with
   parallellization. This was not a major problem in most simulation

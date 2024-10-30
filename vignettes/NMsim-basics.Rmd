@@ -96,7 +96,7 @@ This vignettes aims at enabling you to
 ## Prerequisites
 You should have configured `NMsim` with the path to the Nonmem
 installation and maybe also PSN. See
-[`NMsim-config.html`](https://philipdelff.github.io/NMsim/articles/NMsim-config.html). Don't
+[`NMsim-config.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-config.html). Don't
 worry - it is very easy.
 
 
@@ -123,7 +123,7 @@ studied in clinical trials so far, and we have decided to use
 population PK simulations for this purpose. 
 
 ### The Simulation data set
-You can create a Nonmem-compatible simulation data set however you want. We will keep that as a separate topic and read one that was already created in [`NMsim-DataCreate.html`](https://philipdelff.github.io/NMsim/articles/NMsim-DataCreate.html) using tools provided with NMsim to make that task simpler and faster to do:
+You can create a Nonmem-compatible simulation data set however you want. We will keep that as a separate topic and read one that was already created in [`NMsim-DataCreate.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-DataCreate.html) using tools provided with NMsim to make that task simpler and faster to do:
 ```{r}
 dat.sim <- read.csv(system.file("examples/derived/dat_sim1.csv",package="NMsim"))
 ```

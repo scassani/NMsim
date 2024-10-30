@@ -21,25 +21,12 @@ completeCov <- function(covlist,data,col.id="ID",sigdigs=2){
     ## quantile <- NULL
 
 ###  Section end: Dummy variables, only not to get NOTE's in pacakge checks
-
+    
     
     if(!is.null(covlist$values) && !is.null(covlist$quantiles) ) stop("Please provide values _or_ quantiles, not both.")
     if(is.null(covlist$values) && is.null(covlist$quantiles) ) stop("Please provide values or quantiles.")
 
     
-    ## add values if missing
-    if(!is.null(covlist$quantiles)){
-        if(!covlist$covvar %in% colnames(data)){
-            stop(sprintf("Covariate %s is not a column in data.",covlist$covvar))
-        }
-        pars.id <- findCovs(data,by=col.id,as.fun="data.table")
-        if(!covlist$covvar %in% colnames(pars.id)){
-            stop(sprintf("Covariate %s is not constant within %s in data.",covlist$covvar,col.id))
-        }
-        covlist$values <- pars.id[,quantile(get(covlist$covvar),probs=covlist$quantiles)] |>
-            signif(digits=sigdigs)
-    }
-
     ## handle ref if a function
     if(is.function(covlist$ref)){
         if(!covlist$covvar %in% colnames(data)){
@@ -54,12 +41,64 @@ completeCov <- function(covlist,data,col.id="ID",sigdigs=2){
             signif(digits=sigdigs)
     }
 
+    
+    
+    ## add values from quantiles when quantiles are provided
+    if(!is.null(covlist$quantiles)){
+        if(!covlist$covvar %in% colnames(data)){
+            stop(sprintf("Covariate %s is not a column in data.",covlist$covvar))
+        }
+        pars.id <- findCovs(data,by=col.id,as.fun="data.table")
+        if(!covlist$covvar %in% colnames(pars.id)){
+            stop(sprintf("Covariate %s is not constant within %s in data.",covlist$covvar,col.id))
+        }
+        
+        covlist$values <- pars.id[,quantile(get(covlist$covvar),probs=covlist$quantiles,names=FALSE)] |>
+            signif(digits=sigdigs)
+        
+### todo carry over names
+                if(!is.null(names(covlist$quantiles))){
+                    ## covlist$covvalc <- covlist$values
+                ## } else {
+                    names(covlist$values) <- names(covlist$quantiles)
+                }
+    }
+
+
+    
+    ## if(!is.null(covlist$quantiles)){
+    ##     if(is.null(names(covlist$quantiles))){
+    ##         covlist$covvalc <- covlist$values
+    ##     } else {
+    ##         covlist$covvalc <- names(covlist$quantiles)
+    ##     }
+    ## }
+
+    covlist$covvalc <- NA_character_
+    covlist$refc <- NA_character_
+    if(!is.null(covlist$values)) {
+        if(is.null(names(covlist$values))){
+            covlist$covvalc <- covlist$values
+        } else {
+            covlist$covvalc <- names(covlist$values)
+        }
+        if(is.null(names(covlist$ref))){
+            covlist$refc <- covlist$ref
+        } else {
+            covlist$refc <- names(covlist$ref)
+        }
+    }
+    
+
+    
+
     ## fill in label if missing
     if(is.null(covlist$label)) covlist$label <- paste(covlist$covvar)
     
     ## make data.table
     with(covlist,
-         data.table(covvar=covvar,covval=c(values,ref),label=label,covref=ref,type=c(rep("value",length(values)),"ref"))
+         data.table(covvar=covvar,covval=c(values,ref),covvalc=c(covvalc,refc),covlabel=label,covref=ref,type=c(rep("value",length(values)),"ref"))
          )
+    
     
 }

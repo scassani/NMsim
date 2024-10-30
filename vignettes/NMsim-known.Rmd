@@ -78,11 +78,11 @@ This vignettes aims at enabling you to use `NMsim` for the following purposes
 ## Prerequisites
 You should have configured `NMsim` with the path to the Nonmem
 installation and maybe also PSN (optional). See
-[`NMsim-config.html`](https://philipdelff.github.io/NMsim/articles/NMsim-config.html). Don't
+[`NMsim-config.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-config.html). Don't
 worry - it is very easy. 
 
 You should be familiar with basic `NMsim` arguments as described in
-[`NMsim-basics.html`](https://philipdelff.github.io/NMsim/articles/NMsim-basics.html). In
+[`NMsim-basics.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-basics.html). In
 that vignette you should have learned to use the default simulation
 method. This vignette will be using the same model and simulation
 input data to demonstrate how to use additional methods and features of `NMsim`.
@@ -141,7 +141,7 @@ Individual simulations are useful for several purposes. Examples
   between say simulation results of different regimens be driven by
   differences in the regimen, and not in the populations. This
   use of `NMsim_EBE` is on the todo list tog get it's own vignette
-  [here](https://philipdelff.github.io/NMsim/articles/NMsim-ReuseSimSubjects.html).
+  [here](https://nmautoverse.github.io/NMsim/articles/NMsim-ReuseSimSubjects.html).
 
 ## Simulate known subjects on a new dosing regimen and new sample schedule
 The following code takes an already created simulation data set with a
@@ -159,7 +159,7 @@ Simulation with known ETA values is only possible through NMsim's internal Nonme
 NMdataConf(path.nonmem="/opt/NONMEM/nm75/run/nmfe75")
 ```
 
-For a simulation data set we are using the multiple dose simulation data set with a loading dose generated in the [Creation of Simulation Data Sets](https://philipdelff.github.io/NMsim/articles/NMsim-DataCreate.html).
+For a simulation data set we are using the multiple dose simulation data set with a loading dose generated in the [Creation of Simulation Data Sets](https://nmautoverse.github.io/NMsim/articles/NMsim-DataCreate.html).
 
 
 ```{r,eval=FALSE}

@@ -80,7 +80,7 @@ ggplot(datl,aes(TIME,value,colour=variable))+
     labs(x="Hours since first dose",y="Concentration (ng/mL)")
 ```
 
-```{r,simple-sim,eval=TRUE,fig.height = 4, fig.width = 7,include=FALSE}
+```{r,simple-sim,eval=TRUE,fig.height = 4, fig.width = 7,include=TRUE,echo=FALSE}
 library(ggplot2)
 theme_set(theme_bw())
 datl <- as.data.table(simres) |>

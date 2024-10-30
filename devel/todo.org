@@ -43,6 +43,8 @@ Path to nonmem, psn, other ways to exec.
 **** Writing new methods
 
 ** TODO New function to apply time-varying covariates
+
+** expandCovs
 ** NMexec
 
 *** DONE Move selection of method.execute from NMsim

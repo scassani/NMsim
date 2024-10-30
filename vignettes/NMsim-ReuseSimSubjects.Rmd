@@ -61,11 +61,11 @@ so by reading and simulating from the estimated `OMEGA` matrix
 (random-effect variance-covariance matrix - a covariance step is not
 needed to get this). The simulation method called `NMsim_known()` can
 then be used to simulate subjects as stored in this file. See
-[`NMsim-known.html`](https://philipdelff.github.io/NMsim/articles/NMsim-known.html)
+[`NMsim-known.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-known.html)
 for more information on `NMsim_known`.
 
 ### What is a subject?
-What is refered to here by "subject" is really a combination of `ETA`s. Covariates must be handled by the user in the simulation input dataset. This is also discussed in [`NMsim-known.html`](https://philipdelff.github.io/NMsim/articles/NMsim-known.html).
+What is refered to here by "subject" is really a combination of `ETA`s. Covariates must be handled by the user in the simulation input dataset. This is also discussed in [`NMsim-known.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-known.html).
 
 ## Example
 
@@ -83,7 +83,7 @@ NMsim:::simPopEtas(file=file.mod,
                    )
 ```
 
-We'll just use the simulation data set created in [`NMsim-DataCreate.html`](https://philipdelff.github.io/NMsim/articles/NMsim-DataCreate.html)
+We'll just use the simulation data set created in [`NMsim-DataCreate.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-DataCreate.html)
 ```{r}
 dat.sim <- read_fst(path="simulate-results/dat_sim.fst",as.data.table=TRUE)
 ```

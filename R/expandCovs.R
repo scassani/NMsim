@@ -35,7 +35,7 @@
 ##' }
 ##' @export
 
-expandCovLists <- function(...,data,col.id="ID",sigdigs=2){
+expandCovs <- function(...,data,col.id="ID",sigdigs=2){
 
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
@@ -47,6 +47,8 @@ expandCovLists <- function(...,data,col.id="ID",sigdigs=2){
     covval <- NULL
 
 ###  Section end: Dummy variables, only not to get NOTE's in pacakge checks
+
+### extract character label or assign NA. Extract labels from quantiles too?
     
     covlists <- list(...)
     if(!is.null(names(covlists))){
@@ -60,12 +62,15 @@ expandCovLists <- function(...,data,col.id="ID",sigdigs=2){
     ## should add quantiles too
     covLists <- lapply(covlists,completeCov,data=data,col.id=col.id,sigdigs=sigdigs)
     allcovs <- rbindlist(covLists)
+
+
     ## add in covvar ref values. Merge on wide dt.ref, then adjust each row.
     dt.ref.w <- unique(allcovs[,.(covvar,covref)]) |> dcast(.~covvar,value.var="covref")
     dt.ref.w[,.:=NULL]
-
+    
     
     allcovs <- allcovs[,dt.ref.w[],by=allcovs]
+
     for(I in 1:nrow(allcovs)){
         this.cov <- allcovs[I,covvar]
         allcovs[I,(this.cov):=covval]

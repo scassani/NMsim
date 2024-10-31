@@ -24,13 +24,7 @@ quantiles or if using a function to find reference.}
 Expand a set of covariate values into a data.set with reference
 value
 }
-\keyword{<-}
-\keyword{NMdata::NMscanData(file.mod)}
-\keyword{completeCov(covlist=list(covvar="WEIGHTB",quantiles=c(25,75)/100,ref=median),data=res,sigdigs=3)}
-\keyword{file.mod}
-\keyword{include}
+\examples{
+    NMsim:::completeCov(covlist=list(covvar="WEIGHTB",values=c(30,60,90),ref=50),sigdigs=3)
+}
 \keyword{internal}
-\keyword{list}
-\keyword{res}
-\keyword{should}
-\keyword{system.file("examples/nonmem/xgxr134.mod",package="NMdata",quiet=TRUE)}

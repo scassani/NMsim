@@ -115,24 +115,17 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL){
 #### Section start: Parameter from provided table ####
 
     if(!simulatePars){
-
-        newpars <- ext
+        
+        newpars <- copy(ext)
+        setDT(newpars)
+        
+        
         ## newpars[,SUBMODEL:=.GRP,by=.(model)]
         setnames(newpars,"model","SUBMODEL")
     }
 
 ### Section end: Parameter from provided table
 
-    
-    
-    ## dt.sims <- data.table(SUBMODEL=1:nsims)
-    ## length.num.char <- ceiling(log10(nsims+1))
-    ## dt.sims[,submodel:=sprintf(fmt=paste0("%0",length.num.char,"d"),SUBMODEL)]
-    ## dt.sims[,path.sim:=fnAppend(path.sim.0,submodel),by=.(SUBMODEL)]
-    ## dt.sims[,fn.sim:=basename(path.sim),by=.(SUBMODEL)]
-    ## dt.sims[,run.sim:=fnExtension(fn.sim,""),by=.(SUBMODEL)]
-    
-    ## dt.sims <- data.table(SUBMODEL=1:nsims)
     newpars[,ROW:=.I]
     length.num.char <- newpars[,ceiling(log10(uniqueN(SUBMODEL)+1))]
     newpars[,submodel:=sprintf(fmt=paste0("%0",length.num.char,"d"),SUBMODEL)]

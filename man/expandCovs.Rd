@@ -4,18 +4,19 @@
 \alias{expandCovs}
 \title{Create data set where each covariate is univariately varied}
 \usage{
-expandCovs(..., data, col.id = "ID", sigdigs = 2)
+expandCovs(..., data, col.id = "ID", sigdigs = 2, as.fun)
 }
 \arguments{
-\item{...}{Covariates provided as lists - see examples. The
-name of the arguement must match columns in data set. An
-element called ref must contain either a reference value or a
-function to use to derive the reference value from data
+\item{...}{Covariates provided as lists - see examples. The name
+of the arguement must match columns in data set. An element
+called ref must contain either a reference value or a function
+to use to derive the reference value from data
 (e.g. `median`). Provide either `values` or `quantiles` to
 define the covariate values of interest (typically, the values
 that should later be simulated and maybe shown in a forest
 plot). `label` is optional - if missing, the argument name
-will be used.}
+will be used. If quantiles are requested, they are derived
+after requiring unique values for each subject.}
 
 \item{data}{A data set needed if the reference(s) value of one or
 more covariates is/are provided as functions (like median), or
@@ -27,6 +28,12 @@ subjects, not on observations (each subject contributes once).}
 
 \item{sigdigs}{Used for rounding of covariate values if using
 quantiles or if using a function to find reference.}
+
+\item{as.fun}{The default is to return data as a data.frame. Pass
+a function (say `tibble::as_tibble`) in as.fun to convert to
+something else. If data.tables are wanted, use
+as.fun="data.table". The default can be configured using
+NMdataConf.}
 }
 \description{
 Each covariate is univariately varied while other covariates are

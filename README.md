@@ -63,6 +63,8 @@ ggplot(datl,aes(TIME,value,colour=variable))+
     labs(x="Hours since first dose",y="Concentration (ng/mL)")
 ```
 
+<img src="man/figures/README-simple-sim-1.png" width="100%" />
+
 This example was a simulation of a multiple dose regimen with a loading
 dose using a model estimated on single dose data. It is from the first
 vignette

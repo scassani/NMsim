@@ -16,7 +16,7 @@
   sharing at ACoP 2024. Also a big thanks to Eric Anderson for helping
   out with adjusting the github workflows to pull `simpar` from MPN.
 
-* `expandCovLists()` is a new function that puts together data sets
+* `expandCovs()` is a new function that puts together data sets
   for univariately varying covariates while keeping other at reference
   values. The function can derive both reference values and covariate
   values to simulate at by using i.e. `median()` and `quantile()`.

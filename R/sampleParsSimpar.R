@@ -41,6 +41,7 @@ sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
     if(!missing(seed.R) && !is.null(seed.R)) {
         set.seed(seed=seed.R)
     }
+
     
     ## read param distributions from ext file
     pars <- NMreadExt(file=file.mod,as.fun="data.table")
@@ -59,7 +60,7 @@ sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
     omega.mat.list <- 
         lapply(omegas.list,
                NMdata::dt2mat)
-
+    
     ## variance-covariance for SIGMAs
     sigmas <- pars[par.type=="SIGMA" & !is.na(iblock),]
     sigmas.list <- split(sigmas,by="iblock")

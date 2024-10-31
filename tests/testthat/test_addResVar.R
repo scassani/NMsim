@@ -10,7 +10,7 @@ if(FALSE){
     ## additional args
     scale.par <- "var"
 
-    data <- NMscanData("testData/simres/xgxr014_singlesubj1.lst",package="NMsim"),merge.by.row=FALSE,as.fun="data.table")
+    data <- NMscanData("testData/simres/xgxr014_singlesubj1.lst",merge.by.row=FALSE,as.fun="data.table")
     set.seed(2)
     data1 <- addResVar(data=data
                       ,path.ext = system.file("examples/nonmem/xgxr014.ext",package="NMsim")

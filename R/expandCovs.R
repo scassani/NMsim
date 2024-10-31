@@ -22,6 +22,11 @@
 ##'     subjects, not on observations (each subject contributes once).
 ##' @param sigdigs Used for rounding of covariate values if using
 ##'     quantiles or if using a function to find reference.
+##' @param as.fun The default is to return data as a data.frame. Pass
+##'     a function (say `tibble::as_tibble`) in as.fun to convert to
+##'     something else. If data.tables are wanted, use
+##'     as.fun="data.table". The default can be configured using
+##'     NMdataConf.
 ##' @examples
 ##' \dontrun{
 ##' file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMdata")

@@ -12,7 +12,8 @@ test_that("basic",{
         WEIGHTB=list(ref=70,values=c(40,60,80,100),label="Bodyweight (kg)"),
         ## notice, values OR quantiles can be provided
         AGE=list(ref=median, quantiles=c(10,25,75,90)/100, label="Age (years)"),
-        data=modres
+        data=modres,
+        as.fun="data.table"
     )
 
     expect_equal_to_reference(res,fileRef)
@@ -32,7 +33,8 @@ test_that("with categorical",{
         ## notice, values OR quantiles can be provided
         AGE=list(ref=median, quantiles=c(10,25,75,90)/100, label="Age (years)"),
         MALEN=list(ref=0,values=c(Male = 1, Female = 0),label = "Sex"),
-        data=modres
+        data=modres,
+        as.fun="data.table"
     )
     res
 
@@ -52,7 +54,8 @@ test_that("labeling",{
         ## notice, values OR quantiles can be provided
         AGE=list(ref=median, quantiles=c("10%"=10,"25%"=25,"75%"=75,"90%"=90)/100, label="Age (years)"),
         MALEN=list(ref=c(Female=0),values=c(Male = 1, Female = 0),label = "Sex"),
-        data=modres
+        data=modres,
+        as.fun="data.table"
     )
 
 

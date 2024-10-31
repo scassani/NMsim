@@ -10,7 +10,7 @@
 ##'     quantiles or if using a function to find reference.
 ##' @keywords internal
 ##' @examples
-##'     completeCov(covlist=list(covvar="WEIGHTB",values=c(30,60,90),ref=50),sigdigs=3)
+##'     NMsim:::completeCov(covlist=list(covvar="WEIGHTB",values=c(30,60,90),ref=50),sigdigs=3)
 ##' @importFrom stats quantile
 
 completeCov <- function(covlist,data,col.id="ID",sigdigs=2){

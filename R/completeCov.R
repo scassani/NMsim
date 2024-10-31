@@ -8,10 +8,9 @@
 ##'     subjects, not on observations (each subject contributes once).
 ##' @param sigdigs Used for rounding of covariate values if using
 ##'     quantiles or if using a function to find reference.
-##' @keywords internal list should include file.mod <- file.mod <-
-##'     system.file("examples/nonmem/xgxr134.mod",package="NMdata",quiet=TRUE)
-##'     res <- NMdata::NMscanData(file.mod)
-##'     completeCov(covlist=list(covvar="WEIGHTB",quantiles=c(25,75)/100,ref=median),data=res,sigdigs=3)
+##' @keywords internal
+##' @examples
+##'     completeCov(covlist=list(covvar="WEIGHTB",values=c(30,60,90),ref=50),sigdigs=3)
 ##' @importFrom stats quantile
 
 completeCov <- function(covlist,data,col.id="ID",sigdigs=2){
@@ -26,6 +25,10 @@ completeCov <- function(covlist,data,col.id="ID",sigdigs=2){
     if(!is.null(covlist$values) && !is.null(covlist$quantiles) ) stop("Please provide values _or_ quantiles, not both.")
     if(is.null(covlist$values) && is.null(covlist$quantiles) ) stop("Please provide values or quantiles.")
 
+    if(is.function(covlist$ref) || !is.null(covlist$quantiles)){
+        if(missing(data)) stop("using functions to derive reference values and/or selecting covariate values by quantiles requires a data set to be passed in the data argument.")
+        setDT(data)
+        }
     
     ## handle ref if a function
     if(is.function(covlist$ref)){

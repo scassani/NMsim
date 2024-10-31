@@ -4,15 +4,16 @@
 ##' kept at reference values. This structure is often used for
 ##' forest-plot type simulations.
 ##' 
-##' @param ... Covariates provided as lists - see examples. The
-##'     name of the arguement must match columns in data set. An
-##'     element called ref must contain either a reference value or a
-##'     function to use to derive the reference value from data
+##' @param ... Covariates provided as lists - see examples. The name
+##'     of the arguement must match columns in data set. An element
+##'     called ref must contain either a reference value or a function
+##'     to use to derive the reference value from data
 ##'     (e.g. `median`). Provide either `values` or `quantiles` to
 ##'     define the covariate values of interest (typically, the values
 ##'     that should later be simulated and maybe shown in a forest
 ##'     plot). `label` is optional - if missing, the argument name
-##'     will be used.
+##'     will be used. If quantiles are requested, they are derived
+##'     after requiring unique values for each subject.
 ##' @param data A data set needed if the reference(s) value of one or
 ##'     more covariates is/are provided as functions (like median), or
 ##'     if covariate values are provided as quantiles.
@@ -35,7 +36,7 @@
 ##' }
 ##' @export
 
-expandCovs <- function(...,data,col.id="ID",sigdigs=2){
+expandCovs <- function(...,data,col.id="ID",sigdigs=2,as.fun){
 
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
@@ -47,6 +48,10 @@ expandCovs <- function(...,data,col.id="ID",sigdigs=2){
     covval <- NULL
 
 ###  Section end: Dummy variables, only not to get NOTE's in pacakge checks
+
+    if(missing(as.fun)) as.fun <- NULL
+    as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
+
 
 ### extract character label or assign NA. Extract labels from quantiles too?
     
@@ -75,8 +80,9 @@ expandCovs <- function(...,data,col.id="ID",sigdigs=2){
         this.cov <- allcovs[I,covvar]
         allcovs[I,(this.cov):=covval]
     }
-    
-    allcovs[]
+
+        as.fun(    allcovs)
+
 }
 
 

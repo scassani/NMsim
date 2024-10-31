@@ -5,6 +5,7 @@
 ##' @param must.work Throw an error if the configuration does not seem
 ##'     to match system.
 ##' @param system.type See ?NMsim
+##' @return A list with configuration values
 ##' @export
 
 NMsimTestConf <- function(path.nonmem,dir.psn,method.execute,must.work=FALSE,system.type){

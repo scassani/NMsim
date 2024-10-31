@@ -27,6 +27,7 @@
 ##'     something else. If data.tables are wanted, use
 ##'     as.fun="data.table". The default can be configured using
 ##'     NMdataConf.
+##' @return A data.frame
 ##' @examples
 ##' \dontrun{
 ##' file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMdata")

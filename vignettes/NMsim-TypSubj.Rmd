@@ -80,7 +80,7 @@ equaling zero is this easy:
 simres.typ <- NMsim(file.mod=file.mod,
                     data=dat.sim,
                     name.sim="typSubj",
-                    method.sim=NMsim_typical)
+                    typical=TRUE)
 
 ```
 

@@ -53,6 +53,7 @@ adjust.method.update.inits <- function(method.update.inits,system.type,dir.psn,c
 ##' Drop spaces and odd characters. Use to ensure generated file names
 ##' are usable.
 ##' @param x a string to clean
+##' @return A character vector
 ##' @keywords internal
 ##' @examples
 ##' NMsim:::cleanStrings("e w% # ff!l3:t,3?.csv")

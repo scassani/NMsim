@@ -17,6 +17,7 @@
 ##'     multivariate normal distribution, i.e. from an ellipsoidal 
 ##'     region R1 over which  only  a fraction of mass of the 
 ##'     normal occurs. This fraction is given by PLEV.
+##' @return Path to simulation control stream
 ##' @details Simulate with parameter uncertainty. THETA parameters are
 ##'     sampled from a multivariate normal distribution while OMEGA
 ##'     and SIGMA are simulated from the inverse-Wishart

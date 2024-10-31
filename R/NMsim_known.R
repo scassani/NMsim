@@ -1,5 +1,6 @@
 ##' NMsim_known is an old name for NMsim_EBE()
 ##' @param ... Everything passed to NMsim_EBE()
+##' @return Path to simulation control stream
 ##' @export
 ##' @keywords internal
 

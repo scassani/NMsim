@@ -40,8 +40,8 @@ completeCov <- function(covlist,data,col.id="ID",sigdigs=2){
             stop(sprintf("Covariate %s is not constant within %s in data.",covlist$covvar,col.id))
         }
 
-        covlist$ref <- pars.id[,covlist$ref(get(covlist$covvar))] |>
-            signif(digits=sigdigs)
+        covlist$ref <- signif(pars.id[,covlist$ref(get(covlist$covvar))],digits=sigdigs)
+
     }
 
     
@@ -56,8 +56,7 @@ completeCov <- function(covlist,data,col.id="ID",sigdigs=2){
             stop(sprintf("Covariate %s is not constant within %s in data.",covlist$covvar,col.id))
         }
         
-        covlist$values <- pars.id[,quantile(get(covlist$covvar),probs=covlist$quantiles,names=FALSE)] |>
-            signif(digits=sigdigs)
+        covlist$values <- signif(pars.id[,quantile(get(covlist$covvar),probs=covlist$quantiles,names=FALSE)], digits=sigdigs)
         
 ### todo carry over names
                 if(!is.null(names(covlist$quantiles))){

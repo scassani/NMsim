@@ -76,7 +76,7 @@ expandCovs <- function(...,data,col.id="ID",sigdigs=2,as.fun){
 
 
     ## add in covvar ref values. Merge on wide dt.ref, then adjust each row.
-    dt.ref.w <- unique(allcovs[,.(covvar,covref)]) |> dcast(.~covvar,value.var="covref")
+    dt.ref.w <- dcast(unique(allcovs[,.(covvar,covref)]) , .~covvar,value.var="covref")
     dt.ref.w[,.:=NULL]
     
     

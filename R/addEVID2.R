@@ -21,6 +21,8 @@
 ##'     can be specified.
 ##' @param EVID The value to put in the EVID column for the created
 ##'     rows. Default is 2 but 0 may be prefered even for simulation.
+##' @param col.id The name of the column in `data` that holds the
+##'     unique subject identifier.
 ##' @param args.NMexpandDoses Only relevant - and likely not needed -
 ##'     if data contains ADDL and II columns. If those columns are
 ##'     included, `addEVID2()` will use `NMdata::NMexpanDoses()` to
@@ -87,7 +89,7 @@
 ##' @export 
 
 
-addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,col.id="ID",unique=TRUE,as.fun,doses,time.sim){
+addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,col.id="ID",args.NMexpandDoses,unique=TRUE,as.fun,doses,time.sim){
     
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
@@ -208,8 +210,9 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,col.id="ID",un
         
         
         dt.obs.3 <- dt.obs.2[get(col.evid)==..EVID&DOSN==PDOSN]
-        dt.obs.3 <- dt.obs.3[,c("TIME",intersect(colnames(dt.tapd),colnames(dt.obs.3))),with=FALSE]
-        dt.obs <- rbind(dt.obs,dt.obs.3,fill=TRUE) |> setorder(TIME)
+        dt.obs.3 <- dt.obs.3[,c(col.time,intersect(colnames(dt.tapd),colnames(dt.obs.3))),with=FALSE]
+        dt.obs <- rbind(dt.obs,dt.obs.3,fill=TRUE) 
+        dt.obs <- setorderv(dt.obs,col.time)
     }
 
     if(unique){

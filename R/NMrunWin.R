@@ -15,7 +15,7 @@ NMrunLin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,sg
     
     if(sge){
         ## executing from model execution dir.
-        jobname <- basename(fn.mod) |> sub(pattern="^ *",replacement="")
+        jobname <- sub(pattern="^ *",replacement="", x=basename(fn.mod) )
         ## qsub does not allow a jobname to start in a numeric
         if(grepl("^[0-9]",jobname)) {
             jobname <- paste0("NMsim_",jobname)

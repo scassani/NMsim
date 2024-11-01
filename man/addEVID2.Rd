@@ -10,8 +10,8 @@ addEVID2(
   TAPD,
   CMT,
   EVID = 2,
-  args.NMexpandDoses,
   col.id = "ID",
+  args.NMexpandDoses,
   unique = TRUE,
   as.fun,
   doses,
@@ -39,6 +39,9 @@ can be specified.}
 
 \item{EVID}{The value to put in the EVID column for the created
 rows. Default is 2 but 0 may be prefered even for simulation.}
+
+\item{col.id}{The name of the column in `data` that holds the
+unique subject identifier.}
 
 \item{args.NMexpandDoses}{Only relevant - and likely not needed -
 if data contains ADDL and II columns. If those columns are

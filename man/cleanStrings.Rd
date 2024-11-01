@@ -10,6 +10,9 @@ cleanStrings(x)
 \arguments{
 \item{x}{a string to clean}
 }
+\value{
+A character vector
+}
 \description{
 Drop spaces and odd characters. Use to ensure generated file names
 are usable.

@@ -24,6 +24,9 @@ to match system.}
 
 \item{system.type}{See ?NMsim}
 }
+\value{
+A list with configuration values
+}
 \description{
 Summarize and test NMsim configuration
 }

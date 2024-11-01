@@ -49,3 +49,5 @@ test_that("VarCov simpar",{
 
     expect_equal_to_reference(simpar.res,fileRef)
 })
+
+

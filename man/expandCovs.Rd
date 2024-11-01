@@ -35,6 +35,9 @@ something else. If data.tables are wanted, use
 as.fun="data.table". The default can be configured using
 NMdataConf.}
 }
+\value{
+A data.frame
+}
 \description{
 Each covariate is univariately varied while other covariates are
 kept at reference values. This structure is often used for

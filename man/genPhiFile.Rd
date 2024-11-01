@@ -12,6 +12,9 @@ obtained by `NMdata::NMscanData`.}
 
 \item{file}{Path to the .phi file to be written.}
 }
+\value{
+Invisibly, character lines (strings) optionally written to file
+}
 \description{
 This will typically be used in a couple of different
 situations. One is if a number of new subjects have been simulated

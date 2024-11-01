@@ -11,6 +11,8 @@ addEVID2(
   CMT,
   EVID = 2,
   args.NMexpandDoses,
+  col.id = "ID",
+  unique = TRUE,
   as.fun,
   doses,
   time.sim
@@ -46,6 +48,12 @@ argument, `addEVID2()` relies on the default `NMexpanDoses()`
 argument values. If this is insufficient, you can specify
 other argument values in a list, or you can call
 `NMdata::NMexpanDoses()` manually before calling `addEVID2()`.}
+
+\item{unique}{If `TRUE` (default), events are reduced to unique
+time points before insertion. Sometimes, it's easier to
+combine sequences of time points that overlap (maybe across
+`TIME` and `TAPD`), and let `addEVID2()` clean them. If you
+want to keep your duplicated events, use `unique=FALSE`.}
 
 \item{as.fun}{The default is to return data as a data.frame. Pass
 a function (say `tibble::as_tibble`) in as.fun to convert to

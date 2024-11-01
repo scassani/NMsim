@@ -29,6 +29,11 @@
 ##'     argument values. If this is insufficient, you can specify
 ##'     other argument values in a list, or you can call
 ##'     `NMdata::NMexpanDoses()` manually before calling `addEVID2()`.
+##' @param unique If `TRUE` (default), events are reduced to unique
+##'     time points before insertion. Sometimes, it's easier to
+##'     combine sequences of time points that overlap (maybe across
+##'     `TIME` and `TAPD`), and let `addEVID2()` clean them. If you
+##'     want to keep your duplicated events, use `unique=FALSE`.
 ##' @param as.fun The default is to return data as a data.frame. Pass
 ##'     a function (say `tibble::as_tibble`) in as.fun to convert to
 ##'     something else. If data.tables are wanted, use
@@ -82,7 +87,7 @@
 ##' @export 
 
 
-addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,as.fun,doses,time.sim){
+addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,col.id="ID",unique=TRUE,as.fun,doses,time.sim){
     
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
@@ -90,7 +95,7 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,as.fun,doses,t
     ..EVID <- EVID
     DOSN <- NULL
     DV <- NULL
-    ID <- NULL
+    ##    ID <- NULL
     MDV <- NULL
     PDOSN <- NULL
     TDOS <- NULL
@@ -106,7 +111,10 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,as.fun,doses,t
     if(missing(TAPD)) TAPD <- NULL
     if(missing(args.NMexpandDoses)) args.NMexpandDoses <- NULL
 
-    ### this requires NMdata 0.1.7
+    col.evid <- "EVID"
+    col.time <- "TIME"
+    
+### this requires NMdata 0.1.7
     ## args <- NMdata:::getArgs(sys.call(),parent.frame())
     ## data <- NMdata:::deprecatedArg("doses","data",args=args)
     ## TIME <- NMdata:::deprecatedArg("time.sim","TIME",args=args)
@@ -127,10 +135,8 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,as.fun,doses,t
     }
 
     
-
-    
-    to.use <- setdiff(colnames(data),c("TIME","EVID","CMT","AMT","RATE","MDV","SS","II","ADDL","DV"))
-    covs.data <- findCovs(data[,to.use,with=FALSE],by="ID",as.fun="data.table")
+    to.use <- setdiff(colnames(data),c("TIME",col.evid,"CMT","AMT","RATE","MDV","SS","II","ADDL","DV"))
+    covs.data <- findCovs(data[,to.use,with=FALSE],by=col.id,as.fun="data.table")
 
     dt.obs <- NULL
 ### handle time
@@ -152,51 +158,66 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,as.fun,doses,t
 
 #### handle TAPD - add to time
     if(!is.null(TAPD)){
-
+        
         if(!is.data.frame(TAPD)){
             TAPD <- data.table(TAPD=TAPD)
         }
 
         if(!"TAPD"%in%colnames(TAPD)) stop("When TAPD is a data.frame, it must contain a column called TAPD.")
         TAPD <- as.data.table(TAPD)
+        ## TODO - TAPD cannot be a covariate
         cols.by <- intersect(colnames(TAPD),colnames(covs.data))
+        
         if(length(cols.by) == 0){
             dt.tapd <- egdt(TAPD,covs.data,quiet=TRUE)
+            ##dt.tapd <- TAPD
         } else {
             dt.tapd <- merge(TAPD,covs.data,all.x=TRUE,allow.cartesian = TRUE)
         }
 
         
         if(is.null(args.NMexpandDoses)) args.NMexpandDoses <- list()
-        args.NMexpandDoses$data <- data[EVID==1]
+        args.NMexpandDoses$data <- data[get(col.evid)==1]
         if(is.null(args.NMexpandDoses$quiet)) args.NMexpandDoses$quiet <- TRUE
         doses.tmp <- do.call(NMexpandDoses,args.NMexpandDoses)
-        
-        doses.tmp <- doses.tmp[,.(TDOS=TIME)][,DOSN:=.I]
-        
 
-        ## setnames(dt.tapd,"TIME","TAPD")
-        dt.obs.1 <- doses.tmp[,dt.tapd[],by=doses.tmp]
+        names.covs <- colnames(covs.data)
+        doses.tmp <- doses.tmp[,c(colnames(covs.data),"TIME"),with=FALSE][,DOSN:=1:.N,by=names.covs]
+        setnames(doses.tmp,"TIME","TDOS")
+        
+        
+        
+        dt.obs.1 <- merge(doses.tmp[,c(names.covs,"DOSN","TDOS"),with=FALSE],dt.tapd,by=c(names.covs),allow.cartesian=T)
         dt.obs.1[,TIME:=TDOS+TAPD]
-        dt.obs.1[,EVID:=..EVID]
-        dos2 <- doses.tmp[,EVID:=1] |> setnames(c("TDOS","DOSN"),c("TIME","PDOSN"))
+        dt.obs.1[,(col.evid):=..EVID]
+        doses.tmp[,(col.evid):=1][,TIME:=TDOS][,PDOSN:=DOSN] 
         dt.obs.2 <- rbind(doses.tmp,dt.obs.1,fill=TRUE)
-        setorder(dt.obs.2,TIME,EVID)
-        dt.obs.2[,PDOSN:=nafill(PDOSN,type="locf")]
+
+        order.evid = rev(c(3,0,2,4,1))
+        col.evidorder <- tmpcol(dt.obs.2,base="evidorder")
+        dt.obs.2[,(col.evidorder):=match(get(col.evid),table=order.evid)]
+
+        ## have to include covariates in sorting
+        cols.by.all <- intersect(c(colnames(TIME),colnames(TAPD)),colnames(covs.data))
+        
+        setorderv(dt.obs.2,c(cols.by.all,col.time,col.evidorder))
+        dt.obs.2[,(col.evidorder):=NULL]
+        
+        dt.obs.2[,PDOSN:=nafill(PDOSN,type="locf"),by=col.id]
 
         
         
-        dt.obs.3 <- dt.obs.2[EVID==..EVID&DOSN==PDOSN]
+        dt.obs.3 <- dt.obs.2[get(col.evid)==..EVID&DOSN==PDOSN]
         dt.obs.3 <- dt.obs.3[,c("TIME",intersect(colnames(dt.tapd),colnames(dt.obs.3))),with=FALSE]
         dt.obs <- rbind(dt.obs,dt.obs.3,fill=TRUE) |> setorder(TIME)
     }
-    
 
+    if(unique){
+        dt.obs <- unique(dt.obs)
+    }
 
-    
     dt.obs[
-       ,EVID:=..EVID][
-        ## ,DV:=NA_real_][
+       ,(col.evid):=..EVID][
        ,MDV:=1]
     
 
@@ -213,13 +234,12 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,args.NMexpandDoses,as.fun,doses,t
     dt.obs <- egdt(dt.obs,CMT,quiet=TRUE)
 
     
-    ## dat.sim <- egdt(typsubj[,!(c("ID"))],doses.ref)
     dat.sim <- rbind(data,dt.obs,fill=T)
 
 #### not sure how to allow flexible sorting. For now, NB order is naive.
-    setorder(dat.sim,ID,TIME,EVID)
-    ## dat.sim[,REC:=.I]
+
+    setorderv(dat.sim,cols=c(col.id,"TIME",col.evid))
+
     as.fun(dat.sim)
-    
 }
 

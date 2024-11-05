@@ -262,7 +262,7 @@ and advice.
 For the first time NMsim works on Windows. There may still be some
 limitations but initial testing looks very promising. Make sure to set
 `path.nonmem`. See the configuration vignette on the website:
-[`NMsim-config.html`](https://philipdelff.github.io/NMsim/articles/NMsim-config.html)
+[`NMsim-config.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-config.html)
 
 0.1.0 is also an important upgrade that solidifies the way NMsim reads
 results from simulations.  In addition to important bug fixes, it

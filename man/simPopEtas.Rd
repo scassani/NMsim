@@ -36,8 +36,10 @@ NMdataConf.}
 
 \item{file.mod}{Deprecated. Use file instead.}
 
-\item{...}{Additional arguments passed to NMdata::NMreadExt(). Use
-`auto.ext=FALSE` if}
+\item{...}{Additional arguments passed to NMdata::NMreadExt().}
+}
+\value{
+A data.frame
 }
 \description{
 Generate a population based on a Nonmem model

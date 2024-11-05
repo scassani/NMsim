@@ -785,7 +785,6 @@ test_that("basic - a model that fails on NMTRAN",{
              ,wait=TRUE,
               path.nonmem=path.nonmem
               )
-
     )
 
     ## expect_equal(nrow(simres),0)

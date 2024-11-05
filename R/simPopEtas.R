@@ -21,8 +21,8 @@
 ##'     as.fun="data.table". The default can be configured using
 ##'     NMdataConf.
 ##' @param file.mod Deprecated. Use file instead.
-##' @param ... Additional arguments passed to NMdata::NMreadExt(). Use
-##'     `auto.ext=FALSE` if
+##' @param ... Additional arguments passed to NMdata::NMreadExt(). 
+##' @return A data.frame
 ##' @import data.table
 ##' @import NMdata
 ##' @importFrom MASS mvrnorm

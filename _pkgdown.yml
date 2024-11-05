@@ -5,9 +5,13 @@ template:
     after_body: |-
       <script data-goatcounter="https://nmsim.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+  assets: |
+    assets/NMsim_general_html.Rmd
+    assets/NMsim_general_web.pdf
+    assets/ACOP_logo_transp.png
 navbar:
   structure:
-    left: [home, articles, reference, news, github]
+    left: [home, articles, reference, news, pub, github]
   components:
    home:
     title: Simulation of Nonmem models from R

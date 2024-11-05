@@ -4,7 +4,7 @@
 \alias{expandCovs}
 \title{Create data set where each covariate is univariately varied}
 \usage{
-expandCovs(..., data, col.id = "ID", sigdigs = 2, as.fun)
+expandCovs(..., data, col.id = "ID", sigdigs = 2, reduce.ref = TRUE, as.fun)
 }
 \arguments{
 \item{...}{Covariates provided as lists - see examples. The name
@@ -28,6 +28,12 @@ subjects, not on observations (each subject contributes once).}
 
 \item{sigdigs}{Used for rounding of covariate values if using
 quantiles or if using a function to find reference.}
+
+\item{reduce.ref}{If `TRUE` (default), only return one row with
+all reference values. If `FALSE` there will be one such row
+for each covariate. When reduced to one line, all columns
+related to covariate-level information such as covariate name
+will contain `NA` for the reference.}
 
 \item{as.fun}{The default is to return data as a data.frame. Pass
 a function (say `tibble::as_tibble`) in as.fun to convert to

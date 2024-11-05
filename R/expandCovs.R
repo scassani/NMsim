@@ -22,6 +22,11 @@
 ##'     subjects, not on observations (each subject contributes once).
 ##' @param sigdigs Used for rounding of covariate values if using
 ##'     quantiles or if using a function to find reference.
+##' @param reduce.ref If `TRUE` (default), only return one row with
+##'     all reference values. If `FALSE` there will be one such row
+##'     for each covariate. When reduced to one line, all columns
+##'     related to covariate-level information such as covariate name
+##'     will contain `NA` for the reference.
 ##' @param as.fun The default is to return data as a data.frame. Pass
 ##'     a function (say `tibble::as_tibble`) in as.fun to convert to
 ##'     something else. If data.tables are wanted, use

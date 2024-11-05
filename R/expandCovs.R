@@ -42,7 +42,7 @@
 ##' }
 ##' @export
 
-expandCovs <- function(...,data,col.id="ID",sigdigs=2,as.fun){
+expandCovs <- function(...,data,col.id="ID",sigdigs=2,reduce.ref=TRUE,as.fun){
 
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
@@ -73,7 +73,7 @@ expandCovs <- function(...,data,col.id="ID",sigdigs=2,as.fun){
     ## should add quantiles too
     covLists <- lapply(covlists,completeCov,data=data,col.id=col.id,sigdigs=sigdigs)
     allcovs <- rbindlist(covLists)
-
+    names.covs <- unique(allcovs[,covvar])
 
     ## add in covvar ref values. Merge on wide dt.ref, then adjust each row.
     dt.ref.w <- dcast(unique(allcovs[,.(covvar,covref)]) , .~covvar,value.var="covref")
@@ -87,7 +87,13 @@ expandCovs <- function(...,data,col.id="ID",sigdigs=2,as.fun){
         allcovs[I,(this.cov):=covval]
     }
 
-        as.fun(    allcovs)
+#### reduce to only one ref row
+    if(reduce.ref){
+        ref <- unique(allcovs[type=="ref",c("type",names.covs),with=FALSE])
+        allcovs <- rbind(ref,allcovs[type!="ref"],fill=TRUE)
+    }
+    
+    as.fun(allcovs)
 
 }
 

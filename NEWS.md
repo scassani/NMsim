@@ -1,3 +1,19 @@
+# NMsim 0.1.5
+
+## Improvements
+* `expandCovs()` has a new argument `reduce.ref` which defaults to
+  `TRUE` meaning that by default there will be only one reference
+  combination. If `FALSE` `expandCovs()` will return one reference for
+  each covariate. The forest plot can be evaluated with just one
+  reference simulation.
+
+## Bugfixes
+* NMsim 0.1.4 would not submit jobs to cluster when number of cores was `nc=1`. Fixed. Workaround, use `nc=2`.
+
+* NMsim 0.1.4 erroneously concluded jobs had failed when sent to the cluster if there was no existing queue. This is due to the exit status of `qsub` in such cases. This has been fixed. As a workaround in 0.1.4, just run your sim again once the queue has been initiated by the first NMsim called.
+
+* When Nonmem failed in 0.1.4, NMsim might not return debugging info. Fixed.
+
 # NMsim 0.1.4
 
 ## New features

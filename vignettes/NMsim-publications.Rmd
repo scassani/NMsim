@@ -35,8 +35,8 @@ knitr::opts_chunk$set(
 NMsim - Seamless Nonmem Simulation Platform in R  
 Authors: Philip Delff  
 Supplementary material: (coming)
-[pdf](../suppl/NMsim_general_web.pdf)
-[`Code`](../suppl/NMsim_general_html.Rmd)
+[pdf](https://github.com/NMautoverse/NMsim/blob/main/publications/ACOP2024/NMsim_general_web.pdf)
+[`Code`](https://github.com/NMautoverse/NMsim/blob/main/publications/ACOP2024/NMsim_general_html.Rmd)
 
 Building Automated Pharmacometrics Analysis Workflows in R with NMsim  
 Authors: Boris Grinshpun, Samer Mouksassi, Philip Delff  

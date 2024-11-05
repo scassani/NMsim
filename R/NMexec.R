@@ -269,8 +269,9 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
                 files.needed <- unique(c(files.needed,pnm) )
             } else {
                 ## for nc=1, the pnm file setup does not seem to work.
-                if(!quiet) message("sge is disabled because nc=1")
-                sge <- FALSE
+                ## if(!quiet) message("sge is disabled because nc=1")
+                ## sge <- FALSE
+                pnm <- NULL
             }
         }
 
@@ -361,7 +362,13 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
             }
             
             procres <- system(string.cmd,ignore.stdout=nmquiet)
-            if(procres!=0) stop("Nonmem failed. Exiting.")
+            if(procres!=0) {##stop("Nonmem failed. Exiting.")
+                ##message("Nonmem failed. Exiting.")
+                if(sge){
+                reportFailedRun(file.path(dir.tmp,basename(fnExtension(file.mod,"lst"))))
+                }
+                stop("Nonmem failed. Exiting.")
+            }
         }
     }
 

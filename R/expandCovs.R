@@ -55,8 +55,8 @@ expandCovs <- function(...,data,col.id="ID",sigdigs=2,reduce.ref=TRUE,as.fun){
     . <- NULL
     covvar <- NULL
     covref <- NULL
-    . <- NULL
     covval <- NULL
+    type <- NULL
 
 ###  Section end: Dummy variables, only not to get NOTE's in pacakge checks
 
@@ -95,7 +95,9 @@ expandCovs <- function(...,data,col.id="ID",sigdigs=2,reduce.ref=TRUE,as.fun){
 #### reduce to only one ref row
     if(reduce.ref){
         ref <- unique(allcovs[type=="ref",c("type",names.covs),with=FALSE])
+        corder <- colnames(allcovs)
         allcovs <- rbind(ref,allcovs[type!="ref"],fill=TRUE)
+        setcolorder(allcovs,corder)
     }
     
     as.fun(allcovs)

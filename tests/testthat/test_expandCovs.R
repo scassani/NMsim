@@ -62,3 +62,26 @@ test_that("labeling",{
     expect_equal_to_reference(res,fileRef)
 
 })
+
+
+
+test_that("keep all refs",{
+
+    fileRef <- "testReference/expandCovs_04.rds"
+    ## file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMdata")
+    file.mod <- "testData/nonmem/xgxr134.mod"
+    modres <- NMdata::NMscanData(file.mod,quiet=TRUE)
+    
+    res <- expandCovs(
+        WEIGHTB=list(ref=70,values=c(40,60,80,100),label="Bodyweight (kg)"),
+        ## notice, values OR quantiles can be provided
+        AGE=list(ref=median, quantiles=c(10,25,75,90)/100, label="Age (years)"),
+        data=modres,
+        as.fun="data.table",
+        reduce.ref=F        
+    )
+
+    expect_equal_to_reference(res,fileRef)
+    
+})
+

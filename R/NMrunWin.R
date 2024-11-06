@@ -2,7 +2,7 @@ cleaningPatterns <- function(clean){
     if(! clean %in% 1:4){
         stop ("only clean values 1, 2, 3, and 4 are supported")
     }
-    c("nonmem","worker*","FDATA*","fort.*","WK_*")
+    c("nonmem","worker*","FDATA*","fort.*","WK_*","temp_dir","FSUBS*")
 }
 
 ##' Internal function to run Nonmem on linux
@@ -40,7 +40,7 @@ NMrunLin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,sg
                             )
 
         if(nc>1){
-            line.run <- sprintf("%s -parafile=%s [nodes]=%s'",line.run,getAbsolutePath(pnm),nc)
+            line.run <- sprintf('%s -parafile=\"%s\" [nodes]=%s',line.run,getAbsolutePath(pnm),nc)
         }
         
         ## line.run <- sprintf("qsub -pe orte %s -V -N %s %s %s",

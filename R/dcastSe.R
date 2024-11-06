@@ -1,3 +1,4 @@
+##' @importFrom stats as.formula
 ##' @keywords internal
 ## A standard evaluation interface to data.table::dcast
     dcastSe <- function(data,l,r,...){

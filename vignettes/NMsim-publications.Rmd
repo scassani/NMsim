@@ -48,5 +48,5 @@ Authors: Sanaya Shroff, Philip Delff
 Simulate modified Nonmem models using NMsim (Poster T19)  
 Authors: Simone Cassani, Jahidur Rashid, Christopher Banker, Philip Delff  
 
-A Model-Based Simulation Workflow Enables Automated and Accurate Generation of Clinical Pharmacology Summary Statistics (T103)  
+A Model-Based Simulation Workflow Enables Automated and Accurate Generation of Clinical Pharmacology Summary Statistics (Poster T103)  
 Authors: Brian M. Reilly Pharm.D., Ph.D., Philip H. Delff, Ph.D.

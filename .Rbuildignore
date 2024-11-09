@@ -39,7 +39,7 @@ input.grd
 input.shk
 INTER
 LINK.LNK
-^man/auxiliary
+^man/figures/.*\.pdf
 ^inst/examples/data/xgxt021_bs.+
 ^inst/examples/nonmem/NMdata_backup/
 ^inst/examples/nonmem/NMexec.pnm

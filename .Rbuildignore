@@ -53,6 +53,7 @@ LINK.LNK
 ^inst/examples/nonmem/.*\.dir.+
 ^inst/examples/nonmem/.*\.xml
 ^inst/examples/nonmem/.*\.msf
+^inst/examples/R/run_models.R
 ^inst/examples/simulations
 ^inst/examples/R/NMexec_run_estimates.R
 ^publications

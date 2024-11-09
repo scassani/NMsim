@@ -148,7 +148,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
     if(missing(system.type)) system.type <- NULL
     if(missing(files.needed)) files.needed <- NULL
     
-    NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,method.execute=method.execute,system.type=system.type)
+    NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,method.execute=method.execute,system.type=system.type,must.work=TRUE)
     ## todo integrate in NMsimTestConf
 
     cmd.execute <- file.psn(NMsimConf$dir.psn,"execute")
@@ -169,7 +169,9 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
     ## not needed with NMdata 0.1.6 or 0.1.7
     if(is.null(nc)) nc <- 64
     
-    ## if(NMsimConf$method.execute=="nmsim" && nc>1){message("\nNotice: nc>1 still does not work with method.execute=\"nmsim\". Expect single-core performance. Notice there are other and most often more efficient methods to speed up simulations. See discussions on the NMsim website.")}
+
+
+
 
     
     ## args.psn.execute
@@ -190,6 +192,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
                         ,clean=FALSE
                         ,lower=FALSE)
 
+
     if(missing(file.pattern)) file.pattern <- NULL
     file.pattern <- simpleCharArg("file.pattern"
                                  ,file.pattern
@@ -198,8 +201,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
                                  ,clean=FALSE
                                  ,lower=FALSE)
 
-    
-    
+
     if(is.null(files) && is.null(file.pattern)) file.pattern <- ".+\\.mod"
     files.all <- NMdata:::getFilePaths(files=files,file.pattern=file.pattern,dir=dir,quiet=TRUE)
     

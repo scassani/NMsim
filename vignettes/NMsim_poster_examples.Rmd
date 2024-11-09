@@ -90,7 +90,7 @@ div.summary {
  color: #000000;
  background-color: #bed3ec;
  border: solid 5px #dfedff;
- background-image: url("Summary_ffffff.png");
+ /* background-image: url("Summary_ffffff.png"); */
 }
 
 div.data {
@@ -105,7 +105,7 @@ div.data {
  color: #000000;
  background-color: #FAD07D;
  border: solid 5px #FFDE9C;
- background-image: url("Stats graph_ffffff.png");
+ /* background-image: url("Stats graph_ffffff.png"); */
 }
 
 ``` 
@@ -129,8 +129,8 @@ library(kableExtra)
 library(NMdata)
 library(NMsim)
 
-NMdataConf(##path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
-           path.nonmem = "/opt/nonmem/nm751/run/nmfe75"
+NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
+           ## path.nonmem = "/opt/nonmem/nm751/run/nmfe75"
           ,dir.sims="simtmp"
           ,dir.res="simres-poster"
            )
@@ -347,7 +347,7 @@ simres.typ2 <- NMsim(
     file.mod=c("2_compartments"=file.mod,"1_compartment"=file2.mod),
     data=data.sim,
     typical=TRUE,
-    name.sim="typsubj"
+    name.sim="typsubj",
     nmquiet=TRUE,
     quiet=TRUE,
     reuse.results=reuse.results)
@@ -505,7 +505,7 @@ simres.newpops <- rbind(as.data.table(simres.subprob),
 
 simres.pi <- simres.newpops[
    ,setNames(as.list(quantile(IPRED,probs=c(.05,.5,.95))),cc(ll,median,ul)),
-    by=.(sim,trt,TIME)]
+    by=.(name.sim,trt,TIME)]
 
 simres.pi$type <- "pi"
 simres.pi$pi.cover <- "90%"
@@ -514,7 +514,7 @@ ggplot(simres.pi,aes(TIME,fill=trt))+
     geom_ribbon(aes(ymin=ll,ymax=ul,alpha=pi.cover))+
     geom_line(aes(y=median,colour=trt))+
     scale_alpha_manual(values=c("90%"=.5))+
-    facet_wrap(~sim)+
+    facet_wrap(~name.sim)+
     labs(x="Hours since first dose",y="Concentration (ng/mL)")+
     theme(legend.position="none")
 ```

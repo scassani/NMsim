@@ -250,6 +250,7 @@ doses <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),
 dat.sim <- addEVID2(doses,time.sim=0:(24*7),CMT=2)
 ```
 
+### Creating dosing regimens
 `NMcreateDoses()` creates just the dosing events, and `addEVID2()` adds the sampling events. By default, doses are indicated using `EVID=1` and samples by `EVID=2`.
 
 Notice, `NMcreateDoses()` has convenient behaviours. See `?NMcreateDoses` and the vignette ond creating simulation data sets for more.
@@ -266,9 +267,9 @@ NMcreateDoses(TIME=c(0,12,24),AMT=data.table(AMT=c(2,1,4,2),DOSE=c(1,1,2,2)))
 ```
 </details>
 
-&nbsp;
+### Adding sampling times
 
-For adding sampling times, `addEVID2()` provides a similarly flexible interface. It accepts data.frames with covariates allowing for different sampling schemes for different subject groups (say different dosing regimens), and dosing times can be supplied relative to previous dosing times.
+For adding sampling times to a set of doses and/or samples, `addEVID2()` provides a similarly flexible interface. It accepts data.frames with covariates allowing for different sampling schemes for different subject groups (say different dosing regimens), and dosing times can be supplied relative to previous dosing times.
 
 <details>
 <summary>Additional `addEVID2()` examples</summary>
@@ -291,7 +292,7 @@ addEVID2(dt.dos,TAPD=1:2,CMT=data.frame(CMT=2:3,DVID=c("Parent","Metabolite")))
 
 </details>
 
-&nbsp;
+### Time since previous dose
 
 While not used in these examples, it's worth mentioning `NMdata::addTAPD()` for adding time since previous dose and other variables related to previous dose - previous dosing time, previous dose amount, cumulative number of doses, cumulative number of doses, and culative dose amount. These are often useful to add to a simulation dataset:
 

@@ -15,9 +15,6 @@
 ##'
 ##' @export
 
-### Notes
-## Not sure if we should keep var.conc or not. It can do the calcs on both PRED, IPRED, and Y if var.conc=cc(PRED,IPRED,Y) but I am not sure that will be used. Also, it complicates the funs.exposure argument because the columns in var.conc must be refered to as "value".
-
 ## Maybe the best is to keep the var.conc arg as an optinal. If not used, no melting done.
 
 summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){

@@ -26,6 +26,8 @@ knitr::opts_chunk$set(
 ## knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60), tidy=TRUE)
 ```
 
+
+
 ## Objectives
 This vignettes aims at enabling you to
 

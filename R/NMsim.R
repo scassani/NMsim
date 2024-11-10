@@ -396,7 +396,6 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                   format.data.complete="rds",
                   ...
                   ){
-
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
     
     . <- NULL
@@ -435,7 +434,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     nmsim <- NULL
     NMsimTime <- NULL
     NMsimVersion <- NULL
-n.fn.sim <- NULL
+    n.fn.sim <- NULL
     none <- NULL
     psn <- NULL
     par.type <- NULL
@@ -512,7 +511,8 @@ n.fn.sim <- NULL
     if(missing(dir.psn)) dir.psn <- NULL
     if(missing(path.nonmem)) path.nonmem <- NULL
     if(missing(method.execute)) method.execute <- NULL
-    NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execute=method.execute,must.work=execute)
+    ## NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execute=method.execute,must.work=execute)
+NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execute=method.execute,must.work=FALSE)
 
     
     ## after definition of wait and wait.exec, wait is used by
@@ -523,10 +523,6 @@ n.fn.sim <- NULL
     ## data. Especially, if NMTRAN fails in exec, NMreadSim() will
     ## wait indefinitely.
     if(wait.exec) wait <- FALSE
-
-
-### Moved to NMexec()
-    ##  if(NMsimConf$metod.execute=="nmsim" && nc>1){message("\nNotice: nc>1 still does not work with method.execute=\"nmsim\". Expect single-core performance. Notice there are other and most often more efficient methods to speed up simulations. See discussions on the NMsim website.")}
     
 
     ## args.psn.execute
@@ -882,6 +878,9 @@ n.fn.sim <- NULL
         }
     }
 
+
+
+    
 ### clear simulation directories so user does not end up with old results
     if(sim.dir.from.scratch){
         dt.models[,if(dir.exists(dir.sim)) unlink(dir.sim,recursive=TRUE),by=.(ROWMODEL)]
@@ -1099,27 +1098,32 @@ n.fn.sim <- NULL
     ## we need the new path.sim and files.needed
     cnames.gen <- colnames(dt.models.gen)
     if(!"path.sim"%in%cnames.gen) stop("path.sim must be in returned data.table")
-    
-    
-    ## if multiple models have been spawned, and files.needed has been generated, the only allowed method.execute is "nmsim"
-    if(nrow(dt.models.gen)>1 && "files.needed"%in%colnames(dt.models.gen)){
-        if(NMsimConf$method.execute!="nmsim"){
-            stop("Multiple simulation runs spawned, and they need additional files than the simulation input control streams. The only way this is supported is using method.execute=\"nmsim\".")
+
+
+
+
+##### Moved to after reuse.results - before NMexec()
+        ## if multiple models have been spawned, and files.needed has been generated, the only allowed method.execute is "nmsim"
+        if(nrow(dt.models.gen)>1 && "files.needed"%in%colnames(dt.models.gen)){
+            if(NMsimConf$method.execute!="nmsim"){
+                stop("Multiple simulation runs spawned, and they need additional files than the simulation input control streams. The only way this is supported is using method.execute=\"nmsim\".")
+            }
         }
-    }
-    
-    ## if files.needed, psn execute cannot be used.
-    if("files.needed"%in%colnames(dt.models.gen)){
-        if(NMsimConf$method.execute=="psn"){
-            stop("method.execute=\"psn\" cannot be used with simulation methods that need additional files to run. Try method.execute=\"nmsim\".")
+
+        ## if multiple models spawned, direct is not allowed
+        if(nrow(dt.models.gen)>1){
+            if(NMsimConf$method.execute=="direct"){
+                stop("method.execute=\"direct\" cannot be used with simulation methods that spawn multiple simulation runs. Try method.execute=\"nmsim\" or method.execute=\"psn\".")
+            }
         }
-    }
-    ## if multiple models spawned, direct is not allowed
-    if(nrow(dt.models.gen)>1){
-        if(NMsimConf$method.execute=="direct"){
-            stop("method.execute=\"direct\" cannot be used with simulation methods that spawn multiple simulation runs. Try method.execute=\"nmsim\" or method.execute=\"psn\".")
+
+        ## if files.needed, psn execute cannot be used.
+        if("files.needed"%in%colnames(dt.models.gen)){
+            if(NMsimConf$method.execute=="psn"){
+                stop("method.execute=\"psn\" cannot be used with simulation methods that need additional files to run. Try method.execute=\"nmsim\".")
+            }
         }
-    }
+
     
     
     setnames(dt.models,"path.sim","path.sim.main")

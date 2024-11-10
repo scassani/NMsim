@@ -21,8 +21,8 @@ navbar:
    articles:
       text: Vignettes
       menu:
-      - text: Simulation of New Subjects
-        href: articles/NMsim-basics.html
+      - text: NMsim Introduction
+        href: articles/NMsim-intro.html
       - text: Simulations for VPCs 
         href: articles/NMsim-VPC.html
       - text: Requirements and Configuration

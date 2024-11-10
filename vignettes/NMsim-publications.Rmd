@@ -37,7 +37,7 @@ Authors: Philip Delff
 <!-- [pdf](https://github.com/NMautoverse/NMsim/blob/main/publications/ACOP2024/NMsim_general_web.pdf) -->
 <!-- [pdf](../doc/NMsim_general_web.pdf) -->
 <!-- [`Code`](https://github.com/NMautoverse/NMsim/blob/main/publications/ACOP2024/NMsim_general_html.Rmd) -->
-[pdf](../reference/figures/NMsim_general_web.pdf)
+[pdf](../reference/figures/NMsim_intro_web.pdf)
 The code is in [NMsim - Seamless NONMEM Simulation Platform in R]{NMsim-intro.html}
 
 Building Automated Pharmacometrics Analysis Workflows in R with NMsim (Poster T49)  

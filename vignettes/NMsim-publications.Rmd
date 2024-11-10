@@ -37,17 +37,21 @@ Authors: Philip Delff
 <!-- [pdf](https://github.com/NMautoverse/NMsim/blob/main/publications/ACOP2024/NMsim_general_web.pdf) -->
 <!-- [pdf](../doc/NMsim_general_web.pdf) -->
 <!-- [`Code`](https://github.com/NMautoverse/NMsim/blob/main/publications/ACOP2024/NMsim_general_html.Rmd) -->
-[pdf](../reference/figures/NMsim_intro_web.pdf)
+[pdf](../reference/figures/NMsim_intro_web.pdf)  
 The code is in [NMsim - Seamless NONMEM Simulation Platform in R]{NMsim-intro.html}
 
 Building Automated Pharmacometrics Analysis Workflows in R with NMsim (Poster T49)  
 Authors: Boris Grinshpun, Samer Mouksassi, Philip Delff  
+[pdf](../reference/figures/NMsim_automated_workflows_web.pdf)  
 
-Simulation of clinical trial predictions with model uncertainty using NMsim (Poster T110)
+Simulation of clinical trial predictions with model uncertainty using NMsim (Poster T110)  
 Authors: Sanaya Shroff, Philip Delff  
+[pdf](../reference/figures/NMsim_param_uncertainty_web.pdf)  
 
 Simulate modified Nonmem models using NMsim (Poster T19)  
 Authors: Simone Cassani, Jahidur Rashid, Christopher Banker, Philip Delff  
+[pdf](../reference/figures/NMsim_modified_models_web.pdf)  
 
 A Model-Based Simulation Workflow Enables Automated and Accurate Generation of Clinical Pharmacology Summary Statistics (Poster T103)  
-Authors: Brian M. Reilly Pharm.D., Ph.D., Philip H. Delff, Ph.D.
+Authors: Brian M. Reilly Pharm.D., Ph.D., Philip H. Delff, Ph.D.__
+[pdf](../reference/figures/NMsim_simbased_NCA_web.pdf)  

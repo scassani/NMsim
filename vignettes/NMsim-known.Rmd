@@ -82,7 +82,7 @@ installation and maybe also PSN (optional). See
 worry - it is very easy. 
 
 You should be familiar with basic `NMsim` arguments as described in
-[`NMsim-basics.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-basics.html). In
+[`NMsim-intro.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-intro.html). In
 that vignette you should have learned to use the default simulation
 method. This vignette will be using the same model and simulation
 input data to demonstrate how to use additional methods and features of `NMsim`.

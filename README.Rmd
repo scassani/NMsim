@@ -93,7 +93,49 @@ ggplot(datl,aes(TIME,value,colour=variable))+
 ```
 
 
-This example was a simulation of a multiple dose regimen with a loading dose using a model estimated on single dose data. It is from the first vignette [`NMsim-basics.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-basics.html).
+This example was a simulation of a multiple dose regimen with a loading dose using a model estimated on single dose data. It is from the first vignette [`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html). Go there next to get started with `NMsim`.
+
+## Motivation
+
+While NONMEM offers great flexibility for estimation of PK and PK/PD
+models, many users find the simulation features in NONMEM insufficient
+and turn to alternative software for simulation. This leads to
+additional work of model reimplementation, with risk of the simulation
+model deviating from the estimated model, due to bugs in the
+reimplementation. For a wide range of model types, the limitation is
+not in NONMEM's ability to perform such simulations, but rather in the
+lack of a simple user-interface to obtain the
+simulations. [`NMsim`](https://cran.r-project.org/package=NMsim)
+provides such an interface as an R package, allowing the modeler to
+simulate models as soon as an estimate is available.
+
+
+The goal for NMsim is to automate the NONMEM simulation workflow and
+provide a simple, flexible, and powerful R interface. With this
+automation, post-processing of model estimates can to great extends be
+automated.
+
+```{r,  tab-alternatives,echo=FALSE}
+tab <- fread(header=T,text=",NONMEM,Third-party,NMsim
+Implementation,Easy,Depends - Potentially error-prone,None
+Execution,Tedious,Easy,Easy
+Depends on NONMEM,Yes,No,Yes
+Runtime,Fair,Fast,Fair")
+
+cnames <- colnames(tab)
+cnames[1] <- " "
+setnames(tab,cnames)
+
+tab$NONMEM <- cell_spec(tab$NONMEM,color=c("green","red","orange","orange")[match(tab$NONMEM,cc(Easy,Tedious,Fair,Yes))])
+tab$`Third-party` <- cell_spec(tab$`Third-party`,color=c("green","red","green","green")[match(tab$`Third-party`,cc(Easy,"Depends - Potentially error-prone",No,Fast))])
+tab$NMsim <- cell_spec(tab$NMsim,color=c("green","green","orange","orange")[match(tab$`NMsim`,cc(Easy,None,Yes,Fair))])
+
+colwidth <- "12em"
+kable(tab,escape=FALSE)|>
+    column_spec(column=1:4,width=c(colwidth,colwidth,colwidth,colwidth))
+    
+
+```
 
 
 ## Supported types of simulations
@@ -101,7 +143,7 @@ This example was a simulation of a multiple dose regimen with a loading dose usi
 methods are currently provided:
 
 - Simulation of new subjects (default or explicitly with `method.sim=NMsim_default`)
-- Simulation of subjects already estimated in Nonmem model (`method.sim=NMsim_known`) 
+- Simulation of subjects already estimated in Nonmem model (`method.sim=NMsim_EBE`) 
 - Simulation with parameter uncertainty based on a Nonmem covariance step (`method.sim=NMsim_VarCov`)
 - Simulation "as is" in case you already prepared a simulation control stream and just want to automate the use of it in combination with simulation data sets (`method.sim=NMsim_asis`)
 
@@ -112,7 +154,7 @@ In addition, `NMsim` provides other features to further modify the simulation co
 
 To learn how to run these simulations on your Nonmem models, get
 started with
-[`NMsim-basics.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-basics.html). It
+[`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html). It
 is really easy.
 
 In addition, `NMsim` can simulate multiple models at a time. E.g., if a
@@ -141,35 +183,35 @@ R after the simulation has been run.
 
 
 
+
+
 ## How NMsim works 
-One strength of `NMsim` is that it does not simulate, translate or
-otherwise interpret a Nonmem model. Instead, it automates the Nonmem simulation
-workflow (including execution of Nonmem) and wraps it all into one R function. In the example given above, 
+`NMsim` does not simulate, translate or otherwise interpret a NONMEM
+model. Instead, it automates the NONMEM simulation workflow (including
+execution of NONMEM) and wraps it all into one R function. Provided
+with a path to a NONMEM control stream and a data.frame to simulate,
 `NMsim` will do the following:
 
-* Save the simulation input data in a csv file for Nonmem
-* Create a simulation input control stream based on `file.mod` ($INPUT
-  and $DATA matching the saved simulation data set; $SIMULATE instead of
-  $ESTIMATION and $COVARIANCE)
+* Save the simulation input data in a csv file for NONMEM
+* Create a simulation input control stream based on `file.mod` (`$INPUT`
+and `$DATA` matching the saved simulation data set; `$SIMULATE` instead of
+`$ESTIMATION` and `$COVARIANCE`)
 * Update and fix initial values based on estimate (from `file.ext`)
-* Run Nonmem on the generated simulation control stream
+* Run NONMEM on the generated simulation control stream
 * Collect output data tables, combine them, and merge with the simulation input
-  data
+data
 * Return the collected data in R
 
 
-This
-eliminates the need for re-implementation of a model for simulation purposes. On the other
-hand, this also means that `NMsim` can't work without Nonmem.
-
-`NMsim` can call Nonmem directly or via `PSN`. If `NMsim` is run on a
-system where Nonmem cannot be executed, `NMsim` can still prepare the
+`NMsim` can call NONMEM directly or via `PSN`. If `NMsim` is run on a
+system where NONMEM cannot be executed, `NMsim` can still prepare the
 simulation control stream and datafile.
 
 `NMsim` is in itself a relatively small R package. It makes extensive use of
-functionality to handle Nonmem data and control streams provided by
+functionality to handle NONMEM data and control streams provided by
 the R package
 [`NMdata`](https://cran.r-project.org/package=NMdata).
+
 
 
 ## Supported model types

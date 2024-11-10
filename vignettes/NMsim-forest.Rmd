@@ -1,0 +1,199 @@
+```{r}
+library(data.table)
+library(NMsim)
+library(NMdata)
+library(NMcalc)
+library(coveffectsplot)
+library(tracee)
+
+library(devtools)
+load_all("~/wdirs/NMsim")
+
+NMdataConf(
+    as.fun="data.table",
+    col.row="REC"
+   ,path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
+   ,dir.sims="simtmp"
+   ,dir.res="simres"
+)
+
+source("functions/addEVID2vx548ph3_2.R")
+source("functions/summarizeCovvar.R")
+source("functions/modelPaths.R")
+source("functions/writeList.R")
+source("functions/writer.R")
+
+script <- "scripts/forest_plot.R"
+writeOutput <- TRUE
+
+file.mod <- system.file("examples/models/xgxr134.mod",package="NMsim")
+model <- modelPaths(file.mod)
+file.exists(model$lst)
+
+modres <- NMscanData(model$lst)
+data.ref <- modres[STUDY==103]
+
+#### Section start: Simulations with parameter uncertainty ####
+
+### sim pars vs covs
+
+dt.amt <- data.table(DOSE1=70)[
+   ,AMT:=DOSE1*1000][
+   ,DOSESS:=DOSE1]
+
+doses <- NMcreateDoses(TIME=0,AMT=dt.amt,RATE=-2,addl=list(ADDL=100,II=24),col.id=NA)
+
+
+covs <- expandCovs(
+    AGE=list(ref=median,quantiles=c(10,25,75,90)/100,label="Age (years)"),
+    ## notice, values OR quantiles can be provided
+    BMI=list(ref=median, quantiles=c(10,25,75,90)/100, label="BMI (kg/m2)"),
+    data=data.ref,
+    as.fun="data.table"
+)
+covs[,ID:=.GRP,by=.(type,covvar,covval)]
+
+findCovs(data.ref,by="ID")[,median(WT)]
+
+covs[,TAB:=1][
+   ,WT:=93]
+covs[,ABD:=0]
+
+dt.dos <- covs[,doses[],by=covs]
+dt.dos
+
+## add a sampling scheme
+time.sim <- data.table(TIME=(0:24)+30*24,period="Steady-State")
+dt.sim <- addEVID2vx548ph3(dt.dos,time.sim=time.sim)
+##dt.sim <- addTAPD(dt.sim,SDOS=1000)
+
+
+
+if(F){
+    
+    simres.forest.1 <- NMsim(file.mod # path to NONMEM model
+                            ,data=dt.sim, # simulation dataset
+                            ,name.sim="pars_nwpri" # output name suffix
+                             ##,method.sim=NMsim_VarCov # sampling method
+                            ,method.sim=NMsim_NWPRI # sampling method
+                            ,typical=TRUE # FALSE to include BSV
+                            ,table.vars=cc(PRED,IPRED,CLP) # output table variables
+                            ,method.update.inits="nmsim" # update parameters from ext
+                             ## ,nsims=250 # number of simulations
+                            ,subproblems=10 # number of simulations
+                            ,seed.R=342 # seed for reproducibility
+                            ,sge=FALSE # TRUE if submitting to a cluster
+                             ## ,reuse.results=TRUE # TRUE to load existing results
+                            ,quiet = FALSE ## FALSE to view all output messages
+                             )
+
+}
+
+ext <- sampleParsSimpar(file.mod=model$mod,nsim=500)
+
+simres.forest.2 <- NMsim(model$mod # path to NONMEM model
+                        ,data=dt.sim, # simulation dataset
+                        ,name.sim="forest_simpar" # output name suffix
+                         ##,method.sim=NMsim_VarCov # sampling method
+                        ,method.sim=NMsim_VarCov # sampling method
+                        ,ext=ext
+                        ,typical=TRUE # FALSE to include BSV
+                        ,table.vars=cc(PRED,IPRED,CLP) # output table variables
+                        ,method.update.inits="nmsim" # update parameters from ext
+                         ## ,nsims=2 # number of simulations
+                         ## ,subproblems=10 # number of simulations
+                        ,seed.R=342 # seed for reproducibility
+                        ,sge=TRUE # TRUE if submitting to a cluster
+                        ,nc=2
+                         ## ,reuse.results=TRUE # TRUE to load existing results
+                        ,quiet = FALSE ## FALSE to view all output messages
+                         )
+
+
+simres <- NMreadSim(simres.forest.2,wait=T)
+
+## source("~/wdirs/NMpub/ACOP2024/forest/forest_summarize.R")
+
+########## postprocess
+### Exposure metrics
+funs.exposure <- list(
+    "Cmax"=function(x) max(x$value)
+   ,"AUC"=function(x) trapez(x$TIME,x$value)
+    ## ,"Concentration at 4 hours"=function(x) x$value[x$TAPD==4]
+)
+
+
+
+sum.uncertain <- summarizeCovvar(simres,
+                                 funs.exposure = funs.exposure,
+                                 by=cc(compound,period),
+                                 cols.value="PRED",
+                                 cover.ci=.95
+                                 )
+
+
+
+######## BEGIN PLOT USING SAMER'S PACKAGE ########
+
+sum.uncertain.plot <- copy(sum.uncertain)
+
+setnames(sum.uncertain.plot,
+         cc(covval.f,predmm,predml,predmu,metric.var),
+         cc(label,mid,lower,upper,paramname)
+         )
+
+sum.uncertain.plot[,MEANVAL:=mid]
+nsig <- 3
+sum.uncertain.plot[,LABEL := sprintf("%s [%s - %s]",signif2(mid,nsig),signif2(lower,nsig),signif2(upper,nsig))]
+sum.uncertain.plot[,covname:=covlabel]
+
+
+
+escape_newline <- function(s) {
+    gsub("\\\\n", "\\\n", s)
+}
+
+### where is this supposed to come from?
+label_value <- function(x,... )x
+
+fun.fp <- function(data){
+textsize <- 10
+    forest_plot(
+        data = data,
+        facet_formula = "covlabel ~ paramname", 
+        facet_scales = "free_y",
+        facet_space = "free_y",
+        ## facet_labeller = "label_value",
+        xy_facet_text_bold = FALSE, 
+        plot_table_ratio = 1.7, 
+        table_text_size = 3,
+        ## label_wrap_width = 16L,
+         x_label_text_size = textsize,
+         y_label_text_size = textsize, 
+        ## table_title_size = 16L,
+         x_facet_text_size = textsize, 
+         y_facet_text_size = textsize,
+        base_size=textsize,
+        interval_size=.65, ## geom_pointerinterval size
+        strip_placement = "outside",
+        table_position = "right",
+        legend_order = c("pointinterval", "ref", "area"),
+        x_range = c(.5,1.5),
+        ## interval_size=1.1,
+        ## interval_fatten = 5L,
+        ## interval_linewidth = 2,
+        ref_legend_text = escape_newline("Reference (vertical line)\\nClinically relevant limits 0.8-1.25 (colored area)"),
+        area_legend_text = escape_newline("Reference (vertical line)\\nClinically relevant limits 0.8-1.25 (colored area)"),
+        facet_switch = c("y"),
+        legend_position="bottom"
+    )
+}
+
+output <- list()
+output$forest_suz.png <- fun.fp(sum.uncertain.plot[compound=="VX-548"&period=="Steady-State"])
+output$forest_m6suz.png <- fun.fp(sum.uncertain.plot[compound=="M6-548"&period=="Steady-State"])
+
+output$forest_suz
+
+
+```

@@ -131,8 +131,8 @@ library(NMsim)
 
 NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
            ## path.nonmem = "/opt/nonmem/nm751/run/nmfe75"
-          ,dir.sims="simtmp"
-          ,dir.res="simres-poster"
+          ,dir.sims="simtmp-intro"
+          ,dir.res="simres-intro"
            )
 
 library(ggplot2)
@@ -148,7 +148,7 @@ reuse.results <- TRUE
 ```
 
 ```{r, bibs,include=FALSE,eval=FALSE}
-knitr::write_bib(c('posterdown', 'rmarkdown','pagedown','data.table','NMdata','NMsim','xgxr'), 'packages.bib')
+knitr::write_bib(c('rmarkdown','pagedown','data.table','NMdata','NMsim','xgxr'), 'packages.bib')
 ```
 
 
@@ -431,7 +431,11 @@ New subjects can be simulated in multiple ways with NMsim.
  calls. This can be combined with simulation of covariates in R,
  allowing reuse of the same subjects across multiple simulations.
 
-```{r,multisubjs,include=TRUE,echo=FALSE}
+
+<details>
+<summary>Simulate 1000 new subjects using `$SUBPROBLEMS`</summary>
+
+```{r,subproblems,include=TRUE,echo=TRUE}
 tablevars=cc(PRED,IPRED,Y)
 simres.subprob <- NMsim(file.mod=file.mod,
                         data=data.sim,
@@ -441,7 +445,12 @@ simres.subprob <- NMsim(file.mod=file.mod,
                         seed.R=764,
                         reuse.results=reuse.results
                         )
+```
+</details>
 
+<details>
+<summary>Simulate 1000 new subjects with covariate sampling</summary>
+```{r,subproblems,include=TRUE,echo=TRUE,eval=doSims}
 ## Replicating input data set allows for manual resampling of covariates.
 
 ## NMdata::findCovs() extracts unique values of column that do not vary within `by`. Since `by` is here the subject ID, that means we are finding subject level and globally equal variables only.
@@ -456,17 +465,16 @@ dt.ids <- mergeCheck(dt.ids,dt.covs[,.(IDEST=ID,WEIGHTB)],by="IDEST")
 ## This is data.table-style repeating `data.sim` without `ID` for each
 ## row in dt.ids. This is an outer join, or a cartesian product. I
 ## think in dplyr, one can use `crossing` to get this.
-## data.sim.nsubjs <- dt.ids[,data.sim[,!("ID")],by=dt.ids]
 data.sim.nsubjs <- dt.ids[,subset(data.sim,select=-ID),by=dt.ids]
 ## see, we repeated one data set using the other
-
 ## dims(data.sim,dt.ids,data.sim.nsubjs)
 
+## generate the population first, by simulating etas to use in the sim
 simPopEtas(file.mod=file.mod,N=1000,seed=1231,
            file.phi="simres-poster/xgxr021_1000subjs.phi")
 simres.datarep <- NMsim(file.mod=file.mod,
                         data=data.sim.nsubjs,
-                        name.sim="datarep",
+                        name.sim="Individual simulation data",
                         table.vars=tablevars,
                         seed.nm=103,
                         method.sim=NMsim_EBE,
@@ -474,28 +482,15 @@ simres.datarep <- NMsim(file.mod=file.mod,
                         reuse.results=reuse.results
                         )
 ```
+</details>
 
 
 
-```{r,multisubjs-show,eval=FALSE,echo=TRUE}
-simres.subprob <- NMsim(file.mod=file.mod,
-                        data=data.sim,
-                        name.sim="Subproblems",
-                        subproblems=1000)
-## data.sim.nsubjs replicates data.sim for each subject,
-## with sampled covariates
-simPopEtas(file.mod=file.mod,N=1000,seed=1231,
-           file.phi="simres-poster/xgxr021_1000subjs.phi")
-simres.datarep <- NMsim(file.mod=file.mod,
-                        data=data.sim.nsubjs,
-                        method.sim=NMsim_EBE,
-                        file.phi="simres-poster/xgxr021_1000subjs.phi",
-                        name.sim="datarep")
+```{r,multisubjs-show,eval=TRUE,echo=TRUE}
 simres.newsubjs <- rbind(as.data.table(simres.subprob),
                          as.data.table(simres.datarep),
                          fill=T)
 ```
-
 
 
 ```{r,pred-inds,fig.height=3.3,fig.cap="Prediction intervals. New subjects can be simulated in multiple ways with NMsim. A simulated population can be reused across simulations."}
@@ -513,11 +508,12 @@ simres.pi$pi.cover <- "90%"
 ggplot(simres.pi,aes(TIME,fill=trt))+
     geom_ribbon(aes(ymin=ll,ymax=ul,alpha=pi.cover))+
     geom_line(aes(y=median,colour=trt))+
-    scale_alpha_manual(values=c("90%"=.5))+
+    scale_alpha_manual(values=c("90% Prediction interval"=.5))+
     facet_wrap(~name.sim)+
     labs(x="Hours since first dose",y="Concentration (ng/mL)")+
     theme(legend.position="none")
 ```
+
 
 
 ### Configuration and Important `NMsim()` arguments

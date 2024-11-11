@@ -1,45 +1,52 @@
+---
+title: "Simulation-based forest plots with NMsim"
+author: 
+  - name: "Philip Delff"
+    affil: 1
+	date: '`r format(Sys.Date(), "%B %d, %Y")`'
+toctitle: "Contents"
+output:
+    html_document:
+      toc: true
+      toc_depth: 4
+      toc_float: true
+      number_sections: false
+      df_print: paged
+      editor_options:
+        chunk_output_type: inline
+      code_folding: show
+bibliography: [packages.bib]
+pkgdown:
+  as_is: true
+---
+
+
 ```{r}
 library(data.table)
 library(NMsim)
 library(NMdata)
 library(NMcalc)
 library(coveffectsplot)
-library(tracee)
-
-library(devtools)
-load_all("~/wdirs/NMsim")
 
 NMdataConf(
     as.fun="data.table",
-    col.row="REC"
-   ,path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
-   ,dir.sims="simtmp"
-   ,dir.res="simres"
+    path.nonmem = "/opt/NONMEM/nm75/run/nmfe75",
+    dir.sims="simtmp-forest",
+    dir.res="simres-forest"
 )
 
-source("functions/addEVID2vx548ph3_2.R")
-source("functions/summarizeCovvar.R")
-source("functions/modelPaths.R")
-source("functions/writeList.R")
-source("functions/writer.R")
+```
 
-script <- "scripts/forest_plot.R"
-writeOutput <- TRUE
+```{r}
+file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMsim")
 
-file.mod <- system.file("examples/models/xgxr134.mod",package="NMsim")
-model <- modelPaths(file.mod)
-file.exists(model$lst)
+data.ref <- NMscanData(file.mod)
 
-modres <- NMscanData(model$lst)
-data.ref <- modres[STUDY==103]
 
 #### Section start: Simulations with parameter uncertainty ####
 
 ### sim pars vs covs
 
-dt.amt <- data.table(DOSE1=70)[
-   ,AMT:=DOSE1*1000][
-   ,DOSESS:=DOSE1]
 
 doses <- NMcreateDoses(TIME=0,AMT=dt.amt,RATE=-2,addl=list(ADDL=100,II=24),col.id=NA)
 
@@ -64,53 +71,32 @@ dt.dos
 
 ## add a sampling scheme
 time.sim <- data.table(TIME=(0:24)+30*24,period="Steady-State")
-dt.sim <- addEVID2vx548ph3(dt.dos,time.sim=time.sim)
-##dt.sim <- addTAPD(dt.sim,SDOS=1000)
+dt.sim <- addEVID2(dt.dos,time.sim=time.sim)
+```
 
-
-
-if(F){
-    
-    simres.forest.1 <- NMsim(file.mod # path to NONMEM model
-                            ,data=dt.sim, # simulation dataset
-                            ,name.sim="pars_nwpri" # output name suffix
-                             ##,method.sim=NMsim_VarCov # sampling method
-                            ,method.sim=NMsim_NWPRI # sampling method
-                            ,typical=TRUE # FALSE to include BSV
-                            ,table.vars=cc(PRED,IPRED,CLP) # output table variables
-                            ,method.update.inits="nmsim" # update parameters from ext
-                             ## ,nsims=250 # number of simulations
-                            ,subproblems=10 # number of simulations
-                            ,seed.R=342 # seed for reproducibility
-                            ,sge=FALSE # TRUE if submitting to a cluster
-                             ## ,reuse.results=TRUE # TRUE to load existing results
-                            ,quiet = FALSE ## FALSE to view all output messages
-                             )
-
-}
-
+```{r}
 ext <- sampleParsSimpar(file.mod=model$mod,nsim=500)
 
-simres.forest.2 <- NMsim(model$mod # path to NONMEM model
-                        ,data=dt.sim, # simulation dataset
-                        ,name.sim="forest_simpar" # output name suffix
-                         ##,method.sim=NMsim_VarCov # sampling method
-                        ,method.sim=NMsim_VarCov # sampling method
-                        ,ext=ext
-                        ,typical=TRUE # FALSE to include BSV
-                        ,table.vars=cc(PRED,IPRED,CLP) # output table variables
-                        ,method.update.inits="nmsim" # update parameters from ext
-                         ## ,nsims=2 # number of simulations
-                         ## ,subproblems=10 # number of simulations
-                        ,seed.R=342 # seed for reproducibility
-                        ,sge=TRUE # TRUE if submitting to a cluster
-                        ,nc=2
-                         ## ,reuse.results=TRUE # TRUE to load existing results
-                        ,quiet = FALSE ## FALSE to view all output messages
-                         )
+simres.forest <- NMsim(model$mod # path to NONMEM model
+                      ,data=dt.sim, # simulation dataset
+                      ,name.sim="forest_simpar" # output name suffix
+                       ##,method.sim=NMsim_VarCov # sampling method
+                      ,method.sim=NMsim_VarCov # sampling method
+                      ,ext=ext
+                      ,typical=TRUE # FALSE to include BSV
+                      ,table.vars=cc(PRED,IPRED,CLP) # output table variables
+                      ,method.update.inits="nmsim" # update parameters from ext
+                       ## ,nsims=2 # number of simulations
+                       ## ,subproblems=10 # number of simulations
+                      ,seed.R=342 # seed for reproducibility
+                      ,sge=TRUE # TRUE if submitting to a cluster
+                      ,nc=2
+                       ## ,reuse.results=TRUE # TRUE to load existing results
+                      ,quiet = FALSE ## FALSE to view all output messages
+                       )
 
 
-simres <- NMreadSim(simres.forest.2,wait=T)
+simres <- NMreadSim(simres.forest,wait=T)
 
 ## source("~/wdirs/NMpub/ACOP2024/forest/forest_summarize.R")
 
@@ -157,7 +143,7 @@ escape_newline <- function(s) {
 label_value <- function(x,... )x
 
 fun.fp <- function(data){
-textsize <- 10
+    textsize <- 10
     forest_plot(
         data = data,
         facet_formula = "covlabel ~ paramname", 
@@ -168,11 +154,11 @@ textsize <- 10
         plot_table_ratio = 1.7, 
         table_text_size = 3,
         ## label_wrap_width = 16L,
-         x_label_text_size = textsize,
-         y_label_text_size = textsize, 
+        x_label_text_size = textsize,
+        y_label_text_size = textsize, 
         ## table_title_size = 16L,
-         x_facet_text_size = textsize, 
-         y_facet_text_size = textsize,
+        x_facet_text_size = textsize, 
+        y_facet_text_size = textsize,
         base_size=textsize,
         interval_size=.65, ## geom_pointerinterval size
         strip_placement = "outside",

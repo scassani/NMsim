@@ -72,7 +72,7 @@ time.sim <- data.table(TIME=(0:24)+30*24,period="Steady-State")
 dt.sim <- addEVID2(dt.dos,TIME=time.sim,CMT=2)
 ```
 
-```{r}
+```{r,eval=FALSE}
 ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
 
 ## library(devtools)

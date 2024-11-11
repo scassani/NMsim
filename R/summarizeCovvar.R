@@ -45,8 +45,9 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
     simres <- copy(data)
     simres <- simres[EVID==2]
 
+    if(missing(cols.value)) cols.value <- NULL
     if(is.null(cols.value)){
-        simres[,pred.type=NA]
+        simres[,pred.type:=NA]
     } else {
 ### The var.conc argument applied
         ## long format so calculations can be done by "prediction type".
@@ -93,6 +94,7 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
                                 dt.ref
                                ,
                                 by=c(modelby,"metric.var",setdiff(allby,c("covval","type",cols.miss))),
+                                fun.na.by=NULL,
                                 quiet=TRUE
                                 )
 

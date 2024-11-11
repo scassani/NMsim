@@ -43,7 +43,7 @@
 
 
 
-NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progress,as.fun){
+NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progress,rm.tmp=FALSE,as.fun){
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
     
@@ -83,9 +83,10 @@ NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progres
     }
 
     
-    
+### determining file type to select processing method    
     dt.x <- data.table(is.rds=unlist(lapply(x,function(x)is.character(x)&&fnExtension(x)=="rds")))
     dt.x[,is.fst:=unlist(lapply(x,function(x)is.character(x)&&fnExtension(x)=="fst"))]
+### is.simRes if if it has already been read and collected by NMreadSim
     dt.x[,is.simRes:=unlist(lapply(x,is.NMsimRes))]
     dt.x[,is.simModTab:=unlist(lapply(x,is.NMsimModTab))]
     dt.x[,ROWEL:=.I]
@@ -93,7 +94,9 @@ NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progres
     dt.x[,is.res:=is.fst|is.simRes]
     dt.x[,is.ModTab:=is.rds|is.simModTab]
 
-    if(dt.x[is.res==TRUE&is.ModTab==TRUE,.N]>0) stop("confused, an object seems to be both a NMsimModTab and an NMsimRes")
+    if(dt.x[is.res==TRUE&is.ModTab==TRUE,.N]>0) {
+        stop("confused, an object seems to be both a NMsimModTab and an NMsimRes. This is most likely an NMsim bug.")
+    }
     if(dt.x[is.res!=TRUE&is.ModTab!=TRUE,.N]>0) {
 
         ## some may try to read lsts because of behavior of previos versions. Checking explicitly for those.
@@ -104,10 +107,10 @@ NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progres
         
         stop("Not all objects in `x` recognized by NMreadSim. They should be either (normally) paths to `rds` files or (mostly for programming) tables of simulation model information.")
 
-        }
+    }
 
     
-    
+###### Reading results
     res.all <- NULL
     if(sum(dt.x$is.simRes|dt.x$is.fst)){
         if(!quiet && any(dt.x$is.fst)){
@@ -135,8 +138,21 @@ NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progres
     if("nmout"%in%colnames(res.all) && is.logical(res.all$nmout)){
         res.all[,nmout:=NULL]
     }
-    
-    
+
+    ## attributes(res.all)$NMsimModTab
+    if(rm.tmp){
+        modtab <- attributes(res.all)$NMsimModTab
+        if(!is.null(modtab)){
+            dirs.tmp <- unique(modtab[,file.path(dirname(x),modtab$pathSimsFromRes,run.sim)])
+            if(length(dirs.tmp)){
+                for (dir in dirs.tmp){
+                    unlink(dir,recursive=TRUE)
+                }
+            }
+        }   
+    }
+
+
     res.all <- as.fun(res.all)
     addClass(res.all,"NMsimRes")
     return(res.all)

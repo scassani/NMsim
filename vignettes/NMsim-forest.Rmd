@@ -104,7 +104,7 @@ simres <- NMreadSim(simres.forest,wait=T,rm.tmp=TRUE)
 ```
 
 ```{r}
-
+simres <- NMreadSim("simres-forest/xgxr134_forest_simpar_MetaData.rds")
 ## source("~/wdirs/NMpub/ACOP2024/forest/forest_summarize.R")
 
 ########## postprocess

@@ -12,10 +12,10 @@ output:
     toc_float: true
     number_sections: false
     df_print: paged
-    editor_options:
-      chunk_output_type: inline
-      code_folding: show
-      bibliography: [packages.bib]
+editor_options:
+  chunk_output_type: inline
+  code_folding: show
+  bibliography: [packages.bib]
 pkgdown:
   as_is: true
 ---
@@ -79,24 +79,24 @@ ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
 ## load_all("~/wdirs/NMsim")
 
 if(F){
-simres.forest <- NMsim(file.mod # path to NONMEM model
-                      ,data=dt.sim, # simulation dataset
-                      ,name.sim="forest_simpar" # output name suffix
-                       ##,method.sim=NMsim_VarCov # sampling method
-                      ,method.sim=NMsim_VarCov # sampling method
-                      ,ext=ext
-                      ,typical=TRUE # FALSE to include BSV
-                      ,table.vars=cc(PRED,IPRED) # output table variables
-                      ,method.update.inits="nmsim" # update parameters from ext
-                       ## ,nsims=2 # number of simulations
-                       ## ,subproblems=10 # number of simulations
-                      ,seed.R=342 # seed for reproducibility
-                      ,sge=TRUE # TRUE if submitting to a cluster
-                      ,nc=1
-                       ## ,reuse.results=TRUE # TRUE to load existing results
-                      ,quiet = FALSE ## FALSE to view all output messages
-                      ,reuse.results=TRUE
-                       )
+    simres.forest <- NMsim(file.mod # path to NONMEM model
+                          ,data=dt.sim, # simulation dataset
+                          ,name.sim="forest_simpar" # output name suffix
+                           ##,method.sim=NMsim_VarCov # sampling method
+                          ,method.sim=NMsim_VarCov # sampling method
+                          ,ext=ext
+                          ,typical=TRUE # FALSE to include BSV
+                          ,table.vars=cc(PRED,IPRED) # output table variables
+                          ,method.update.inits="nmsim" # update parameters from ext
+                           ## ,nsims=2 # number of simulations
+                           ## ,subproblems=10 # number of simulations
+                          ,seed.R=342 # seed for reproducibility
+                          ,sge=TRUE # TRUE if submitting to a cluster
+                          ,nc=1
+                           ## ,reuse.results=TRUE # TRUE to load existing results
+                          ,quiet = FALSE ## FALSE to view all output messages
+                          ,reuse.results=TRUE
+                           )
 }
 
 simres <- NMreadSim(simres.forest,wait=T,rm.tmp=TRUE)
@@ -117,11 +117,11 @@ funs.exposure <- list(
 
 
 
-sum.uncertain <- summarizeCovvar(simres,
-                                 funs.exposure = funs.exposure,
-                                 by=cc(period),
-                                 cover.ci=.95
-                                 )
+sum.uncertain <- NMsim:::summarizeCovvar(simres,
+                                         funs.exposure = funs.exposure,
+                                         by=cc(period),
+                                         cover.ci=.95
+                                         )
 
 ```
 
@@ -132,7 +132,7 @@ Plotting using `coveffectsplot`.
 sum.uncertain.plot <- copy(sum.uncertain)
 
 setnames(sum.uncertain.plot,
-         cc(covval.f,predmm,predml,predmu,metric.var),
+         cc(covvalf,predmm,predml,predmu,metric.var),
          cc(label,mid,lower,upper,paramname)
          )
 
@@ -182,7 +182,7 @@ forest1 <- forest_plot(
 )
 
 
-forest1
+## forest1
 
 
 ```

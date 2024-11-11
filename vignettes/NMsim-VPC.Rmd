@@ -47,8 +47,8 @@ we need for a VPC. We will use an example model included with NMsim:
 ```{r,eval=TRUE}
 file.mod <- system.file("examples/nonmem/xgxr032.mod",package="NMsim")
 NMdataConf(path.nonmem="/opt/NONMEM/nm75/run/nmfe75")
-NMdataConf(dir.sims="~/NMsim_vignette",
-           dir.res="simulate-results"
+NMdataConf(dir.sims="simtmp-VPC",
+           dir.res="simres-VPC"
            )
 ```
 
@@ -137,9 +137,6 @@ sim.vpc.sge <- NMsim(file.mod,
                      name.sim="vpc_01"
                     ,subproblems=500
                     ,sge=TRUE
-                     ## ,path.nonmem="/opt/nonmem/nm751/run/nmfe75"
-                     ##,path.nonmem="/opt/NONMEM/nm75/run/nmfe75"
-                     ##,file.res=file.res
                      )
 
 ```

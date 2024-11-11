@@ -1,9 +1,10 @@
+##' Summarize simulated exposures relative to reference subject
 ##' @param data Simulated data to process. This data.frame must
 ##'     contain must contain multiple columns, as defined by
 ##'     NMsim::expandCovs().
 ##' @param funs.exposure A named list of functions to apply for
 ##'     derivation of exposure metrics.
-##' @param var.conc The default is to run exposure metrics based on
+##' @param cols.value The default is to run exposure metrics based on
 ##'     the `PRED` column. Specify another or multiple columns to run
 ##'     the analysis on.
 ##' @param cover.ci The coverage of the confidence intervals. Default
@@ -13,12 +14,32 @@
 ##' @details These columns are expected to be present, and differences within any of them will lead to separate summarizing (say for a s covariate value to be plotted):
 ##' cc(model,type,pred.type,covvar,covlabel,covref,covval)
 ##'
-##' @export
+##' @importFrom stats median reorder setNames
+## Do not export yet
 
-## Maybe the best is to keep the var.conc arg as an optinal. If not used, no melting done.
 
 summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
 
+    . <- NULL
+    EVID <- NULL
+    covlabel <- NULL
+    covref <- NULL
+    covval <- NULL
+    covvalc <- NULL
+    covvalf <- NULL
+    covvar <- NULL
+    median <- NULL
+    metric.val <- NULL
+    model <- NULL
+    pred.type <- NULL
+    predm <- NULL
+    reorder <- NULL
+    run.sim <- NULL
+    setNames  <- NULL
+    type <- NULL
+    val.exp.ref <- NULL
+    
+    
     ## A standard evaluation interface to data.table::dcast
     dcastSe <- function(data,l,r,...){
         lhs <- paste(l,collapse="+")
@@ -30,7 +51,7 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
     ## will not work with earlier versions!
 
     ## predefined data columns to calculate by
-    databy <- cc(model,type,pred.type,covvar,covlabel,covref,covval)
+    databy <- cc(model,type,pred.type,covvar,covlabel,covref,covval,covvalc)
     
     ## allby expands "by" to contain data columns that calculations
     ## will always be done by.
@@ -79,11 +100,11 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
     
 ### making reference value a column rather than rows. 
     dt.ref <- setnames(
-        sum.res.model[type=="ref",c(modelby,"metric.var",setdiff(allby,c("covval","type")),"predm"),with=FALSE]
+        sum.res.model[type=="ref",c(modelby,"metric.var",setdiff(allby,c("covval","covvalc","type")),"predm"),with=FALSE]
        ,"predm","val.exp.ref")
 
 
-    ### these columns are not necessarily in refr columns. If not, drop them before merge.
+### these columns are not necessarily in refr columns. If not, drop them before merge.
     dt.miss <- dt.ref[,lapply(.SD,function(x)all(is.na(x))),.SDcols=c("covvar","covlabel","covref")]
     cols.miss <- colnames(dt.miss[,as.logical(colSums(dt.miss)),with=FALSE])
     if(length(cols.miss)){
@@ -93,7 +114,7 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
     sum.res.model <- mergeCheck(sum.res.model[type=="value"],
                                 dt.ref
                                ,
-                                by=c(modelby,"metric.var",setdiff(allby,c("covval","type",cols.miss))),
+                                by=c(modelby,"metric.var",setdiff(allby,c("covval","covvalc","type",cols.miss))),
                                 fun.na.by=NULL,
                                 quiet=TRUE
                                 )
@@ -112,7 +133,7 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
     
     
     
-    sum.uncertain[,covval.f:=reorder(covval,covval)]
+    sum.uncertain[,covvalf:=reorder(covvalc,covval)]
 
 
     sum.uncertain[]

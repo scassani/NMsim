@@ -15,6 +15,7 @@ library(NMdata)
 library(data.table)
 library(NMsim)
 NMdataConf(reset=TRUE)
+library(kableExtra)
 ```
 
 # NMsim<a href='https://NMautoverse.github.io/NMsim/'><img src='man/figures/NMsimlogo240.png' align="right" height="120" /></a>
@@ -33,7 +34,7 @@ Please make sure to read this at
 
 `NMsim` is an R package that can simulate Nonmem models (using the
 `NMsim` function) based on just a simulation data set and a path to an
-estimation control stream. It will also retrive and combine output
+estimation control stream. It will retrive and combine output
 tables with input data once Nonmem has finished and return the results
 to R. 
 
@@ -111,31 +112,12 @@ simulate models as soon as an estimate is available.
 
 
 The goal for NMsim is to automate the NONMEM simulation workflow and
-provide a simple, flexible, and powerful R interface. With this
-automation, post-processing of model estimates can to great extends be
-automated.
+provide a simple, flexible, and powerful R interface. This allows for 
+automation of most simulation-based analyses.
 
-```{r,  tab-alternatives,echo=FALSE}
-tab <- fread(header=T,text=",NONMEM,Third-party,NMsim
-Implementation,Easy,Depends - Potentially error-prone,None
-Execution,Tedious,Easy,Easy
-Depends on NONMEM,Yes,No,Yes
-Runtime,Fair,Fast,Fair")
 
-cnames <- colnames(tab)
-cnames[1] <- " "
-setnames(tab,cnames)
+<img src='man/figures/intro-tab.png' align="right" height="120" />
 
-tab$NONMEM <- cell_spec(tab$NONMEM,color=c("green","red","orange","orange")[match(tab$NONMEM,cc(Easy,Tedious,Fair,Yes))])
-tab$`Third-party` <- cell_spec(tab$`Third-party`,color=c("green","red","green","green")[match(tab$`Third-party`,cc(Easy,"Depends - Potentially error-prone",No,Fast))])
-tab$NMsim <- cell_spec(tab$NMsim,color=c("green","green","orange","orange")[match(tab$`NMsim`,cc(Easy,None,Yes,Fair))])
-
-colwidth <- "12em"
-kable(tab,escape=FALSE)|>
-    column_spec(column=1:4,width=c(colwidth,colwidth,colwidth,colwidth))
-    
-
-```
 
 
 ## Supported types of simulations

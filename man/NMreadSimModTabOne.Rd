@@ -23,13 +23,13 @@ preserve the file modification times. Becasue of that,
 `check.time` is `FALSE` by default.}
 
 \item{dir.sims}{By default, `NMreadSim` will use information about
-the relative path from the results table file (`_MetaData.rds`)
-to the Nonmem simulation results. If these paths have changed,
-or for other reasons this doesn't work, you can use the
-`dir.sims` argument to specify where to find the Nonmem
-simulation results. If an `.fst` file was already generated
-and is found next to the `_MetaData.rds`, the path to the Nonmem
-simulation results is not used.}
+the relative path from the results table file
+(`_MetaData.rds`) to the Nonmem simulation results. If these
+paths have changed, or for other reasons this doesn't work,
+you can use the `dir.sims` argument to specify where to find
+the Nonmem simulation results. If an `.fst` file was already
+generated and is found next to the `_MetaData.rds`, the path
+to the Nonmem simulation results is not used.}
 
 \item{wait}{If simulations seem to not be done yet, wait for them
 to finish? If not, an error will be thrown. If you choose to

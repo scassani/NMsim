@@ -23,9 +23,8 @@ can browse several vignettes with examples on specific topics.
 
 `NMsim` is an R package that can simulate Nonmem models (using the
 `NMsim` function) based on just a simulation data set and a path to an
-estimation control stream. It will also retrive and combine output
-tables with input data once Nonmem has finished and return the results
-to R.
+estimation control stream. It will retrive and combine output tables
+with input data once Nonmem has finished and return the results to R.
 
 The interface is “seamless” or fully integrated in R. Run a simulation
 of the (estimated) model stored in “path/to/file.mod” using the
@@ -68,7 +67,28 @@ ggplot(datl,aes(TIME,value,colour=variable))+
 This example was a simulation of a multiple dose regimen with a loading
 dose using a model estimated on single dose data. It is from the first
 vignette
-[`NMsim-basics.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-basics.html).
+[`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html).
+Go there next to get started with `NMsim`.
+
+## Motivation
+
+While NONMEM offers great flexibility for estimation of PK and PK/PD
+models, many users find the simulation features in NONMEM insufficient
+and turn to alternative software for simulation. This leads to
+additional work of model reimplementation, with risk of the simulation
+model deviating from the estimated model, due to bugs in the
+reimplementation. For a wide range of model types, the limitation is not
+in NONMEM’s ability to perform such simulations, but rather in the lack
+of a simple user-interface to obtain the simulations.
+[`NMsim`](https://cran.r-project.org/package=NMsim) provides such an
+interface as an R package, allowing the modeler to simulate models as
+soon as an estimate is available.
+
+The goal for NMsim is to automate the NONMEM simulation workflow and
+provide a simple, flexible, and powerful R interface. This allows for
+automation of most simulation-based analyses.
+
+<img src='man/figures/intro-tab.png' align="right" height="120" />
 
 ## Supported types of simulations
 
@@ -78,7 +98,7 @@ methods are currently provided:
 -   Simulation of new subjects (default or explicitly with
     `method.sim=NMsim_default`)
 -   Simulation of subjects already estimated in Nonmem model
-    (`method.sim=NMsim_known`)
+    (`method.sim=NMsim_EBE`)
 -   Simulation with parameter uncertainty based on a Nonmem covariance
     step (`method.sim=NMsim_VarCov`)
 -   Simulation “as is” in case you already prepared a simulation control
@@ -95,7 +115,7 @@ simulation control stream
 
 To learn how to run these simulations on your Nonmem models, get started
 with
-[`NMsim-basics.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-basics.html).
+[`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html).
 It is really easy.
 
 In addition, `NMsim` can simulate multiple models at a time. E.g., if a
@@ -125,32 +145,28 @@ after the simulation has been run.
 
 ## How NMsim works
 
-One strength of `NMsim` is that it does not simulate, translate or
-otherwise interpret a Nonmem model. Instead, it automates the Nonmem
-simulation workflow (including execution of Nonmem) and wraps it all
-into one R function. In the example given above, `NMsim` will do the
-following:
+`NMsim` does not simulate, translate or otherwise interpret a NONMEM
+model. Instead, it automates the NONMEM simulation workflow (including
+execution of NONMEM) and wraps it all into one R function. Provided with
+a path to a NONMEM control stream and a data.frame to simulate, `NMsim`
+will do the following:
 
--   Save the simulation input data in a csv file for Nonmem
--   Create a simulation input control stream based on `file.mod` ($INPUT
-    and $DATA matching the saved simulation data set; $SIMULATE instead
-    of $ESTIMATION and $COVARIANCE)
+-   Save the simulation input data in a csv file for NONMEM
+-   Create a simulation input control stream based on `file.mod`
+    (`$INPUT` and `$DATA` matching the saved simulation data set;
+    `$SIMULATE` instead of `$ESTIMATION` and `$COVARIANCE`)
 -   Update and fix initial values based on estimate (from `file.ext`)
--   Run Nonmem on the generated simulation control stream
+-   Run NONMEM on the generated simulation control stream
 -   Collect output data tables, combine them, and merge with the
     simulation input data
 -   Return the collected data in R
 
-This eliminates the need for re-implementation of a model for simulation
-purposes. On the other hand, this also means that `NMsim` can’t work
-without Nonmem.
-
-`NMsim` can call Nonmem directly or via `PSN`. If `NMsim` is run on a
-system where Nonmem cannot be executed, `NMsim` can still prepare the
+`NMsim` can call NONMEM directly or via `PSN`. If `NMsim` is run on a
+system where NONMEM cannot be executed, `NMsim` can still prepare the
 simulation control stream and datafile.
 
 `NMsim` is in itself a relatively small R package. It makes extensive
-use of functionality to handle Nonmem data and control streams provided
+use of functionality to handle NONMEM data and control streams provided
 by the R package [`NMdata`](https://cran.r-project.org/package=NMdata).
 
 ## Supported model types

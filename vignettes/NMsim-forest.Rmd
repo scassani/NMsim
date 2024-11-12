@@ -165,7 +165,7 @@ sum.uncertain <- NMsim:::summarizeCovvar(simres,
 
 Plotting using `coveffectsplot`.
 
-```{r}
+```{r,fig.width=10}
 
 sum.uncertain.plot <- copy(sum.uncertain)
 
@@ -220,7 +220,6 @@ forest1 <- forest_plot(
 )
 
 
-## forest1
 
 
 ```

@@ -45,6 +45,8 @@ Received the *ISoP PMx DATA PROGRAMMING SIG AWARD*
 Building Automated Pharmacometrics Analysis Workflows in R with NMsim (Poster T49)  
 Authors: Boris Grinshpun, Samer Mouksassi, Philip Delff  
 [pdf](../reference/figures/NMsim_automated_workflows_web.pdf)  
+The code on forest plots is available [Simulation-based forest plots with NMsim](NMsim-forest.html).  
+For code to produce VPC plots, see [VPC simulations](NMsim-VPC.html).
 
 Simulation of clinical trial predictions with model uncertainty using NMsim (Poster T110)  
 Authors: Sanaya Shroff, Philip Delff  

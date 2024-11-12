@@ -20,38 +20,71 @@ pkgdown:
   as_is: true
 ---
 
+# Introduction
+The forest plot is an effective and widely recognized way to
+illustrate estimated covariate effects on exposure or response, or parameters
+related to these (e.g. clearance). The forest plot typically includes precision of the estimate in terms of a confidence interval. Often, an acceptance region such as the 80%-125% bio equivalence is included for comparison.
 
-```{r}
+In some cases, the forest plot can be derived based on model estimates
+without simulation. This is the case for a forest plot on exposure if
+the PK is linear and only steady-state average concentration (or AUC)
+is of interest. If the PK is non-linear and/or exposure metrics such
+as Cmax which depends on multiple PK parameters are of interest, a
+simulation-based forest plot may be needed. As we shall see, NMsim
+provides a flexible and concise framework to perform the required
+simulations, a function for summarizing the simulation results is
+provided, and it is demonstrated how the summary is easily plotted
+using the coveffectsplot R package.
+
+This vignette is no attempt to harmonize how to construct a forest
+plot. Instead, we shall describe the steps taken, and it is up to the
+scientist to choose how they want to construct the analysis to address
+their questions most effectively. 
+
+# Initialization
+
+```{r,setup,echo=TRUE}
 library(data.table)
 library(NMsim)
-library(NMdata)
-library(NMcalc)
+library(NMdata)  
+library(NMcalc)  ## Optional. Used to calculate AUC.
 library(coveffectsplot)
 
-
 NMdataConf(
-    as.fun="data.table",
-    path.nonmem = "/opt/NONMEM/nm75/run/nmfe75",
-    dir.sims="simtmp-forest",
-    dir.res="simres-forest"
+    path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
+    dir.sims="simtmp-forest", ## where to store temporary simulation results
+    dir.res="simres-forest"   ## where to store final simulation results
 )
 
 ```
 
+A model is selected. 
 ```{r}
 file.mod <- "NMsim-forest-models/xgxr134.mod"
+```
 
-data.ref <- NMscanData(file.mod)
+
+# Generation of simulation input data
+
+The simulation data set has to match the model in compartment numbers, and it must contain all variables needed to run the NONMEM model. We simulate daily dosing of 30 mg. 
 
 
-#### Section start: Simulations with parameter uncertainty ####
 
-### sim pars vs covs
-
+```{r}
 
 doses <- NMcreateDoses(TIME=0,AMT=30,addl=list(ADDL=100,II=24),col.id=NA)
 
+```
 
+`NMsim::expandCovs()` can be used to construct a set of simulations needed to derive a forest plot. It varies one covariate at a time, keeping all other covariates at their reference value. It can derive references and quantiles from a data set.
+
+For reference values we use median in the observed population for continuous covariates and manually select "Female" as the reference for sex.
+
+
+```{r}
+## reading output and input tables from estimation. Used to determine
+## reference values and quantiles.
+data.ref <- NMscanData(file.mod)
 covs <- expandCovs(
     AGE=list(ref=median,quantiles=c(10,25,75,90)/100,label="Age (years)"),
     ## notice, values OR quantiles can be provided
@@ -65,10 +98,14 @@ covs[,ID:=.GRP,by=.(type,covvar,covval)]
 
 
 dt.dos <- covs[,doses[],by=covs]
-dt.dos
 
+```
+
+We sample every 15 minutes for one day in steady-state.
+
+```{r}
 ## add a sampling scheme
-time.sim <- data.table(TIME=(0:24)+30*24,period="Steady-State")
+time.sim <- data.table(TIME=seq(0,24,.25)+30*24,period="Steady-State")
 dt.sim <- addEVID2(dt.dos,TIME=time.sim,CMT=2)
 ```
 

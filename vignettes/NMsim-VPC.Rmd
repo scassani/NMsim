@@ -1,5 +1,5 @@
 ---
-title: "VPC simulations"
+title: "VPC Simulations"
 output:
 rmarkdown::html_vignette:
     toc: true

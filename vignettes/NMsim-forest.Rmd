@@ -53,7 +53,8 @@ library(coveffectsplot)
 NMdataConf(
     path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
     dir.sims="simtmp-forest", ## where to store temporary simulation results
-    dir.res="simres-forest"   ## where to store final simulation results
+    dir.res="simres-forest",   ## where to store final simulation results
+    as.fun="data.table"
 )
 
 ```

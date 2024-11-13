@@ -14,48 +14,35 @@ header-includes:
 - \usepackage{ae}
 ---
 
-```{r,include = FALSE}
-##knitr::opts_chunk$set(dev = "cairo_pdf")
-knitr::opts_chunk$set(
-                      collapse = TRUE
-                     ,comment = "#>"
-                     ,fig.width=7
-                     ,cache=FALSE
-                  )
-
-## this changes data.table syntax. I think we can do without.
-## knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60), tidy=TRUE)
-```
 
 <img src='../man/figures/NMsimlogo240.png' align="right" height="120" />
 
 
 ## ACOP 2024
 
-NMsim - Seamless Nonmem Simulation Platform in R (Poster T32)  
-Authors: Philip Delff  
+
+[**NMsim - Seamless Nonmem Simulation Platform in R**](../reference/figures/NMsim_intro_web.pdf) (Poster T32)  
+Authors: **Philip Delff**  
 <!-- [pdf](https://github.com/NMautoverse/NMsim/blob/main/publications/ACOP2024/NMsim_general_web.pdf) -->
 <!-- [pdf](../doc/NMsim_general_web.pdf) -->
 <!-- [`Code`](https://github.com/NMautoverse/NMsim/blob/main/publications/ACOP2024/NMsim_general_html.Rmd) -->
-[pdf](../reference/figures/NMsim_intro_web.pdf)  
-The code is in [NMsim - Seamless NONMEM Simulation Platform in R](NMsim-intro.html)
-Received the *ISoP PMx DATA PROGRAMMING SIG AWARD*
+The code is in [NMsim - Seamless NONMEM Simulation Platform in R](NMsim-intro.html)  
+Received the **ISoP PMx DATA PROGRAMMING SIG AWARD**
 
 
-Building Automated Pharmacometrics Analysis Workflows in R with NMsim (Poster T49)  
-Authors: Boris Grinshpun, Samer Mouksassi, Philip Delff  
-[pdf](../reference/figures/NMsim_automated_workflows_web.pdf)  
-The code on forest plots is available [Simulation-based forest plots with NMsim](NMsim-forest.html).  
-For code to produce VPC plots, see [VPC simulations](NMsim-VPC.html).
+[**Building Automated Pharmacometrics Analysis Workflows in R with NMsim**](../reference/figures/NMsim_automated_workflows_web.pdf) (Poster T49)  
+Authors: **Boris Grinshpun, Samer Mouksassi, Philip Delff**  
+Code on forest plots is available [Simulation-based forest plots with NMsim](NMsim-forest.html).  
+Code to produce VPC plots, see [VPC simulations](NMsim-VPC.html).
 
-Simulation of clinical trial predictions with model uncertainty using NMsim (Poster T110)  
-Authors: Sanaya Shroff, Philip Delff  
-[pdf](../reference/figures/NMsim_param_uncertainty_web.pdf)  
+[**Simulation of clinical trial predictions with model uncertainty using NMsim**](../reference/figures/NMsim_param_uncertainty_web.pdf) (Poster T110)  
+Authors: **Sanaya Shroff**, **Philip Delff**  
 
-Simulate modified Nonmem models using NMsim (Poster T19)  
-Authors: Simone Cassani, Jahidur Rashid, Christopher Banker, Philip Delff  
-[pdf](../reference/figures/NMsim_modified_models_web.pdf)  
 
-A Model-Based Simulation Workflow Enables Automated and Accurate Generation of Clinical Pharmacology Summary Statistics (Poster T103)  
-Authors: Brian M. Reilly Pharm.D., Ph.D., Philip H. Delff, Ph.D.  
-[pdf](../reference/figures/NMsim_simbased_NCA_web.pdf)
+[**Simulate modified Nonmem models using NMsim**](../reference/figures/NMsim_modified_models_web.pdf) (Poster T19)  
+Authors: **Simone Cassani, Jahidur Rashid, Christopher Banker, Philip Delff**  
+
+
+[**A Model-Based Simulation Workflow Enables Automated and Accurate Generation of Clinical Pharmacology Summary Statistics**](../reference/figures/NMsim_simbased_NCA_web.pdf) (Poster T103)  
+Authors: *Brian M. Reilly Pharm.D., Ph.D., Philip H. Delff, Ph.D.*  
+

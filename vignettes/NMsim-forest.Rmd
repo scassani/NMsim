@@ -60,6 +60,7 @@ NMdataConf(
 ```
 
 A model is selected. 
+
 ```{r}
 file.mod <- "NMsim-forest-models/xgxr134.mod"
 ```
@@ -67,13 +68,15 @@ file.mod <- "NMsim-forest-models/xgxr134.mod"
 
 # Generation of simulation input data
 
-The simulation data set has to match the model in compartment numbers, and it must contain all variables needed to run the NONMEM model. We simulate daily dosing of 30 mg. 
+The simulation data set has to match the model in compartment numbers,
+and it must contain all variables needed to run the NONMEM model. We
+simulate daily dosing of 30 mg.
 
 
 
 ```{r}
 
-doses <- NMcreateDoses(TIME=0,AMT=30,addl=list(ADDL=100,II=24),col.id=NA)
+doses <- NMcreateDoses(TIME=0,AMT=30,ADDL=100,II=24,col.id=NA)
 
 ```
 
@@ -85,7 +88,7 @@ For reference values we use median in the observed population for continuous cov
 ```{r}
 ## reading output and input tables from estimation. Used to determine
 ## reference values and quantiles.
-data.ref <- NMscanData(file.mod)
+data.ref <- NMdata::NMscanData(file.mod)
 covs <- expandCovs(
     AGE=list(ref=median,quantiles=c(10,25,75,90)/100,label="Age (years)"),
     ## notice, values OR quantiles can be provided
@@ -94,11 +97,18 @@ covs <- expandCovs(
     data=data.ref,
     as.fun="data.table"
 )
-
+## adding distinct ID's for each combination of covariates
 covs[,ID:=.GRP,by=.(type,covvar,covval)]
 
+kable(covs[])
+```
 
+We now have all combinations of covariates in the object called `covs`. Notice the `type` column which distinguishes the reference combination in contrast to the other simulations where one covariate is being varied at a time. 
+
+```{r}
+## repeating the doses for all combinations of covariates
 dt.dos <- covs[,doses[],by=covs]
+dims(covs,doses,dt.dos)
 
 ```
 
@@ -108,38 +118,38 @@ We sample every 15 minutes for one day in steady-state.
 ## add a sampling scheme
 time.sim <- data.table(TIME=seq(0,24,.25)+30*24,period="Steady-State")
 dt.sim <- addEVID2(dt.dos,TIME=time.sim,CMT=2)
+dims(dt.dos,time.sim,dt.sim)
 ```
+
+## Simulation
+
+We need to run the simulations repeatedly, sampling parameters based on uncertainty estimates. This can be done in various ways. First of all, one must choose between non-parametric and parametric sampling. Non-parameteric sampling is typically based on a bootstrap, and the parametetric sampling is often based on a successfull `$COVARIANCE` step. `NMsim` has methods to do either type, and multiple methods are available for parametric sampling. The best source of information on these different methods is the ACOP2024 poster
+[Simulation of clinical trial predictions with model uncertainty using NMsim](../reference/figures/NMsim_param_uncertainty_web.pdf) by Sanaya Shroff and Philip Delff.
+
+
+In this case we shall use parametric sampling. 
 
 ```{r,eval=FALSE}
 ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
 
-## library(devtools)
-## load_all("~/wdirs/NMsim")
 
-if(F){
-    simres.forest <- NMsim(file.mod # path to NONMEM model
-                          ,data=dt.sim, # simulation dataset
-                          ,name.sim="forest_simpar" # output name suffix
-                           ##,method.sim=NMsim_VarCov # sampling method
-                          ,method.sim=NMsim_VarCov # sampling method
-                          ,ext=ext
-                          ,typical=TRUE # FALSE to include BSV
-                          ,table.vars=cc(PRED,IPRED) # output table variables
-                          ,method.update.inits="nmsim" # update parameters from ext
-                           ## ,nsims=2 # number of simulations
-                           ## ,subproblems=10 # number of simulations
-                          ,seed.R=342 # seed for reproducibility
-                          ,sge=TRUE # TRUE if submitting to a cluster
-                          ,nc=1
-                           ## ,reuse.results=TRUE # TRUE to load existing results
-                          ,quiet = FALSE ## FALSE to view all output messages
-                          ,reuse.results=TRUE
-                           )
-}
+simres.forest <- NMsim(file.mod # path to NONMEM model
+                      ,data=dt.sim, # simulation dataset
+                      ,name.sim="forest_simpar" # output name suffix
+                       ##,method.sim=NMsim_VarCov # sampling method
+                      ,method.sim=NMsim_VarCov # sampling method
+                      ,ext=ext  # Use the sampled parameter sets
+                      ,typical=TRUE # FALSE to include BSV
+                      ,table.vars=cc(PRED,IPRED) # output table variables
+                      ,seed.R=342 # seed for reproducibility
+                      ,sge=TRUE # TRUE if submitting to a cluster
+                      ,nc=1
+                       )
 
-simres <- NMreadSim(simres.forest,wait=T,rm.tmp=TRUE)
 
 ```
+
+## Post processing 
 
 ```{r}
 simres <- NMreadSim("simres-forest/xgxr134_forest_simpar_MetaData.rds")
@@ -163,7 +173,8 @@ sum.uncertain <- NMsim:::summarizeCovvar(simres,
 
 ```
 
-Plotting using `coveffectsplot`.
+## Plotting 
+We will use the R package `coveffectsplot` for plotting. 
 
 ```{r,fig.width=10}
 

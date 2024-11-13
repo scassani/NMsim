@@ -20,6 +20,10 @@ pkgdown:
   as_is: true
 ---
 
+```{r,setup-hide}
+library(knitr)
+```
+
 # Introduction
 The forest plot is an effective and widely recognized way to
 illustrate estimated covariate effects on exposure or response, or parameters

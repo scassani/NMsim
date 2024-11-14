@@ -1,18 +1,37 @@
 # NMsim 0.1.5
 
-## Improvements
+## New features
+
+* `NMreadSim()` has a new argument called `rm.tmp` which is used to
+  remove the intermediate NONMEM files if they are successfully
+  read. Remember, `NMreadSim()` creates a compressed results data set
+  which will be read by `NMreadSim()` in future function calls, so
+  unless debugging is needed on the simulation control streams and
+  files returned by NONMEM running the simulations, it may be better
+  to delete the intermediate files altogether and save the disk space.
+
 * `expandCovs()` has a new argument `reduce.ref` which defaults to
   `TRUE` meaning that by default there will be only one reference
   combination. If `FALSE` `expandCovs()` will return one reference for
   each covariate. The forest plot can be evaluated with just one
   reference simulation.
 
+* `NMsim()` no longer requires NONMEM to be available if
+  `reuse.results=TRUE` and NONMEM does not need to be run.
+
 ## Bugfixes
-* NMsim 0.1.4 would not submit jobs to cluster when number of cores was `nc=1`. Fixed. Workaround, use `nc=2`.
+* NMsim 0.1.4 would not submit jobs to cluster when number of cores
+  was `nc=1`. Fixed. Workaround in 0.1.4, use `nc=2`.
 
-* NMsim 0.1.4 erroneously concluded jobs had failed when sent to the cluster if there was no existing queue. This is due to the exit status of `qsub` in such cases. This has been fixed. As a workaround in 0.1.4, just run your sim again once the queue has been initiated by the first NMsim called.
+* NMsim 0.1.4 erroneously concluded jobs had failed when sent to the
+  cluster if there was no existing queue. This is due to the exit
+  status of `qsub` in such cases. This has been fixed. As a workaround
+  in 0.1.4, just run your sim again once the queue has been initiated
+  by the first NMsim called.
 
-* When Nonmem failed in 0.1.4, NMsim might not return debugging info. Fixed.
+* When Nonmem failed in 0.1.4, NMsim might not return debugging
+  info. Fixed.
+  
 
 # NMsim 0.1.4
 

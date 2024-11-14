@@ -2,22 +2,22 @@
 title: "Simulation-based forest plots with NMsim"
 author: 
   - name: "Philip Delff"
-    - name: "Boris Grinshpun"
-      date: '`r format(Sys.Date(), "%B %d, %Y")`'
-      toctitle: "Contents"
-      output:
-        html_document:
-          toc: true
-          toc_depth: 4
-          toc_float: true
-          number_sections: false
-          df_print: paged
-          editor_options:
-            chunk_output_type: inline
-            code_folding: show
-            bibliography: [packages.bib]
-            pkgdown:
-              as_is: true
+  - name: "Boris Grinshpun"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+toctitle: "Contents"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    number_sections: false
+    df_print: paged
+    editor_options:
+      chunk_output_type: inline
+      code_folding: show
+bibliography: [packages.bib]
+pkgdown:
+  as_is: true
 ---
 
 ```{r,setup-hide}
@@ -172,13 +172,6 @@ simres.forest <- NMsim(file.mod # path to NONMEM model
                        )
 ```
 
-If you encounter issues with samples that do not run, please consider whether any of your uncertainty estimates on $THETA$'s could lead to sampled THETA's that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that THETA on the log scale to make sure all sampled values will be positive.
-
-
-```{r}
-NMdata::NMreadExt(file.mod)[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
-    NMdata::mergeCheck(NMrelate(file.mod,par.type="THETA")[,.(par.name,code)],by="par.name",quiet=TRUE)
-```
 
 
 ## Post processing 
@@ -194,7 +187,26 @@ simres <- NMreadSim("simres-forest/xgxr134_forest_mvrnorm_MetaData.rds",wait=TRU
 simres[,uniqueN(model.sim)]
 ```
 
-The step reuired by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
+If you encounter issues with samples that do not run, please consider
+whether any of your uncertainty estimates on $THETA$'s could lead to
+sampled THETA's that could make the model be undefined. This would
+often be absorption parameters, clearences, volumes or any other
+strictly positive parameter which is estimated with poor precision. If
+this happens, you may want to go back and estimate that THETA on the
+log scale to make sure all sampled values will be positive. A quick
+way to look into this is to look at the relative standard error for
+each `THETA`. In the following we merge in the first line in the model
+using each `THETA` so we can refresh our memory on the interpretation
+of each parameter without relying on a well formatted parameter table.
+
+
+```{r}
+NMdata::NMreadExt(file.mod)[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
+    NMdata::mergeCheck(NMrelate(file.mod,par.type="THETA")[,.(par.name,code)],by="par.name",quiet=TRUE)
+```
+
+
+The step required by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
 
 ```{r}
 ### Define exposure metrics

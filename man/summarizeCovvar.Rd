@@ -4,7 +4,7 @@
 \alias{summarizeCovvar}
 \title{Summarize simulated exposures relative to reference subject}
 \usage{
-summarizeCovvar(data, funs.exposure, cols.value, cover.ci = 0.95, by)
+summarizeCovvar(data, funs.exposure, cols.value, cover.ci = 0.95, by, as.fun)
 }
 \arguments{
 \item{data}{Simulated data to process. This data.frame must
@@ -23,6 +23,15 @@ is 0.95.}
 
 \item{by}{a character vector of names columns to perform all
 calculations by. This could be sampling subsets or analyte.}
+
+\item{as.fun}{The default is to return data as a
+`data.frame`. Pass a function (say `tibble::as_tibble`) in
+as.fun to convert to something else. If data.tables are
+wanted, use `as.fun="data.table"`. The default can be
+configured using `NMdataConf()`.}
+}
+\value{
+A data.frame
 }
 \description{
 Summarize simulated exposures relative to reference subject

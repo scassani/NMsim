@@ -58,11 +58,11 @@ combine sequences of time points that overlap (maybe across
 `TIME` and `TAPD`), and let `addEVID2()` clean them. If you
 want to keep your duplicated events, use `unique=FALSE`.}
 
-\item{as.fun}{The default is to return data as a data.frame. Pass
-a function (say `tibble::as_tibble`) in as.fun to convert to
-something else. If data.tables are wanted, use
-as.fun="data.table". The default can be configured using
-NMdataConf.}
+\item{as.fun}{The default is to return data as a
+`data.frame`. Pass a function (say `tibble::as_tibble`) in
+as.fun to convert to something else. If data.tables are
+wanted, use `as.fun="data.table"`. The default can be
+configured using `NMdataConf()`.}
 
 \item{doses}{Deprecated. Use `data`.}
 

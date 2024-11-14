@@ -51,10 +51,10 @@ their questions most effectively.
 
 ```{r,setup,echo=TRUE}
 library(data.table)
-library(NMsim)
-library(NMdata)  
+library(NMsim,quietly=TRUE)
+library(NMdata,quietly=TRUE)  
 library(NMcalc)  ## Optional. Used to calculate AUC.
-library(coveffectsplot)
+library(coveffectsplot,quietly=TRUE)
 
 NMdataConf(
     path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable

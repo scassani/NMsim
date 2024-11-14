@@ -33,6 +33,8 @@ navbar:
         href: articles/NMsim-TypSubj.html
       - text: Simulations with Parameter Uncertainty
         href: articles/NMsim-ParamUncertain.html
+      - text: Simulation-based forest plots with NMsim
+        href: articles/NMsim-forest.html
       - text: Creation of Simulation Data Sets
         href: articles/NMsim-DataCreate.html
       - text: Simulation with Residual Variability

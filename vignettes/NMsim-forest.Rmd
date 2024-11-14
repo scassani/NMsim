@@ -2,22 +2,22 @@
 title: "Simulation-based forest plots with NMsim"
 author: 
   - name: "Philip Delff"
-  - name: "Boris Grinshpun"
-date: '`r format(Sys.Date(), "%B %d, %Y")`'
-toctitle: "Contents"
-output:
-  html_document:
-    toc: true
-    toc_depth: 4
-    toc_float: true
-    number_sections: false
-    df_print: paged
-editor_options:
-  chunk_output_type: inline
-  code_folding: show
-  bibliography: [packages.bib]
-pkgdown:
-  as_is: true
+    - name: "Boris Grinshpun"
+      date: '`r format(Sys.Date(), "%B %d, %Y")`'
+      toctitle: "Contents"
+      output:
+        html_document:
+          toc: true
+          toc_depth: 4
+          toc_float: true
+          number_sections: false
+          df_print: paged
+          editor_options:
+            chunk_output_type: inline
+            code_folding: show
+            bibliography: [packages.bib]
+            pkgdown:
+              as_is: true
 ---
 
 ```{r,setup-hide}
@@ -55,6 +55,7 @@ library(NMsim,quietly=TRUE)
 library(NMdata,quietly=TRUE)  
 library(NMcalc)  ## Optional. Used to calculate AUC.
 library(coveffectsplot,quietly=TRUE)
+library(knitr) ## for printing tables with knitr::kable
 
 NMdataConf(
     path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
@@ -162,6 +163,7 @@ simres.forest <- NMsim(file.mod # path to NONMEM model
                       ,data=dt.sim, # simulation dataset
                       ,name.sim="forest_mvrnorm" # output name suffix
                       ,method.sim=NMsim_VarCov # sampling with mvrnorm
+                      ,nsims=500
                       ,typical=TRUE # FALSE to include BSV
                       ,table.vars=cc(PRED,IPRED) # output table variables
                       ,seed.R=342 # seed for reproducibility
@@ -184,12 +186,17 @@ NMdata::NMreadExt(file.mod)[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)
 `NMsim` provides a function to do the post processing of the set of simulations setup by `expandCovs()`. The key steps performed by this function are outlined below. Most importantly, it normalizes  the exposures by the reference value for each sampled set of parameters. Then, it derives median and a confidence interval as quantiles in the simulated distribution.
 
 
-The step reuired by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
 
 ```{r}
 ### Read simulation results
-simres <- NMreadSim("simres-forest/xgxr134_forest_simpar_MetaData.rds")
+simres <- NMreadSim("simres-forest/xgxr134_forest_mvrnorm_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
+## Check how many models returned simulation results
+simres[,uniqueN(model.sim)]
+```
 
+The step reuired by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
+
+```{r}
 ### Define exposure metrics
 funs.exposure <- list(
     "Cmax"=function(x) max(x$PRED)
@@ -253,11 +260,8 @@ fun.plot <- function(data,...){
     )
 }
 
-#forest.day1 <- fun.plot(sum.uncertain[period=="Day 1"],plot_title="Day 1")
-forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"],plot_title="Steady-State")
-
-#forest.day1
-forest.ss
+forest.day1 <- fun.plot(sum.uncertain[period=="Day 1"])
+forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"])
 
 ```
 

@@ -16,7 +16,9 @@
   each covariate. The forest plot can be evaluated with just one
   reference simulation.
 
-* New function `summarizeCovs()` introduced to summarize simulation results for forest plots. This function is closely related to `expandCovs()`
+* New function `summarizeCovs()` introduced to summarize simulation
+  results for forest plots. This function is closely related to
+  `expandCovs()`
 
 * `NMsim()` no longer requires NONMEM to be available if
   `reuse.results=TRUE` and NONMEM does not need to be run.

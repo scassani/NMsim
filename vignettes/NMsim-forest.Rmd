@@ -204,7 +204,7 @@ of each parameter without relying on a well formatted parameter table.
 NMdata::NMreadExt(file.mod,as.fun="data.table")[
             par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
     NMdata::mergeCheck(
-                NMrelate(file.mod,par.type="THETA")[,.(par.name,code)],
+                NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],
                 by="par.name",quiet=TRUE)
 ```
 

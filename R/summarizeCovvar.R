@@ -11,14 +11,21 @@
 ##'     is 0.95.
 ##' @param by a character vector of names columns to perform all
 ##'     calculations by. This could be sampling subsets or analyte.
+##' @param as.fun The default is to return data as a
+##'     `data.frame`. Pass a function (say `tibble::as_tibble`) in
+##'     as.fun to convert to something else. If data.tables are
+##'     wanted, use `as.fun="data.table"`. The default can be
+##'     configured using `NMdataConf()`.
 ##' @details These columns are expected to be present, and differences within any of them will lead to separate summarizing (say for a s covariate value to be plotted):
 ##' cc(model,type,pred.type,covvar,covlabel,covref,covval)
 ##'
 ##' @importFrom stats median reorder setNames
-## Do not export yet
+##' @return A data.frame
+##' @export
 
 
-summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
+
+summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun){
 
     . <- NULL
     EVID <- NULL
@@ -39,6 +46,9 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
     type <- NULL
     val.exp.ref <- NULL
     
+
+    if(missing(as.fun)) as.fun <- NULL
+    as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
     
     ## A standard evaluation interface to data.table::dcast
     dcastSe <- function(data,l,r,...){
@@ -63,8 +73,7 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
     modelby <- intersect(c("model.sim","NMREP"),colnames(data))
 
     
-    simres <- copy(data)
-    simres <- simres[EVID==2]
+    simres <- as.data.table(data)[EVID==2]
 
     if(missing(cols.value)) cols.value <- NULL
     if(is.null(cols.value)){
@@ -99,12 +108,11 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
 
     
 ### making reference value a column rather than rows. 
+    ## column with refrence exposure value is called val.exp.ref
     dt.ref <- setnames(
         sum.res.model[type=="ref",c(modelby,"metric.var",setdiff(allby,c("covval","covvalc","type")),"predm"),with=FALSE]
        ,"predm","val.exp.ref")
-
-
-### these columns are not necessarily in refr columns. If not, drop them before merge.
+    ## these columns are not necessarily in refr columns. If not, drop them before merge.
     dt.miss <- dt.ref[,lapply(.SD,function(x)all(is.na(x))),.SDcols=c("covvar","covlabel","covref")]
     cols.miss <- colnames(dt.miss[,as.logical(colSums(dt.miss)),with=FALSE])
     if(length(cols.miss)){
@@ -120,7 +128,6 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
                                 )
 
     
-
 ### summarize distribution of ratio to ref across parameter samples/models
     sum.uncertain <- sum.res.model[
        ,setNames(as.list(quantile(predm/val.exp.ref,probs=c((1-cover.ci)/2,.5,1-(1-cover.ci)/2))),
@@ -129,12 +136,8 @@ summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by){
 
 
 ### Section end: Summarize exposure metrics vs covariates
-
-    
-    
-    
+    ## A factor representation of covariate values - only based on the remainding values - not reference
     sum.uncertain[,covvalf:=reorder(covvalc,covval)]
 
-
-    sum.uncertain[]
+    as.fun(sum.uncertain)
 }

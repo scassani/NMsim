@@ -24,6 +24,8 @@ pkgdown:
 library(knitr)
 ```
 
+<img src='../man/figures/NMsimlogo240.png' align="right" height="120" />
+
 # Introduction
 The forest plot is an effective and widely recognized way to
 illustrate estimated covariate effects on exposure or response, or parameters
@@ -79,9 +81,8 @@ simulate daily dosing of 30 mg.
 
 
 ```{r}
-
 doses <- NMcreateDoses(TIME=0,AMT=30,ADDL=100,II=24,col.id=NA)
-
+kable(doses)
 ```
 
 `NMsim::expandCovs()` can be used to construct a set of simulations needed to derive a forest plot. It varies one covariate at a time, keeping all other covariates at their reference value. It can derive references and quantiles from a data set.
@@ -92,7 +93,7 @@ For reference values we use median in the observed population for continuous cov
 ```{r}
 ## reading output and input tables from estimation. Used to determine
 ## reference values and quantiles.
-data.ref <- NMdata::NMscanData(file.mod)
+data.ref <- NMdata::NMscanData(file.mod,quiet=TRUE)
 covs <- expandCovs(
     AGE=list(ref=median,quantiles=c(10,25,75,90)/100,label="Age (years)"),
     ## notice, values OR quantiles can be provided
@@ -104,7 +105,7 @@ covs <- expandCovs(
 ## adding distinct ID's for each combination of covariates
 covs[,ID:=.GRP,by=.(type,covvar,covval)]
 
-kable(covs[])
+kable(covs)
 ```
 
 We now have all combinations of covariates in the object called `covs`. Notice the `type` column which distinguishes the reference combination in contrast to the other simulations where one covariate is being varied at a time. 
@@ -112,18 +113,35 @@ We now have all combinations of covariates in the object called `covs`. Notice t
 ```{r}
 ## repeating the doses for all combinations of covariates
 dt.dos <- covs[,doses[],by=covs]
-dims(covs,doses,dt.dos)
+dims(covs,doses,dt.dos) |> kable()
 
 ```
 
-We sample every 15 minutes for one day in steady-state.
+We sample every 15 minutes on the first day and one day in steady-state. 
 
 ```{r}
 ## add a sampling scheme
-time.sim <- data.table(TIME=seq(0,24,.25)+30*24,period="Steady-State")
+time.sim <- rbind(
+    data.table(TIME=seq(0,24,.25),period="Day 1"),
+    data.table(TIME=seq(0,24,.25)+30*24,period="Steady-State")
+)
 dt.sim <- addEVID2(dt.dos,TIME=time.sim,CMT=2)
-dims(dt.dos,time.sim,dt.sim)
+dims(dt.dos,time.sim,dt.sim) |> kable()
 ```
+
+There is only one analyte in this data set. If for instance, you have a parent and a metabolite, adding sampling times could look like this:
+
+```{r}
+dt.sim.parent.metab <-
+    addEVID2(dt.dos,TIME=time.sim,CMT=data.frame(analyte=c("parent","metabolite"),CMT=c(2,3)))
+```
+
+We used the `period` column to distinguish time intervals for the
+analysis. We have to remember to do the postprocessing by the values
+in that column. If you are looking at multiple analytes, remember to
+postprocess by the column that distringuishes those, too. In this
+example, that would be `analyte`.
+
 
 ## Simulation
 
@@ -131,110 +149,158 @@ We need to run the simulations repeatedly, sampling parameters based on uncertai
 [Simulation of clinical trial predictions with model uncertainty using NMsim](../reference/figures/NMsim_param_uncertainty_web.pdf) by Sanaya Shroff and Philip Delff.
 
 
-In this case we shall use parametric sampling. 
+In this case we shall use parametric sampling. Since in this case we are simulating typical subjects (random effects fixed at zero), we only need variability on the fixed effects (THETA's). Multiple methods are available in `NMsim` to do this. We shall use the method provided by NMsim based on the multivariate normal distribution (`mvrnorm`). This method is selected because it is adequate for sampling `THETA`'s, it does not require additional software installed, and it is robust. 
+
+
+```{r,eval=FALSE,include=FALSE}
+ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
+                      ,ext=ext  # Use the sampled parameter sets
+```
 
 ```{r,eval=FALSE}
-ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
-
-
 simres.forest <- NMsim(file.mod # path to NONMEM model
                       ,data=dt.sim, # simulation dataset
-                      ,name.sim="forest_simpar" # output name suffix
-                       ##,method.sim=NMsim_VarCov # sampling method
-                      ,method.sim=NMsim_VarCov # sampling method
-                      ,ext=ext  # Use the sampled parameter sets
+                      ,name.sim="forest_mvrnorm" # output name suffix
+                      ,method.sim=NMsim_VarCov # sampling with mvrnorm
                       ,typical=TRUE # FALSE to include BSV
                       ,table.vars=cc(PRED,IPRED) # output table variables
                       ,seed.R=342 # seed for reproducibility
                       ,sge=TRUE # TRUE if submitting to a cluster
                       ,nc=1
                        )
-
-
 ```
+
+If you encounter issues with samples that do not run, please consider whether any of your uncertainty estimates on $THETA$'s could lead to sampled THETA's that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that THETA on the log scale to make sure all sampled values will be positive.
+
+
+```{r}
+NMdata::NMreadExt(file.mod)[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
+    NMdata::mergeCheck(NMrelate(file.mod,par.type="THETA")[,.(par.name,code)],by="par.name",quiet=TRUE)
+```
+
 
 ## Post processing 
 
-```{r}
-simres <- NMreadSim("simres-forest/xgxr134_forest_simpar_MetaData.rds")
-## source("~/wdirs/NMpub/ACOP2024/forest/forest_summarize.R")
+`NMsim` provides a function to do the post processing of the set of simulations setup by `expandCovs()`. The key steps performed by this function are outlined below. Most importantly, it normalizes  the exposures by the reference value for each sampled set of parameters. Then, it derives median and a confidence interval as quantiles in the simulated distribution.
 
-########## postprocess
-### Exposure metrics
+
+The step reuired by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
+
+```{r}
+### Read simulation results
+simres <- NMreadSim("simres-forest/xgxr134_forest_simpar_MetaData.rds")
+
+### Define exposure metrics
 funs.exposure <- list(
     "Cmax"=function(x) max(x$PRED)
    ,"AUC"=function(x) trapez(x$TIME,x$PRED)
     ## ,"Concentration at 4 hours"=function(x) x$value[x$TAPD==4]
 )
 
-
-
-sum.uncertain <- NMsim:::summarizeCovvar(simres,
-                                         funs.exposure = funs.exposure,
-                                         by=cc(period),
-                                         cover.ci=.95
-                                         )
-
+sum.uncertain <- summarizeCovvar(simres,
+                                 funs.exposure = funs.exposure,
+                                 by=cc(period),
+                                 cover.ci=.95
+                                 )
 ```
 
 ## Plotting 
-We will use the R package `coveffectsplot` for plotting. 
+
+We will use the R package `coveffectsplot` for plotting. `coveffectsplot::forest_plot()` requires certain column names so we adjust those first.
 
 ```{r,fig.width=10}
 
-sum.uncertain.plot <- copy(sum.uncertain)
-
-setnames(sum.uncertain.plot,
+setnames(sum.uncertain,
          cc(covvalf,predmm,predml,predmu,metric.var),
          cc(label,mid,lower,upper,paramname)
          )
 
-sum.uncertain.plot[,MEANVAL:=mid]
+sum.uncertain[,MEANVAL:=mid]
+sum.uncertain[,covname:=covlabel]
 nsig <- 3
-sum.uncertain.plot[,LABEL := sprintf("%s [%s - %s]",signif2(mid,nsig),signif2(lower,nsig),signif2(upper,nsig))]
-sum.uncertain.plot[,covname:=covlabel]
+sum.uncertain[,LABEL := sprintf("%s [%s - %s]",signif2(mid,nsig),signif2(lower,nsig),signif2(upper,nsig))]
 
 
+descrip.legend <- "Reference (vertical line)\nClinically relevant limits 0.8-1.25 (colored area)"
 
-escape_newline <- function(s) {
-    gsub("\\\\n", "\\\n", s)
-}
-
-### where is this supposed to come from?
+### I don't know why forest_plot() needs this 
 label_value <- function(x,... )x
 
-textsize <- 10
-forest1 <- forest_plot(
-    data = sum.uncertain.plot,
-    facet_formula = "covlabel ~ paramname", 
-    facet_scales = "free_y",
-    facet_space = "free_y",
-    ## facet_labeller = "label_value",
-    xy_facet_text_bold = FALSE, 
-    plot_table_ratio = 1.7, 
-    table_text_size = 3,
-    ## label_wrap_width = 16L,
-    x_label_text_size = textsize,
-    y_label_text_size = textsize, 
-    ## table_title_size = 16L,
-    x_facet_text_size = textsize, 
-    y_facet_text_size = textsize,
-    base_size=textsize,
-    ## interval_size=.65, ## geom_pointerinterval size
-    strip_placement = "outside",
-    table_position = "right",
-    legend_order = c("pointinterval", "ref", "area"),
-    x_range = c(.5,1.5),
-    ## interval_size=1.1,
-    ## interval_fatten = 5L,
-    ## interval_linewidth = 2,
-    ref_legend_text = escape_newline("Reference (vertical line)\\nClinically relevant limits 0.8-1.25 (colored area)"),
-    area_legend_text = escape_newline("Reference (vertical line)\\nClinically relevant limits 0.8-1.25 (colored area)"),
-    facet_switch = c("y"),
-    legend_position="bottom"
-)
+fun.plot <- function(data,...){
+    textsize <- 10
+    forest1 <- forest_plot(
+        data = data,
+        facet_formula = "covlabel ~ paramname", 
+        facet_scales = "free_y",
+        facet_space = "free_y",
+        xy_facet_text_bold = FALSE, 
+        plot_table_ratio = 1.7, 
+        table_text_size = 3,
+        x_label_text_size = textsize,
+        y_label_text_size = textsize, 
+        x_facet_text_size = textsize, 
+        y_facet_text_size = textsize,
+        base_size=textsize,
+        strip_placement = "outside",
+        table_position = "right",
+        legend_order = c("pointinterval", "ref", "area"),
+        x_range = c(.5,1.5),
+        ref_legend_text = descrip.legend,
+        area_legend_text = descrip.legend,
+        facet_switch = c("y"),
+        legend_position="bottom",
+        ...
+    )
+}
 
+#forest.day1 <- fun.plot(sum.uncertain[period=="Day 1"],plot_title="Day 1")
+forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"],plot_title="Steady-State")
 
-
+#forest.day1
+forest.ss
 
 ```
+
+
+## Post processing explained step by step
+We are including the code from the main steps in the post processing function, `NMsim::summarizeCovvar()`. It is important that the scientist understands that what the forest plots derived in this document represent is the relative effect of the covariate on the exposure metric. This is derived by `NMsim::summarizeCovvar()` as quantiles of the exposure relative to the reference subject. The confidence interval hence expresses the uncertainty on the covariate effect for a subject with other covariates at reference values.
+
+
+Notice, the code below consists of snippets from the
+`NMsim::summarizeCovvar()` function. The code is not intended to be
+used on its own. 
+
+```{r,eval=FALSE}
+### use only simulated samples
+simres <- as.data.table(data)[EVID==2]
+
+
+### summarizing exposure metrics for each subject in each model,
+### each combination of covariates
+resp.model <- simres[,lapply(funs.exposure,function(f)f(.SD)),
+                     by=c(allby,modelby,"ID")]
+
+### the exposure metrics in long format.
+mvars <- names(funs.exposure)
+resp.model.l <- melt(resp.model,measure.vars=mvars,variable.name="metric.var",value.name="metric.val")
+
+
+## deriving median by model and time to have a single value per
+## model This is only relevant in case multiple subjects are
+## simulated by each model. 
+sum.res.model <- resp.model.l[
+   ,.(predm=median(metric.val))
+   ,by=c(modelby,allby,"metric.var")
+]
+
+### making reference value a column rather than rows. 
+## column with refrence exposure value is called val.exp.ref
+
+### summarize distribution of ratio to ref across parameter samples/models
+sum.uncertain <- sum.res.model[
+   ,setNames(as.list(quantile(predm/val.exp.ref,probs=c((1-cover.ci)/2,.5,1-(1-cover.ci)/2))),
+             c("predml","predmm","predmu"))
+   ,by=c(allby,"metric.var")]
+
+```
+

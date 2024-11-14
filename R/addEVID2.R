@@ -36,11 +36,11 @@
 ##'     combine sequences of time points that overlap (maybe across
 ##'     `TIME` and `TAPD`), and let `addEVID2()` clean them. If you
 ##'     want to keep your duplicated events, use `unique=FALSE`.
-##' @param as.fun The default is to return data as a data.frame. Pass
-##'     a function (say `tibble::as_tibble`) in as.fun to convert to
-##'     something else. If data.tables are wanted, use
-##'     as.fun="data.table". The default can be configured using
-##'     NMdataConf.
+##' @param as.fun The default is to return data as a
+##'     `data.frame`. Pass a function (say `tibble::as_tibble`) in
+##'     as.fun to convert to something else. If data.tables are
+##'     wanted, use `as.fun="data.table"`. The default can be
+##'     configured using `NMdataConf()`.
 ##' @param doses Deprecated. Use `data`.
 ##' @param time.sim Deprecated. Use `TIME`.
 ##' @details The resulting data set is ordered by ID, TIME, and

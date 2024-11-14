@@ -44,5 +44,5 @@ Authors: **Simone Cassani, Jahidur Rashid, Christopher Banker, Philip Delff**
 
 
 [**A Model-Based Simulation Workflow Enables Automated and Accurate Generation of Clinical Pharmacology Summary Statistics**](../reference/figures/NMsim_simbased_NCA_web.pdf) (Poster T103)  
-Authors: *Brian M. Reilly Pharm.D., Ph.D., Philip H. Delff, Ph.D.*  
+Authors: **Brian M. Reilly Pharm.D., Ph.D., Philip H. Delff, Ph.D.**  
 

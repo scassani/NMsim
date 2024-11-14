@@ -41,17 +41,23 @@ run.simuls <- FALSE
 ```
 Built `r Sys.Date()` using NMsim `r packageVersion("NMsim")`.
 
+
+## Other relevant material
+Please note the following ACOP2024 poster which is more recent and more comprehensive than this document:  
+[**Simulate modified Nonmem models using NMsim**](../reference/figures/NMsim_modified_models_web.pdf) (Poster T19)  
+Authors: **Simone Cassani, Jahidur Rashid, Christopher Banker, Philip Delff**  
+
 ## Objectives
 This vignettes aims at enabling you to use `NMsim` for the following purposes
 
 * Simulation with parameters modified from the estimated values
 
 ## Vary parameter values
-Sometimes we want to simulate with some modification to the estimated model. NMsim can make such user-specified modifications to the model before simulating through the `list.sections` argument. 
+Sometimes we want to simulate with some modification to the estimated model. NMsim can make such user-specified modifications to the model before simulating through the `modify.model` argument. 
 
 The SAD study was run with a fast solution formulation. We want to see how a slower absorption rate would affect the PK prediction for the multiple dose regimen. In the model estimate, `TVKA=2.17`. We now try with a four times slower absorption:
 
-Notice, until NMsim 0.1.0, the `modify.model` argument was called `modify.model`. The helper functions `add` and `overwrite` were introduced with NMsim 0.1.3. Until then, custom modification functions had to be provided like described in the section "Edit control stream using customized functions".
+Notice, until NMsim 0.1.0, the `modify.model` argument was called `list.sections`. The helper functions `add` and `overwrite` were introduced with NMsim 0.1.3. Until then, custom modification functions had to be provided like described in the section "Edit control stream using customized functions".
 
 ```{r,include=FALSE,eval=TRUE}
 file.mod <- system.file("examples/nonmem/xgxr021.mod",package="NMsim")

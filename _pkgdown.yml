@@ -37,7 +37,7 @@ navbar:
         href: articles/NMsim-DataCreate.html
       - text: Simulation with Residual Variability
         href: articles/NMsim-ResidVar.html
-      - text: Varying Parameter Values
+      - text: Simulate Models with Modifications
         href: articles/NMsim-varyPars.html
       - text: Reuse Simulated Subjects
         href: articles/NMsim-ReuseSimSubjects.html

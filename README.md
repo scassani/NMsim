@@ -88,7 +88,7 @@ The goal for NMsim is to automate the NONMEM simulation workflow and
 provide a simple, flexible, and powerful R interface. This allows for
 automation of most simulation-based analyses.
 
-<img src='man/figures/intro-tab.png' align="right" height="120" />
+<img src='man/figures/intro-tab.png' height="120" />
 
 ## Supported types of simulations
 

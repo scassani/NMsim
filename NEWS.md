@@ -16,6 +16,8 @@
   each covariate. The forest plot can be evaluated with just one
   reference simulation.
 
+* New function `summarizeCovs()` introduced to summarize simulation results for forest plots. This function is closely related to `expandCovs()`
+
 * `NMsim()` no longer requires NONMEM to be available if
   `reuse.results=TRUE` and NONMEM does not need to be run.
 
@@ -29,7 +31,7 @@
   in 0.1.4, just run your sim again once the queue has been initiated
   by the first NMsim called.
 
-* When Nonmem failed in 0.1.4, NMsim might not return debugging
+* When NONMEM failed in 0.1.4, NMsim might not return debugging
   info. Fixed.
   
 

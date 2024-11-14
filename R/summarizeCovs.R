@@ -25,7 +25,7 @@
 
 
 
-summarizeCovvar <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun){
+summarizeCovs <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun){
 
     . <- NULL
     EVID <- NULL

@@ -60,6 +60,7 @@ LINK.LNK
 ;; so far, there is nothing of real value here
 ^inst/examples/R/*
 ^vignettes$
+^reference$
 .*_dir.*
 ^R/NMwritePreamble.R
 ^tests_manual

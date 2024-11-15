@@ -371,7 +371,7 @@ simres.typ2 <- NMsim(
     name.sim="typsubj",
     nmquiet=TRUE, ## suppress terminal text from NONMEM
     quiet=TRUE, ## Suppress messages from NMsim
-    reuse.results=reuse.results ## Reuse results if already on file
+    reuse.results=FALSE ## Reuse results if already on file
 )
 
 subset(simres.typ2,EVID==2) |>

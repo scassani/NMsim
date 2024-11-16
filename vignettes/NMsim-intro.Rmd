@@ -152,7 +152,7 @@ reuse.results <- TRUE
 knitr::write_bib(c('rmarkdown','data.table','NMdata','NMsim','xgxr'), 'intro-packages.bib')
 ```
 
-<img src="../reference/figures/NMsimlogo.png" alt="Logo" style="width:200px; float:right;">
+<img src="../reference/figures/NMsimlogo.png" alt="NMsim" style="width:200px; float:right;">
 
 # Objectives
 This introduction to NMsim aims at enabling NONMEM users to 
@@ -370,8 +370,8 @@ simres.typ2 <- NMsim(
     typical=TRUE,
     name.sim="typsubj",
     nmquiet=TRUE, ## suppress terminal text from NONMEM
-    quiet=TRUE, ## Suppress messages from NMsim
-    reuse.results=FALSE ## Reuse results if already on file
+    ## quiet=TRUE, ## Suppress messages from NMsim
+    reuse.results=reuse.results ## Reuse results if already on file
 )
 
 subset(simres.typ2,EVID==2) |>

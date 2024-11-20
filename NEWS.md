@@ -1,3 +1,11 @@
+# NMsim 0.1.6
+
+## Bugfixes
+
+* `overwrite()` is a helper function intended to use in `NMsim()`'s
+  `modify.model` argument. It would not work correctly for strings
+  containing some special, at least. Fixed.
+
 # NMsim 0.1.5
 
 ## New features

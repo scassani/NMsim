@@ -19,6 +19,7 @@ dt.sim[,BBW:=40][,ROW:=.I]
 
 
 ## NMdataConf(dir.psn="/opt/psn")
+NMdataConf(path.nonmem ="C:/nm75g64/run/nmfe75.bat")
 path.nonmem <- "/opt/nonmem/nm751/run/nmfe75"
 ## dir.psn <- "/opt/psn"
 ## NMdataConf(dir.psn=dir.psn)

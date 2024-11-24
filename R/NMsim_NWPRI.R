@@ -81,33 +81,11 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
     cov <- NMreadCov(fnExtension(file.mod,".cov"))
     pars <- NMreadExt(file.mod,return="pars",as.fun="data.table")[,value:=est]
 
-
-#### Section start: add OMEGA block information based on off diagonal values ####
-### This section is almost copied from NMdata::NMreadExt. Only mergeCheck() call because common.cols=drop.x is introduced in 0.1.7. However, with current requirement
-if(F){
-    tab.blocks <- rbind(pars[par.type%in%c("OMEGA","SIGMA"),.(par.type,i=i,j=j,value)],
-                        pars[par.type%in%c("OMEGA","SIGMA"),.(par.type,i=j,j=i,value)])[
-        abs(value)>1e-9,.(iblock=min(i,j),blocksize=max(abs(j-i))+1),by=.(par.type,i)]
-
-    ## pars0 <- copy(pars)
-    ## tab.blocks
-    pars <- mergeCheck(pars[,setdiff(colnames(pars),c("iblock","blocksize")),with=FALSE],
-                       tab.blocks,by=cc(par.type,i),all.x=T,quiet=TRUE)
-
-    ## pars[par.type%in%c("OMEGA","SIGMA"),.(i,j,iblock,blocksize,value)]
-
-    pars[abs(i-j)>(blocksize-1),(c("iblock","blocksize")):=list(NA,NA)]
-    pars[!is.na(iblock),imin:=min(i),by=.(iblock)]
-    pars[j<imin,(c("iblock","blocksize")):=list(NA,NA)]
-    pars[,imin:=NULL]
-
-    ## pars[par.type%in%c("OMEGA","SIGMA"),.(i,j,iblock,blocksize,imin,value)]
+    if(!"se"%in%colnames(pars)){
+        stop("ext file does not contain standard errors. A succussfull COVARIANCE step is needed for NMSIM_NWPRI to run.")
+    }
     
-    pars[par.type%in%c("OMEGA","SIGMA")&i==j&is.na(iblock),iblock:=i]
-    pars[par.type%in%c("OMEGA","SIGMA")&i==j&iblock==i&is.na(blocksize),blocksize:=1]
-}
 
-###  Section end: add OMEGA block information based on off diagonal values
     
 ### Add degrees of freedom for inverse-wishart distribution for OMEGA/SIGMA
     pars[par.type%in%c("OMEGA","SIGMA")&i==j&!is.na(iblock), N := 2*((est**2)/(se**2)) + 1]
@@ -131,10 +109,12 @@ if(F){
     cov.l <- mat2dt(cov,as.fun="data.table")
     cov.l <- addParType(cov.l,suffix="i")
     cov.l <- addParType(cov.l,suffix="j")
-
-
+    
+    
     lines.thetapv <-
-        NMcreateMatLines(cov.l[par.type.i=="THETA"&par.type.j=="THETA", .(i=j, j=i, value, parameter.i, parameter.j, par.type.i,  par.name, par.type.j)], type="OMEGA")
+        NMcreateMatLines(
+            cov.l[par.type.i=="THETA"&par.type.j=="THETA", .(i=j, j=i, value, parameter.i, parameter.j, par.type.i,  par.name, par.type.j)]
+          , type="OMEGA",as.one.block=TRUE)
     lines.thetapv <- sub("\\$OMEGA","\\$THETAPV",lines.thetapv)
     lines.thetapv = prettyMatLines(lines.thetapv)
     

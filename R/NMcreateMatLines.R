@@ -7,7 +7,7 @@
 ##'
 ##' @keywords internal
 
-NMcreateMatLines <- function(omegas,type){
+NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type){
     . <- NULL
     j <- NULL
     i <- NULL
@@ -16,48 +16,45 @@ NMcreateMatLines <- function(omegas,type){
     hasOff <- NULL
     offNonZero <- NULL
     
+
+    
+    string.fix <- ifelse(fix,"FIX","")
+
     ## the code was written in the oppositie direction, so switching i
     ## and j.
     omegas.long <- omegas[,.(i=j,j=i,value)]
-    omegas.long[,maxOff:=0]
-    omegas.long[,hasOff:=FALSE]
-    omegas.long[,offNonZero:=abs(value)>1e-9&i!=j]
+    if(as.one.block){
+        ## omegas.long[,hasOff:TRUE]
+        omegas.long[,maxOff:=max(i)-1]
+    } else {
+        omegas.long[,maxOff:=0]
+        omegas.long[,hasOff:=FALSE]
+        omegas.long[,offNonZero:=abs(value)>1e-9&i!=j]
 
-    
-    if(any(omegas.long$offNonZero)){
-        omegas.long[,hasOff:=any(offNonZero==TRUE),by=.(i)]
+        if(any(omegas.long$offNonZero)){
+            omegas.long[,hasOff:=any(offNonZero==TRUE),by=.(i)]
+        }
+        omegas.long[hasOff==TRUE,maxOff:=max(j[abs(value)>1e-9]-i),by=.(i)]
     }
-    omegas.long[hasOff==TRUE,maxOff:=max(j[abs(value)>1e-9]-i),by=.(i)]
-
     
-
     is <- unique(omegas.long$i)
 
     i.idx <- 1
     loopres <- c()
-    Netas <- omegas[,max(i)]
+    ## Netas <- omegas[,max(i)]
 
-
-    
     while(i.idx <= length(is)){
         i.this <- is[i.idx]
         nis.block <- omegas.long[i==i.this,unique(maxOff)]
         if(nis.block>0){
-            ## omegas.this <- omegas.long[i>=i.this&i<=(i.this+nis.block)&j<=(i.this+nis.block)]
-            ## omegas.this[,value.use:=value]
-            ## values.this[values.this==0] <- 1e-30
-
             values.this <- omegas.long[i>=i.this&i<=(i.this+nis.block)&j<=(i.this+nis.block),value]
             values.this[values.this==0] <- 1e-30
-            res <- paste0("BLOCK(",nis.block+1,") FIX ",paste(values.this,collapse=" "))
+            res <- paste0("BLOCK(",nis.block+1,") ",string.fix," ",paste(values.this,collapse=" "))
             loopres <- c(loopres,res)
             i.idx <- i.idx+nis.block+1
         } else {
             value.this <- omegas.long[i==i.this&j==i.this,value]
-            res <- paste(value.this, "FIX")
-            ## if(value.this==0){
-            ##     res <- paste(res,"FIX")
-            ## } 
+            res <- paste(value.this, string.fix)
             loopres <- c(loopres,res)
             i.idx <- i.idx+1
         }

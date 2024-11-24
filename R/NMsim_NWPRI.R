@@ -36,7 +36,6 @@
 
 NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 
-
     NMdata:::messageWrap("\nNMsim_NWPRI() currently only reliably simulates typical THETAs. Simulation with variability on OMEGA and SIGMA cannot be trust. Always run this method in NMsim with `typical=TRUE`",fun.msg=message)
 
     if(packageVersion("NMdata")<"0.1.6.932"){
@@ -113,7 +112,9 @@ if(F){
     cov.l <- mat2dt(cov,as.fun="data.table")
     cov.l <- addParType(cov.l,suffix="i")
     cov.l <- addParType(cov.l,suffix="j")
-    
+    # note: identify fixed thetas and set their diagonal in the cov matrix to be 1.0 for compatibility with nm7.60
+    cov.l = merge.data.table(x = cov.l, y = pars[par.type=="THETA",.(i, parameter.i=parameter,FIX)], by = c("i", "parameter.i"))
+    cov.l[i==j&FIX==1, value := 1.0]    
     
     lines.thetapv <-
         NMcreateMatLines(

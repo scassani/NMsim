@@ -464,19 +464,6 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     
     ## Section end: Dummy variables, only not to get NOTE's in pacakge checks
 
-    paste.begin <- function(x,add,...){
-        res <- paste(add,x[1],...)
-        if(length(x)>1){
-            res <- c(res,x[2:(length(x))])
-        }
-        res
-    }
-
-    paste.end <- function(x,add,...){
-        c(x[0:(length(x)-1)],
-          paste(x[length(x)],add,...)
-          )
-    }
 
     ## as.fun
     if(missing(as.fun)) as.fun <- NULL
@@ -977,7 +964,7 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
                 message(paste0("Row counter was added in column ",col.row,". Use this to merge output and input data."))
                 section.input <- NMreadSection(file.mod,section="input",keep.name=FALSE)
                 
-                section.input <- paste.begin(x=section.input,paste("$INPUT",col.row),collapse=" ")
+                section.input <- pasteBegin(x=section.input,paste("$INPUT",col.row),collapse=" ")
             } else {
                 section.input <- FALSE
             }
@@ -1200,14 +1187,13 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
                 
 ### pasting the seed after SIM(ULATION) and after ONLYSIM(ULATION) if the latter exists
                 section.sim <- sub("(SIM(ULATION)*( +ONLYSIM(ULATION)*)*) *",paste("\\1",seed),section.sim)
-                ## section.sim <- paste.end(section.sim,seed)
-                                        #}
+
                 if(subproblems>0){
                     section.sim <- gsub("SUBPROBLEMS *= *[0-9]*"," ",section.sim)
-                    section.sim <- paste.end(section.sim,sprintf("SUBPROBLEMS=%s",subproblems))
+                    section.sim <- pasteEnd(section.sim,sprintf("SUBPROBLEMS=%s",subproblems))
                 }
                 ## section.sim <- paste(section.sim,text.sim)
-                section.sim <- paste.end(section.sim,text.sim)
+                section.sim <- pasteEnd(section.sim,text.sim)
                 lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim,section="simulation",newlines=section.sim,quiet=TRUE,backup=FALSE)
                 writeTextFile(lines.sim,path.sim)
             }
@@ -1218,7 +1204,6 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
 
 #### Section start: Additional control stream modifications specified by user - modify.model ####
     if( !is.null(modify.model) ){
-### This requires NMdata >=0.1.0.905
         dt.models[,{
             NMwriteSection(files=path.sim,list.sections=modify.model,quiet=TRUE,backup=FALSE)
         },by=.(ROWMODEL)]

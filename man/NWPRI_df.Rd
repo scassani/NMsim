@@ -30,3 +30,4 @@ The degrees of freedom are calculated as DF =
 \seealso{
 NMsim_NWPRI
 }
+\keyword{internal}

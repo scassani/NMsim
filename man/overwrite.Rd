@@ -4,10 +4,12 @@
 \alias{overwrite}
 \title{Create function that modifies text elements in a vector}
 \usage{
-overwrite(...)
+overwrite(..., fixed = TRUE)
 }
 \arguments{
 \item{...}{Passed to `gsub()`}
+
+\item{fixed}{This is passed to gsub(), but `overwrite()`'s default behavior is the opposite of the one of `gsub()`. Default is `FALSE` which means that strings that are exactly matched will be replaced. This is useful because strings like `THETA(1)` contains special characters. Use `fixed=FALSE` to use regular expressions. Also, see other arguments accepted by `gsub()` for advanced features.}
 }
 \value{
 A function that runs `gsub` to character vectors
@@ -19,6 +21,6 @@ Create function that modifies text elements in a vector
 myfun <- overwrite("b","d")
 myfun(c("a","b","c","abc"))
 ## regular expressions
-myfun2 <- overwrite("b.*","d")
+myfun2 <- overwrite("b.*","d",fixed=FALSE)
 myfun2(c("a","b","c","abc"))
 }

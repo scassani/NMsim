@@ -5,6 +5,10 @@
 * `overwrite()` is a helper function intended to use in `NMsim()`'s
   `modify.model` argument. It would not work correctly for strings
   containing some special, at least. Fixed.
+  
+* `NMsim_NWPRI` would not always paste the full variance-covariance
+  matrix for theta estimates into `$THETAPV` which would make NONMEM
+  fail. Fixed.
 
 # NMsim 0.1.5
 

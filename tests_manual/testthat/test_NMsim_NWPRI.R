@@ -88,7 +88,7 @@ test_that("Two OMEGA blocks",{
     
     fileRef <- "testReference/NMsim_NWPRI_02.rds"
 
-    file.mod <- "testData/nonmem/xgxr236.mod"
+    file.mod <- "testData/nonmem/xgxr235.mod"
 
     dt.sim[,DOSE2:=50]
     dt.sim[,WEIGHTB:=60]
@@ -97,7 +97,6 @@ test_that("Two OMEGA blocks",{
     NMreadCov(file.mod)
 
     set.seed(43)
-## Fails. Need to insert $SIZES LTH=200 LVR=2000
     simres <- NMsim(file.mod,
                     data=dt.sim,
                     table.var="PRED IPRED",
@@ -105,8 +104,6 @@ test_that("Two OMEGA blocks",{
                     method.sim=NMsim_NWPRI
                     )
 
-## $SIZES inserted    
-    NMexec("testOutput/simtmp/xgxr233_NWPRI_01/xgxr233_NWPRI_01_2.mod",sge=F)
 
     ## attributes(NMreadSim("testOutput/NMsim_xgxr021_default_01_paths.rds"))
     fix.time(simres)
@@ -125,3 +122,43 @@ test_that("Two OMEGA blocks",{
 
 })
 
+
+context("NMsim")
+test_that("MTIME",{
+    
+    fileRef <- "testReference/NMsim_NWPRI_03.rds"
+
+    file.mod <- "testData/nonmem/xgxr236.mod"
+
+    dt.sim[,DOSE2:=50]
+    dt.sim[,WEIGHTB:=60]
+
+    NMreadExt(file.mod)
+    NMreadCov(file.mod)
+
+    set.seed(43)
+## Fails. Need to insert $SIZES LTH=200 LVR=2000
+    simres <- NMsim(file.mod,
+                    data=dt.sim,
+                    table.var="PRED IPRED",
+                    name.sim="NWPRI_03",
+                    method.sim=NMsim_NWPRI
+                    ,subproblems=2
+                    )
+
+    ## attributes(NMreadSim("testOutput/NMsim_xgxr021_default_01_paths.rds"))
+    fix.time(simres)
+    ## expect_equal_to_reference(simres[,!("sim")],fileRef)
+    expect_equal_to_reference(simres,fileRef)
+
+    if(F){
+        ref <- readRDS(fileRef)
+        compareCols(simres,ref,keep.names=TRUE)
+        compareCols(attributes(simres)$NMsimModTab,attributes(readRDS(fileRef))$NMsimModTab,keep.names=FALSE)
+        simres.nometa <- copy(simres)
+        unNMsimRes(simres.nometa)
+        attributes(simres.nometa)
+        expect_equal_to_reference(simres.nometa,fnAppend(fileRef,"noMeta"))
+    }
+
+})

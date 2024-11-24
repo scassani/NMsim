@@ -53,6 +53,9 @@ test_that("basic - default",{
     ## extload(file.mod)
 
     dt.sim[,DOSE2:=50]
+
+    NMreadExt(file.mod)
+    NMreadCov(file.mod)
     
     set.seed(43)
     simres <- NMsim(file.mod,

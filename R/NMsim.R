@@ -1203,11 +1203,15 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
 
 
 #### Section start: Additional control stream modifications specified by user - modify.model ####
-    if( !is.null(modify.model) ){
-        dt.models[,{
-            NMwriteSection(files=path.sim,list.sections=modify.model,quiet=TRUE,backup=FALSE)
-        },by=.(ROWMODEL)]
-    }
+    ## if( !is.null(modify.model) ){
+    ##     dt.models[,{
+    ##         NMwriteSection(files=path.sim,list.sections=modify.model,quiet=TRUE,backup=FALSE)
+    ##     },by=.(ROWMODEL)]
+    ## }
+
+        if( !is.null(modify.model) ){
+    modifyModel(modify.model,dt.models)
+        }
     
 ### Section end: Additional control stream modifications specified by user - modify.model
 

@@ -92,13 +92,46 @@ test_that("modify.model",{
 
     if(F){
         ref <- readRDS(fileRef)
-        ref$OMEGA
-        mod$OMEGA 
-        ref$SIGMA
-        mod$SIGMA
+        ref$PK
+        ref$ERROR
     }
-
 })
+
+library(devtools)
+unloadNamespace("NMsim")
+unloadNamespace("NMdata")
+load_all("~/wdirs/NMdata")
+load_all("~/wdirs/NMsim")
+
+test_that("modify.model with list",{
+
+    fileRef <- "testReference/NMsim_02b.rds"
+    
+    file.mod <- "testData/nonmem/xgxr021.mod"
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "sd1_modify2",
+                  seed.nm=2342,
+                  modify.model=list(problem=list(newlines="$SIZES LTV=200",location="before")),
+                  ## modify.model=list(problem=list(newlines="$SIZES LTV=200",location="first")),
+                  execute=FALSE,
+                  method.update.inits="nmsim")
+
+    mod <- NMreadSection("testOutput/xgxr021_sd1_modify2/xgxr021_sd1_modify2.mod")
+    ## readLines("testOutput/xgxr021_sd1_modify2/xgxr021_sd1_modify2.mod")
+
+    ## ref <- readRDS(fileRef)
+    expect_equal_to_reference(mod,fileRef)
+
+    if(F){
+        ref <- readRDS(fileRef)
+        ref$PK
+        ref$ERROR
+    }
+})
+
+
 
 test_that("NMsim_EBE",{
 

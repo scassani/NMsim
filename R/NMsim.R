@@ -1092,21 +1092,21 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
 ##### Moved to after reuse.results - before NMexec()
         ## if multiple models have been spawned, and files.needed has been generated, the only allowed method.execute is "nmsim"
         if(nrow(dt.models.gen)>1 && "files.needed"%in%colnames(dt.models.gen)){
-            if(NMsimConf$method.execute!="nmsim"){
+            if(execute && NMsimConf$method.execute!="nmsim"){
                 stop("Multiple simulation runs spawned, and they need additional files than the simulation input control streams. The only way this is supported is using method.execute=\"nmsim\".")
             }
         }
 
         ## if multiple models spawned, direct is not allowed
         if(nrow(dt.models.gen)>1){
-            if(NMsimConf$method.execute=="direct"){
+            if(execute && NMsimConf$method.execute=="direct"){
                 stop("method.execute=\"direct\" cannot be used with simulation methods that spawn multiple simulation runs. Try method.execute=\"nmsim\" or method.execute=\"psn\".")
             }
         }
 
         ## if files.needed, psn execute cannot be used.
         if("files.needed"%in%colnames(dt.models.gen)){
-            if(NMsimConf$method.execute=="psn"){
+            if(execute && NMsimConf$method.execute=="psn"){
                 stop("method.execute=\"psn\" cannot be used with simulation methods that need additional files to run. Try method.execute=\"nmsim\".")
             }
         }

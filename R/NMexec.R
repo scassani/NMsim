@@ -227,7 +227,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
         ## replace extension of fn.input based on path.input - prefer rds
         rundir <- dirname(file.mod)
 
-        exts <- c("\\.cov","\\.cor","\\.coi","\\.ext","\\.lst",".*msf","\\.msfi","\\.msfo","\\.phi","_input\\.rds","\\.shk","\\.xml")
+        exts <- c("\\.cov","\\.cor","\\.coi","\\.ext","\\.lst",".*msf","\\.msfi","\\.msfo","\\.phi","_input\\.rds","\\.res","\\.shk","\\.xml")
         exts.string <- paste0("(",paste(exts,collapse="|"),")")
 
 ### backup previous results if any:

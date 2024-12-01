@@ -1,7 +1,7 @@
 ##' Internal method for handling modify.model argument to NMsim
 ##' @param modify.model A list
 ##' @param dt.models a data.table
-##'
+##' @keywords internal
 
 
 
@@ -9,6 +9,9 @@ modifyModel <- function(modify.model,dt.models){
 
     ##
     modifyModelOne <- function(modify.model,dt.models){
+        . <- NULL
+        path.sim <- NULL
+        ROWMODEL <- NULL
         
         ## grab name and other arguments for NMwriteSection. 
         if(is.list(modify.model[[1]])){

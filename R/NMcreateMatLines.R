@@ -61,14 +61,14 @@ NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type){
         
         values.this <- omegas[iblock==i.this]
         this.blocksize <- values.this[,unique(blocksize)]
-
+        
         if(this.blocksize>1){
             ## derive fix
             values.this[value==0,value:=1e-30]
             res <- pasteBegin(
-                add=paste0("BLOCK(",this.blocksize,") ",fun.string.fix(values.this[i.this,FIX]))
+                add=paste0("BLOCK(",this.blocksize,") ",fun.string.fix(values.this[i==i.this&j==i.this,FIX]))
                ,
-                x=values.this[,.(text=paste(value,collapse=" ")),by=j][,text]
+                x=values.this[,.(text=paste(value,collapse=" ")),keyby=.(i,j)]$text
             )
             
         } else {

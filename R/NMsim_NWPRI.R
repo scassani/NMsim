@@ -128,7 +128,7 @@ if(F){
     lines.omegap <- NMcreateMatLines(
         ## pars[par.type=="OMEGA",.(par.type,parameter,par.name,i,j,FIX,value=ifelse(value==0,1e-30,value))]
         pars[par.type=="OMEGA"]
-       ,type="OMEGAP",debug=FALSE)
+       ,type="OMEGAP")
     ## lines.omegap <- sub("\\$OMEGA","\\$OMEGAP",lines.omegap)
                                         # below was for previous version of NMcreateMatLines where it would not add FIX after non-block omegas. This was updated (in testing now)
                                         # lines.omegap  = sapply(lines.omegap, FUN = function(.x) ifelse((!grepl("BLOCK",.x)&!grepl("FIX",.x)), paste0(.x, " FIX"), .x), USE.NAMES = FALSE)

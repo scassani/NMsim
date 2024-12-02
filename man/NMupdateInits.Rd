@@ -4,7 +4,7 @@
 \alias{NMupdateInits}
 \title{Create new Nonmem control stream with updated initial parameter values}
 \usage{
-NMupdateInits(file.mod, file.ext, newfile, fix)
+NMupdateInits(file.mod, file.ext, newfile)
 }
 \arguments{
 \item{file.mod}{The control stream to update. Will not be edited.}
@@ -12,8 +12,6 @@ NMupdateInits(file.mod, file.ext, newfile, fix)
 \item{file.ext}{}
 
 \item{newfile}{New file to generate}
-
-\item{fix}{Fix the values? Probably only TRUE is supported. Passed to \code{NMreplaceInits()}.}
 }
 \value{
 The resulting control stream path(s)

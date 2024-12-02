@@ -12,29 +12,21 @@ NMreplaceInits <- function(inits,...){
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
-    par.type <- NULL
+    FIX <- NULL
     i <- NULL
-    value <- NULL
     j <- NULL
+    par.type <- NULL
+    str.fix <- NULL
+    value <- NULL
 
 ### Section end: Dummy variables, only not to get NOTE's in pacakge checks
 
 
 
-    ## if(!isTRUE(fix)){stop("fix must be TRUE. Not fixing the parameters is not supported for now.")}
-
-    ## if(fix) {
-    ##     str.fix <- "FIX"
-    ## } else {
-    ##     str.fix <- ""
-    ## }
-    
     ## create THETA section
     thetas <- inits[par.type=="THETA"]
     setorder(thetas,i)
-    ## lines.theta <- c("$THETA",
-    ##                  paste(thetas[,value],str.fix)
-    ##                  )
+
     thetas[,str.fix:=fifelse(as.logical(FIX)," FIX","")]
     lines.theta <- c("$THETA",
                      thetas[,paste0(value,str.fix)]

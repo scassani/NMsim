@@ -19,18 +19,19 @@
 ##'
 ##' @keywords internal
 
-NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type,debug=FALSE){
+NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type){
+
     . <- NULL
-    j <- NULL
+    blocksize <- NULL
+    FIX <- NULL
     i <- NULL
-    value <- NULL
+    iblock <- NULL
+    j <- NULL
+    hasOff <- NULL    
     maxOff <- NULL
-    hasOff <- NULL
     offNonZero <- NULL
     text <- NULL
-
-##:ess-bp-start::conditional@debug:##
-browser(expr={debug})##:ess-bp-end:##
+    value <- NULL
     
     fun.string.fix <- function(FIX) ifelse(FIX,"FIX","")
     if(!missing(type)){

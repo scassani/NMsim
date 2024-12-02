@@ -95,6 +95,15 @@ test_that("modify.model",{
         ref <- readRDS(fileRef)
         ref$PK
         ref$ERROR
+
+        mod$THETA
+        ref$THETA
+
+        mod$OMEGA
+        ref$OMEGA
+
+        mod$SIGMA
+        ref$SIGMA
     }
 })
 
@@ -129,6 +138,15 @@ test_that("modify.model with list",{
         ref <- readRDS(fileRef)
         ref$PK
         ref$ERROR
+
+        mod$THETA
+        ref$THETA
+
+        mod$OMEGA
+        ref$OMEGA
+
+        mod$SIGMA
+        ref$SIGMA
     }
 })
 

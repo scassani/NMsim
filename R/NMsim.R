@@ -944,7 +944,7 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
         ## background. dt.models not affected.
 
 ### because we use newfile, this will be printed to newfile. If not, it would just return a list of control stream lines.
-        dt.models[,NMupdateInits(file.mod=file.mod,newfile=path.sim,fix=TRUE,file.ext=file.ext),by=.(ROWMODEL)]
+        dt.models[,NMupdateInits(file.mod=file.mod,newfile=path.sim,file.ext=file.ext),by=.(ROWMODEL)]
 
     }
 

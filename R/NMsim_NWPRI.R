@@ -36,7 +36,7 @@
 
 NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 
-    NMdata:::messageWrap("\nNMsim_NWPRI() currently only reliably simulates typical THETAs. Simulation with variability on OMEGA and SIGMA cannot be trust. Always run this method in NMsim with `typical=TRUE`",fun.msg=message)
+    NMdata:::messageWrap("\nNMsim_NWPRI() currently only reliably simulates typical THETAs. Simulation with variability on OMEGA and SIGMA cannot be trusted. Always run this method in NMsim with `typical=TRUE`",fun.msg=message)
 
     if(packageVersion("NMdata")<"0.1.6.932"){
         stop("NMsim_NWPRI requires NMdata 0.1.7 or later.")
@@ -125,7 +125,10 @@ if(F){
     
     ## $OMEGAP
                                         # note: set 0 FIXED sigmas/omegas to 1e-30 to avoid non-semi-positive definite matrices error
-    lines.omegap <- NMcreateMatLines(pars[par.type=="OMEGA",.(par.type,parameter,par.name,i,j,FIX,value=ifelse(value==0,1e-30,value))],type="OMEGAP")
+    lines.omegap <- NMcreateMatLines(
+        ## pars[par.type=="OMEGA",.(par.type,parameter,par.name,i,j,FIX,value=ifelse(value==0,1e-30,value))]
+        pars[par.type=="OMEGA"]
+       ,type="OMEGAP",debug=FALSE)
     ## lines.omegap <- sub("\\$OMEGA","\\$OMEGAP",lines.omegap)
                                         # below was for previous version of NMcreateMatLines where it would not add FIX after non-block omegas. This was updated (in testing now)
                                         # lines.omegap  = sapply(lines.omegap, FUN = function(.x) ifelse((!grepl("BLOCK",.x)&!grepl("FIX",.x)), paste0(.x, " FIX"), .x), USE.NAMES = FALSE)
@@ -133,11 +136,15 @@ if(F){
     ## lines.omegap <- unlist(lines.omegap)
     
     ## $OMEGAPD
+    
     lines.omegapd = nwpri_df[par.type=="OMEGA",line]
     
     ## $SIGMAP
                                         # note: set 0 FIXED sigmas/omegas to 1e-30 to avoid non-semi-positive definite matrices error
-    lines.sigmap <- NMcreateMatLines(pars[par.type=="SIGMA",.(par.type,parameter,par.name,i,j,FIX,value=ifelse(value==0,1e-30,value))],type="SIGMAP")
+    lines.sigmap <- NMcreateMatLines(
+        ## pars[par.type=="SIGMA",.(par.type,parameter,par.name,i,j,FIX,value=ifelse(value==0,1e-30,value))]
+        pars[par.type=="SIGMA"]
+       ,type="SIGMAP")
     ## lines.sigmap <- sub("\\$SIGMA","\\$SIGMAP",lines.sigmap)
     ## lines.sigmap  = sapply(lines.sigmap, FUN = function(.x) ifelse((!grepl("BLOCK",.x)&!grepl("FIX",.x)), paste0(.x, " FIX"), .x), USE.NAMES = FALSE)
     ## lines.sigmap <- lapply(X=lines.sigmap, FUN=function(.x) ifelse(grepl("BLOCK",.x), return(prettyMatLines(block_mat_string = .x)), return(.x))) 

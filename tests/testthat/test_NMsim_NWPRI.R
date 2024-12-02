@@ -50,6 +50,11 @@ test_that("NMsim_NWPRI",{
         mod$SIGMA
         ref$SIMULATION
         mod$SIMULATION
+
+compareCols(ref,mod)
+
+        ref$OMEGAP
+        mod$OMEGAP
     }
 
 

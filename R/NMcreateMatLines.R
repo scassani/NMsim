@@ -19,7 +19,7 @@
 ##'
 ##' @keywords internal
 
-NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type){
+NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type,debug=FALSE){
     . <- NULL
     j <- NULL
     i <- NULL
@@ -28,63 +28,56 @@ NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type){
     hasOff <- NULL
     offNonZero <- NULL
     text <- NULL
+
+##:ess-bp-start::conditional@debug:##
+browser(expr={debug})##:ess-bp-end:##
     
-    string.fix <- ifelse(fix,"FIX","")
+    fun.string.fix <- function(FIX) ifelse(FIX,"FIX","")
     if(!missing(type)){
         string.type <- paste0("$",toupper(type))
     } else {
         string.type <- ""
     }
 
-    ## the code was written in the oppositie direction, so switching i
-    ## and j.
-    omegas.long <- omegas[,.(i=j,j=i,value)]
-    if(as.one.block){
-        ## omegas.long[,hasOff:TRUE]
-        omegas.long[,maxOff:=max(abs((1:max(j))-i)),by=i]
-    } else {
-        omegas.long[,maxOff:=0]
-        omegas.long[,hasOff:=FALSE]
-        omegas.long[,offNonZero:=abs(value)>1e-9&i!=j]
-
-        if(any(omegas.long$offNonZero)){
-            omegas.long[,hasOff:=any(offNonZero==TRUE),by=.(i)]
-        }
-        omegas.long[hasOff==TRUE,maxOff:=max(j[abs(value)>1e-9]-i),by=.(i)]
-    }
     
-    is <- unique(omegas.long$i)
+    if(as.one.block){
+        
+        omegas[,blocksize:=max(i)-min(i)+1]
+        omegas[,iblock:=1]
+        omegas[,FIX:=as.integer(fix)]
+    }
 
-    i.idx <- 1
+    
+    
+    ## is <- unique(omegas$i)
     loopres <- c()
-    ## Netas <- omegas[,max(i)]
+    iblocks <- unique(omegas$iblock)
+    iblocks <- iblocks[!is.na(iblocks)]
 
-    while(i.idx <= length(is)){
-        i.this <- is[i.idx]
-        nis.block <- omegas.long[i==i.this,unique(maxOff)]
-        if(nis.block>0){
-            ## values.this <- omegas.long[i>=i.this&i<=(i.this+nis.block)&j<=(i.this+nis.block),value]
-            ## values.this[values.this==0] <- 1e-30
-            ## res <- paste0("BLOCK(",nis.block+1,") ",string.fix," ",paste(values.this,collapse=" "))
-            values.this <- omegas.long[i>=i.this&i<=(i.this+nis.block)&j<=(i.this+nis.block),.(j,value)]
+    
+
+    for(i.this in iblocks){
+        
+        values.this <- omegas[iblock==i.this]
+        this.blocksize <- values.this[,unique(blocksize)]
+
+        if(this.blocksize>1){
+            ## derive fix
             values.this[value==0,value:=1e-30]
             res <- pasteBegin(
-                add=paste0("BLOCK(",nis.block+1,") ",string.fix)
+                add=paste0("BLOCK(",this.blocksize,") ",fun.string.fix(values.this[i.this,FIX]))
                ,
                 x=values.this[,.(text=paste(value,collapse=" ")),by=j][,text]
             )
             
-            i.idx <- i.idx+nis.block+1
         } else {
-            value.this <- omegas.long[i==i.this&j==i.this,value]
-            if(string.fix!="") res <- paste(value.this, string.fix)
-            i.idx <- i.idx+1
+            res <- values.this[,value]
+            if(values.this[,FIX])  res <- paste(res, fun.string.fix(1))
         }
         res <- pasteBegin(add=string.type,x=res)
         loopres <- c(loopres,res)
     }
     
-    ##lines.mat <- paste(paste0("$",toupper(type)),loopres)
     lines.mat <- loopres
 
     return(lines.mat)

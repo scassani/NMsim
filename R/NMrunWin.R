@@ -32,36 +32,39 @@ NMrunLin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,sg
                             jobname
                            ,
                             line.run
-                            ## paste(path.nonmem,basename(fn.mod),fnExtension( basename(fn.mod),".lst"),"; echo DONE > NMexec_complete.txt")
-                            ##paste(path.nonmem,fn.mod,fn.lst)
-                            ## ,basename(pnm)
-                            ## ,getAbsolutePath(pnm)
-                            ## ,nc
                             )
 
         if(nc>1){
             line.run <- sprintf('%s -parafile=\"%s\" [nodes]=%s',line.run,getAbsolutePath(pnm),nc)
         }
-        
-        ## line.run <- sprintf("qsub -pe orte %s -V -N %s %s %s",
-        ##                     nc
-        ##                    ,jobname
-        ##                     path.nonmem,fn.mod,fnExtension(fn.mod,".lst"))
-        
     }
+    
     lines.bash <- c(
         "#!/bin/bash"
        ,""
        ,line.run
-       ## ,"stat=$?"
-       ## ,"if [ $stat -ne 0 ]; then"
-       ## ,"exit $stat;"
-       ## ,"fi"
-       ,sprintf("until [ -f %s ]; do",fn.lst)
+       ,"RUNNING=1"
+        ## ,sprintf("until [ -f %s ]; do",fn.lst)
+       ,"until [ $RUNNING -eq 0 ]; do"
        ,"sleep 2"
+       ,sprintf("if [ -f %s ] ; then
+  RUNNING=0
+fi",fn.lst)
        ,"done"
+,sprintf("if [ -f %s ] ; then
+  txterr=`grep \"ERROR \" %s`
+  if [ \"$txterr\" != \"\" ] ; then 
+    RUNNING=0 
+    echo \"NMTRAN error found\"
+    exit 1;
+  fi
+fi",
+                file.path("FMSG"),
+                file.path("FMSG"))
+
         ## ,sprintf("( tail -f -n4 %s & ) | grep -q \"Stop Time:\"",fn.lst)
-        ## ,"echo Stop found"
+## ,"echo Stop found"
+
        ,sprintf("while ! grep -q \"Stop Time\" %s ; do",fn.lst)
        ,"sleep 2"
        ,"done"

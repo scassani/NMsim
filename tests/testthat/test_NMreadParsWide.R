@@ -1,5 +1,7 @@
 context("NMreadParsWide")
 
+NMdataConf(reset=TRUE)
+
 if(F){
     file.mod <- "testData/nonmem/xgxr021.mod"
     pars <- sampleParsSimpar(file.mod,nsim=10,format="wide",as.fun="data.table",seed.R=23)

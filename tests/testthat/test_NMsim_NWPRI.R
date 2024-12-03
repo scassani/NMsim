@@ -1,3 +1,7 @@
+context("NMsim_NWPRI.R")
+NMdataConf(reset=TRUE)
+
+
 ### so far disabled because test relies on NMdata 0.1.7
 
 dt.amt <- data.table(DOSE=c(100,400))

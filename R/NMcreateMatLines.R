@@ -42,12 +42,12 @@ NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type){
 
     
     if(as.one.block){
-        
         omegas[,blocksize:=max(i)-min(i)+1]
         omegas[,iblock:=1]
         omegas[,FIX:=as.integer(fix)]
     }
 
+    setorder(omegas,i,j)
     
     
     ## is <- unique(omegas$i)
@@ -68,7 +68,7 @@ NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type){
             res <- pasteBegin(
                 add=paste0("BLOCK(",this.blocksize,") ",fun.string.fix(values.this[i==i.this&j==i.this,FIX]))
                ,
-                x=values.this[,.(text=paste(value,collapse=" ")),keyby=.(i,j)]$text
+                x=values.this[,.(text=paste(value,collapse=" ")),keyby=.(i)]$text
             )
             
         } else {

@@ -55,6 +55,9 @@ compareCols(ref,mod)
 
         ref$OMEGAP
         mod$OMEGAP
+
+        ref$THETAPV
+        mod$THETAPV
     }
 
 

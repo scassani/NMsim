@@ -42,9 +42,6 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
         stop("NMsim_NWPRI requires NMdata 0.1.7 or later.")
     }
     
-
-### done add OMEGA/SIGMA blocks
-
     
     . <- NULL
     DF <- NULL
@@ -88,8 +85,7 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 ### Add degrees of freedom for inverse-wishart distribution for OMEGA/SIGMA
     nwpri_df <- NWPRI_df(pars)
     nwpri_df[,line := paste0("$", par.type,"PD ", DF2, " FIX")]
-### done add degrees of freedom
-    
+
     ## derive the different sets of new lines needed
     ## $THETAP section
     thetas <- pars[par.type=="THETA"][order(i)]

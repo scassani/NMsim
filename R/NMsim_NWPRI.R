@@ -38,10 +38,11 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 
     NMdata:::messageWrap("\nNMsim_NWPRI() currently only reliably simulates typical THETAs. Simulation with variability on OMEGA and SIGMA cannot be trusted. Always run this method in NMsim with `typical=TRUE`",fun.msg=message)
 
-    if(packageVersion("NMdata")<"0.1.8.903"){
-        stop("NMsim_NWPRI requires NMdata 0.1.9 or later.")
-    }
+    NMdata:::messageWrap("\nNMsim_NWPRI() with compatibility for NONMEM 7.60 depends on NMdata 0.1.9 or later.",fun.msg=message)
     
+    if(packageVersion("NMdata")<"0.1.6.932"){
+        stop("NMsim_NWPRI requires NMdata 0.1.7 or later.")
+    }
     
     . <- NULL
     DF <- NULL

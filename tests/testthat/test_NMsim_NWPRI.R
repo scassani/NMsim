@@ -1,4 +1,7 @@
 context("NMsim_NWPRI.R")
+
+library(data.table)
+library(NMdata)
 NMdataConf(reset=TRUE)
 
 
@@ -30,7 +33,7 @@ test_that("NMsim_NWPRI",{
     
     file.mod <- "testData/nonmem/xgxr032.mod"
 
-
+    
     sim1 <- NMsim(file.mod=file.mod,
                   data=dat.sim,
                   dir.sim="testOutput",
@@ -44,6 +47,7 @@ test_that("NMsim_NWPRI",{
     
 
     ## ref <- readRDS(fileRef)
+    expect_equal_to_reference(mod$THETAPV,fnAppend(fileRef,"THETAPV"))
     expect_equal_to_reference(mod,fileRef)
 
     if(F){

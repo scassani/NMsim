@@ -38,8 +38,8 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 
     NMdata:::messageWrap("\nNMsim_NWPRI() currently only reliably simulates typical THETAs. Simulation with variability on OMEGA and SIGMA cannot be trusted. Always run this method in NMsim with `typical=TRUE`",fun.msg=message)
 
-    if(packageVersion("NMdata")<"0.1.6.932"){
-        stop("NMsim_NWPRI requires NMdata 0.1.7 or later.")
+    if(packageVersion("NMdata")<"0.1.8.903"){
+        stop("NMsim_NWPRI requires NMdata 0.1.9 or later.")
     }
     
     
@@ -90,8 +90,13 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
     ## $THETAP section
     thetas <- pars[par.type=="THETA"][order(i)]
     lines.thetap <- c("$THETAP", paste(thetas[,est], "FIX"))
+    
     ## $THETAPV
-    cov.l <- mat2dt(cov,as.fun="data.table",triangle = "lower")
+    if(packageVersion("NMdata")>'0.1.8.3') {
+        cov.l <- mat2dt(cov,as.fun="data.table",triangle = "lower")
+    } else {
+        cov.l <- mat2dt(cov,as.fun="data.table",triangle = "upper")
+    }
     cov.l <- addParType(cov.l,suffix="i")
     cov.l <- addParType(cov.l,suffix="j")
     

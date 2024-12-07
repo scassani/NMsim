@@ -692,7 +692,7 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
         tabv2 <- paste(table.vars,collapse=" ")
         tabv2 <- gsub(" +"," ",tabv2 )
         if(length(strsplit(tabv2," ")[[1]])<3){
-            message("Using less than three variables in table.vars in combination with subproblems may cause issues with NMdata versions <=0.1.6. If you get an error, try to add any variable or two to table.vars.")
+            message("Using less than three variables in table.vars in combination with subproblems may cause issues. If you get an error, try to add any variable or two to table.vars.")
         }
     }
     

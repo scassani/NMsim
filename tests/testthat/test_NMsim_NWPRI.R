@@ -66,7 +66,7 @@ compareCols(ref,mod)
 
         ref$THETAPV
         mod$THETAPV
-    }
+     }
 
 
 })

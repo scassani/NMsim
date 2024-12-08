@@ -2,15 +2,23 @@
 ##' Create or update $SIZES in a control stream
 ##' @param
 ##' @examples
+##' ## No existing SIZES in control stream
+##' file.mod <- system.file("examples/nonmem/xgxr032.mod",package="NMsim")
+##' NMupdateSizes(file.mod,LTV=50,write=FALSE)
+##' ## This controls stream has existing SIZES 
 ##' file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMsim")
-##'
-##' NMupdateSizes(file.mod,newfile="~/newmod.mod",LTV=50)
+##' NMupdateSizes(file.mod,LTV=50,write=FALSE)
+##' ## provide control stream as text lines
+##' file.mod <- system.file("examples/nonmem/xgxr032.mod",package="NMsim")
+##' lines <- readLines(file.mod)
+##' NMupdateSizes(lines=lines,LTV=50,write=FALSE)
+##' ## 
 ##' @importFrom utils modifyList
 
 
-NMupdateSizes <- function(file.mod,newfile=file.mod,wipe=FALSE,...){
-
-    if(packageVersion("NMdata")<"0.1.8.904"){
+NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,write=!is.null(file.mod),...){
+    
+    if(packageVersion("NMdata")<"0.1.8.905"){
         stop("NMupdateSizes requires NMdata 0.1.9 or later.")
     }
     
@@ -19,16 +27,18 @@ NMupdateSizes <- function(file.mod,newfile=file.mod,wipe=FALSE,...){
     ## all elements must be named.
     ## Names must not contain spaces.
     ## all elements numeric?
-
+    
     if(wipe){
         sizes.old <- NULL
     } else {
-        sizes.old <- NMreadSizes(file.mod)
+        sizes.old <- NMreadSizes(file.mod=file.mod,lines=lines)
     }
 
 ### combine old and new sizes. modifyList prioritizes last list:
     ## modifyList(list(a=1,b=1),list(b=2,c=2))
-    sizes.new <- modifyList(sizes.old,sizes.new)
+    if(!is.null(sizes.old)){
+        sizes.new <- modifyList(sizes.old,sizes.new)
+    }
     
     ## convert sizes.new into text lines for control stream
     lines.new <- paste(c(
@@ -38,11 +48,12 @@ NMupdateSizes <- function(file.mod,newfile=file.mod,wipe=FALSE,...){
     )
     
     if(!is.null(sizes.old)){
-        NMwriteSection(files=file.mod,newfile=newfile,section="SIZES",newlines="",location="replace")
-    } else if(newfile!=file.mod){
-        file.copy(file.mod,to=newfile)
+        lines <- NMwriteSection(files=file.mod,newfile=newfile,section="SIZES",newlines="",location="replace",write=FALSE)
+    } else if(!is.null(file.mod)) {
+        ## file.copy(file.mod,to=newfile)
+        lines <- readLines(file.mod,warn=FALSE)
     }
-    NMwriteSection(files=newfile,newfile=newfile,section="SIZES",newlines=lines.new,location="first")
+    NMwriteSectionOne(lines=lines,newfile=newfile,section="SIZES",newlines=lines.new,location="first",write=write)
 
 }
 
@@ -51,8 +62,9 @@ NMupdateSizes <- function(file.mod,newfile=file.mod,wipe=FALSE,...){
 ##' NMreadSizes(file.mod)
 
 
-NMreadSizes <- function(file.mod){
-    lines.sizes <- NMreadSection(file=file.mod,section="SIZES",keep.empty=F,keep.comments=FALSE,keep.name=FALSE)
+NMreadSizes <- function(file.mod=NULL,lines=NULL){
+    
+    lines.sizes <- NMreadSection(file=file.mod,lines=lines,section="SIZES",keep.empty=F,keep.comments=FALSE,keep.name=FALSE)
     if(is.null(lines.sizes)) return(NULL)
     
     ## make it just one line

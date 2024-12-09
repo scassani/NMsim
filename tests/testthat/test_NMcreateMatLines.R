@@ -11,7 +11,7 @@ test_that("basic",{
     ext1[i==3&j==2,value:=.01]
     ext1[i%in%c(2,3)&j%in%c(2,3),iblock:=2]
     ext1[i%in%c(2,3)&j%in%c(2,3),blocksize:=2]
-    ext1[iblock==2]
+    ## ext1[iblock==2]
 
     res <- NMcreateMatLines(ext1,type="OMEGA")
 
@@ -30,7 +30,7 @@ test_that("Fixed block",{
     ext1[i==3&j==2,value:=.01]
     ext1[i%in%c(2,3)&j%in%c(2,3),iblock:=2]
     ext1[i%in%c(2,3)&j%in%c(2,3),blocksize:=2]
-    ext1[iblock==2]
+    ## ext1[iblock==2]
     
     ext1[i==2&j==2,FIX:=1]
     res <- NMcreateMatLines(ext1,type="OMEGA")
@@ -54,6 +54,14 @@ test_that("Full covariance matrix",{
     res <- cov.l[par.type.i=="THETA" & par.type.j=="THETA" ] |>
         NMcreateMatLines(as.one.block=TRUE)
 
-    expect_equal_to_reference(res,fileRef)
+
+    if(packageVersion("NMdata")>"0.1.8.904"){
+        expect_equal_to_reference(res,fileRef)
+    }
+    
+    if(F){
+        res
+        readRDS(fileRef)
+    }
 
 })

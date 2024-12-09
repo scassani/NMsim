@@ -2,10 +2,16 @@
 % Please edit documentation in R/NMupdateSizes.R
 \name{NMreadSizes}
 \alias{NMreadSizes}
-\title{file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMsim")}
+\title{Read SIZES info from a control stream}
 \usage{
-NMreadSizes(file.mod)
+NMreadSizes(file.mod = NULL, lines = NULL)
+}
+\arguments{
+\item{file.mod}{Control stream path.}
+
+\item{lines}{Character vector with control stream file.}
 }
 \description{
-NMreadSizes(file.mod)
+Read SIZES info from a control stream
 }
+\keyword{internal}

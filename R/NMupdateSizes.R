@@ -1,22 +1,48 @@
-
 ##' Create or update $SIZES in a control stream
-##' @param
+##'
+##' Update $SIZES parameters in a control stream. The control stream
+##' can be in a file or provided as a character vector (file lines).
+##' 
+##' @param file.mod A path to a control stream. See also alternative
+##'     `lines` argument. Notice, if `write` is `TRUE` (default) and
+##'     `newfile` is not provided, `file.mod` will be overwritten.
+##' @param newfile An optional path to write the resulting control
+##'     stream to. If nothing is provided, the default is to overwrite
+##'     `file.mod`.
+##' @param lines Control stream lines as a character vector. If you
+##'     already read the control stream - say using
+##'     `NMdata::NMreadSection()`, use this to modify the text lines.
+##' @param wipe The default behavior (`wipe=FALSE`) is to add the
+##'     `$SIZES` values to any existing values found. If SIZES
+##'     parameter names are overlapping with existing, the values will
+##'     be updated. If `wipe=TRUE`, any existing `$SIZES` section is
+##'     disregarded.
+##' @param write Write results to `newfile`?
+##' @param ... The $SIZES parameters. Provided anything, like `PD=40`
+##'     See examples.
+##' @return Character lines with updated control stream
 ##' @examples
 ##' ## No existing SIZES in control stream
+##' \dontrun{
 ##' file.mod <- system.file("examples/nonmem/xgxr032.mod",package="NMsim")
 ##' NMupdateSizes(file.mod,LTV=50,write=FALSE)
-##' ## This controls stream has existing SIZES 
+##' }
+##' ## This controls stream has existing SIZES
+##' \dontrun{
 ##' file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMsim")
 ##' NMupdateSizes(file.mod,LTV=50,write=FALSE)
+##' }
 ##' ## provide control stream as text lines
+##' \dontrun{
 ##' file.mod <- system.file("examples/nonmem/xgxr032.mod",package="NMsim")
 ##' lines <- readLines(file.mod)
 ##' NMupdateSizes(lines=lines,LTV=50,write=FALSE)
-##' ## 
+##' }
+##' @import NMdata
 ##' @importFrom utils modifyList
+##' @export
 
-
-NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,write=!is.null(file.mod),...){
+NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,write=!is.null(newfile),...){
     
     if(packageVersion("NMdata")<"0.1.8.905"){
         stop("NMupdateSizes requires NMdata 0.1.9 or later.")
@@ -50,16 +76,17 @@ NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,w
     if(!is.null(sizes.old)){
         lines <- NMwriteSection(files=file.mod,newfile=newfile,section="SIZES",newlines="",location="replace",write=FALSE)
     } else if(!is.null(file.mod)) {
-        ## file.copy(file.mod,to=newfile)
         lines <- readLines(file.mod,warn=FALSE)
     }
-    NMwriteSectionOne(lines=lines,newfile=newfile,section="SIZES",newlines=lines.new,location="first",write=write)
+    NMdata:::NMwriteSectionOne(lines=lines,newfile=newfile,section="SIZES",newlines=lines.new,location="first",write=write)
 
 }
 
-##' file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMsim")
-##'
-##' NMreadSizes(file.mod)
+##' Read SIZES info from a control stream
+##' @param file.mod Control stream path.
+##' @param lines Character vector with control stream file.
+##' @import NMdata
+##' @keywords internal
 
 
 NMreadSizes <- function(file.mod=NULL,lines=NULL){

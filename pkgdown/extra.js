@@ -2,7 +2,7 @@ $(document).ready(function() {
 
   $chunks = $('.fold');
 
-  $chunks.each(function () {
+	$chunks.each(function () {
 
     // add button to source code chunks
     if ( $(this).hasClass('s') ) {
@@ -23,6 +23,7 @@ $(document).ready(function() {
     }
   });
 
+
   // hide all chunks when document is loaded
   $('.folded').css('display', 'none')
 
@@ -34,6 +35,7 @@ $(document).ready(function() {
     } else {
       $(this).html(label.replace("Hide", "Show"));
     }
-    $(this).siblings('code, img').slideToggle('fast', 'swing');
+	$(this, '.showopt').siblings().slideToggle('fast','swing')
+
   });
 });

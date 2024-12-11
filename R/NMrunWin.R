@@ -52,7 +52,7 @@ NMrunLin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,sg
 fi",fn.lst)
        ,"done"
 ,sprintf("if [ -f %s ] ; then
-  txterr=`grep \"ERROR \" %s`
+  txterr=`grep \" ERROR \" %s`
   if [ \"$txterr\" != \"\" ] ; then 
     RUNNING=0 
     echo \"NMTRAN error found\"

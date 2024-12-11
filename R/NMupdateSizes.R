@@ -73,12 +73,30 @@ NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,w
     ),collapse=" "
     )
     
-    if(!is.null(sizes.old)){
-        lines <- NMwriteSection(files=file.mod,newfile=newfile,section="SIZES",newlines="",location="replace",write=FALSE)
-    } else if(!is.null(file.mod)) {
+    # create lines from file.mod if not passed in as 'lines'
+    if(!is.null(file.mod) & is.null(lines)) {
         lines <- readLines(file.mod,warn=FALSE)
+    } 
+    
+    # if model already has $SIZES and we want to overwrite or append to it.
+    if(!is.null(sizes.old)) {
+        # if we want to overwrite it or append to it, sizes.new and lines.new will already be modified for that, so replace
+        textlines = NMdata:::NMwriteSectionOne(lines = lines,section="SIZES",newlines=lines.new,location="replace")
+
+    # else if model does not have $SIZES, create it
+    } else if (is.null(NMreadSizes(lines=lines))) {
+        textlines = NMdata:::NMwriteSectionOne(lines=lines,section="SIZES",newlines=lines.new,location="first")
+        
+    # else if it had $SIZES but we wiped it, and we want to replace/append it:
+    } else if (!is.null(NMreadSizes(lines=lines)) & wipe) {
+        textlines = NMdata:::NMwriteSectionOne(lines=lines,section="SIZES",newlines=lines.new,location="replace")
     }
-    NMdata:::NMwriteSectionOne(lines=lines,newfile=newfile,section="SIZES",newlines=lines.new,location="first",write=write)
+    
+    if(write & !is.null(newfile)) {
+        writeTextFile(textlines, newfile)
+    } else {
+        return(textlines)
+    }
 
 }
 

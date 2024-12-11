@@ -2,9 +2,9 @@
 # library(testthat)
 # withr::with_libpaths(new = file.path("../../../../renv/local/"), devtools::install_github("philipdelff/NMdata@v0.1.8" ))
 # library("NMdata",lib.loc = "../../../../renv/local")
-
-# devtools::load_all("../../../NMdata")
-# devtools::load_all("../../../NMsim")
+setwd("NMsim/tests/testthat")
+devtools::load_all("../../../NMdata")
+devtools::load_all("../../../NMsim")
 context("NMsim_NWPRI.R")
 
 library(data.table)
@@ -68,6 +68,8 @@ test_that("NMsim_NWPRI",{
         mod$SIMULATION
 
 compareCols(ref,mod)
+        ref$SIZES
+        mod$SIZES
 
         ref$OMEGAP
         mod$OMEGAP

@@ -101,7 +101,7 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
     cov.l <- addParType(cov.l,suffix="i")
     cov.l <- addParType(cov.l,suffix="j")
     
-    # Identify fixed thetas and set their diagonal in the cov matrix to be 1.0 for compatibility with nm7.60
+    # Identify fixed thetas and set their diagonal in the $THETAPV cov matrix to be 1.0 for compatibility with nm7.60
     cov.l = merge.data.table(x = cov.l, y = pars[par.type=="THETA",.(i, parameter.i=parameter,FIX)], by = c("i", "parameter.i"))
     cov.l[i==j&FIX==1, value := 1.0]    
     
@@ -140,6 +140,15 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 ### add TRUE=PRIOR to $SIMULATION
     lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim, section="SIMULATION", location="after", newlines="TRUE=PRIOR", backup=FALSE, quiet=TRUE)
 
+### update $SIZES LTH and LVR to reflect the parameters in NWPRI (not resized automatically like other subroutines)
+    # add 10 to both numbers per Bob Bauer (doesn't hurt to have slightly more memory/size)
+    # LTH = number of thetas = $THETA + $THETAP + $OMEGAPD + $SIGMAPD
+    # LVR = number of diagonal omegas + sigmas = $OMEGA + $OMEGAP + $SIGMA + $SIGMAP + $THETAPV
+    lth = 2*nrow(pars[par.type=="THETA"]) + nrow(nwpri_df) + 10 
+    lvr = 2*nrow(pars[(par.type=="OMEGA"|par.type=="SIGMA")&i==j]) + nrow(pars[par.type=="THETA"]) + 10
+    
+    lines.sim = NMsim::NMupdateSizes(file.mod=NULL, newfile=NULL,lines = lines.sim, LTH = lth, LVR = lvr)
+    
 ### update the simulation control stream
     ## if(return.text){
     ##     return(lines.sim)

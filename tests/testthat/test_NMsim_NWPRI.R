@@ -1,10 +1,10 @@
-# library(devtools)
-# library(testthat)
-# withr::with_libpaths(new = file.path("../../../../renv/local/"), devtools::install_github("philipdelff/NMdata@v0.1.8" ))
-# library("NMdata",lib.loc = "../../../../renv/local")
-# setwd("NMsim/tests/testthat")
-# devtools::load_all("../../../NMdata")
-# devtools::load_all("../../../NMsim")
+                                        # library(devtools)
+                                        # library(testthat)
+                                        # withr::with_libpaths(new = file.path("../../../../renv/local/"), devtools::install_github("philipdelff/NMdata@v0.1.8" ))
+                                        # library("NMdata",lib.loc = "../../../../renv/local")
+                                        # setwd("NMsim/tests/testthat")
+                                        # devtools::load_all("../../../NMdata")
+                                        # devtools::load_all("../../../NMsim")
 context("NMsim_NWPRI.R")
 
 library(data.table)
@@ -35,58 +35,59 @@ dat.sim[,BBW:=75]
 
 
 test_that("NMsim_NWPRI",{
+    if(packageVersion("NMdata") >= "0.1.8.904") {
 
-    fileRef <- "testReference/NMsim_NWPRI_01.rds"
-    
-    file.mod <- "testData/nonmem/xgxr032.mod"
+        fileRef <- "testReference/NMsim_NWPRI_01.rds"
+        
+        file.mod <- "testData/nonmem/xgxr032.mod"
 
-    
-    sim1 <- NMsim(file.mod=file.mod,
-                  data=dat.sim,
-                  dir.sim="testOutput",
-                  name.sim = "sd1_NWPRI",
-                  method.sim=NMsim_NWPRI,
-                  seed.nm=2342,
-                  execute=FALSE,
-                  method.update.inits="nmsim")
+        
+        sim1 <- NMsim(file.mod=file.mod,
+                      data=dat.sim,
+                      dir.sim="testOutput",
+                      name.sim = "sd1_NWPRI",
+                      method.sim=NMsim_NWPRI,
+                      seed.nm=2342,
+                      execute=FALSE,
+                      method.update.inits="nmsim")
 
-    mod <- NMreadSection("testOutput/xgxr032_sd1_NWPRI/xgxr032_sd1_NWPRI.mod")
-    
+        mod <- NMreadSection("testOutput/xgxr032_sd1_NWPRI/xgxr032_sd1_NWPRI.mod")
+        
 
-    ## ref <- readRDS(fileRef)
-    expect_equal_to_reference(mod$THETAPV,fnAppend(fileRef,"THETAPV"))
-    expect_equal_to_reference(mod$OMEGAP,fnAppend(fileRef,"OMEGAP"))
-    expect_equal_to_reference(mod,fileRef)
+        ## ref <- readRDS(fileRef)
+        expect_equal_to_reference(mod$THETAPV,fnAppend(fileRef,"THETAPV"))
+        expect_equal_to_reference(mod$OMEGAP,fnAppend(fileRef,"OMEGAP"))
+        expect_equal_to_reference(mod,fileRef)
 
-    if(F){
-        ref <- readRDS(fileRef)
-        ref$OMEGA
-        mod$OMEGA 
-        ref$SIGMA
-        mod$SIGMA
-        ref$SIMULATION
-        mod$SIMULATION
+        if(F){
+            ref <- readRDS(fileRef)
+            ref$OMEGA
+            mod$OMEGA 
+            ref$SIGMA
+            mod$SIGMA
+            ref$SIMULATION
+            mod$SIMULATION
 
-compareCols(ref,mod)
-        ref$SIZES
-        mod$SIZES
+            compareCols(ref,mod)
+            ref$SIZES
+            mod$SIZES
 
-        ref$OMEGAP
-        mod$OMEGAP
+            ref$OMEGAP
+            mod$OMEGAP
 
-        ref$THETAPV
-        mod$THETAPV
+            ref$THETAPV
+            mod$THETAPV
 
-        ref$INPUT
-        mod$INPUT
+            ref$INPUT
+            mod$INPUT
+        }
+
     }
-
-
 })
 
-# block OMEGA 4x4
-# will fail if NMdata version < 0.1.8.903
-if(packageVersion("NMdata") >= "0.1.8.903") {
+## block OMEGA 4x4
+## will fail if NMdata version < 0.1.8.905 due to NMupdateSizes
+if(packageVersion("NMdata") >= "0.1.8.904") {
     
     test_that("NMsim_NWPRI_Omega44",{
         
@@ -140,5 +141,5 @@ if(packageVersion("NMdata") >= "0.1.8.903") {
 }
 
 
-# block omega 2x2 mixed with other non block omegas
-# xgxr033.mod
+                                        # block omega 2x2 mixed with other non block omegas
+                                        # xgxr033.mod

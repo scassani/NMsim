@@ -128,6 +128,9 @@ if(packageVersion("NMdata") >= "0.1.8.903") {
             
             ref$THETAPV
             mod$THETAPV
+
+            ref$INPUT
+            mod$INPUT
         }
         
         

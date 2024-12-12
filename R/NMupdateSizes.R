@@ -74,7 +74,7 @@ NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,w
     )
     
     # create lines from file.mod if not passed in as 'lines'
-    if(!is.null(file.mod) & is.null(lines)) {
+    if(!is.null(file.mod) && is.null(lines)) {
         lines <- readLines(file.mod,warn=FALSE)
     } 
     
@@ -88,11 +88,11 @@ NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,w
         textlines = NMdata:::NMwriteSectionOne(lines=lines,section="SIZES",newlines=lines.new,location="first")
         
     # else if it had $SIZES but we wiped it, and we want to replace/append it:
-    } else if (!is.null(NMreadSizes(lines=lines)) & wipe) {
+    } else if (!is.null(NMreadSizes(lines=lines)) && wipe) {
         textlines = NMdata:::NMwriteSectionOne(lines=lines,section="SIZES",newlines=lines.new,location="replace")
     }
     
-    if(write & !is.null(newfile)) {
+    if(write && !is.null(newfile)) {
         writeTextFile(textlines, newfile)
     } else {
         return(textlines)

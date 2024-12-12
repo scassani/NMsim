@@ -24,8 +24,7 @@ library(kableExtra)
 [![CRAN status](https://www.r-pkg.org/badges/version/NMsim)](https://CRAN.R-project.org/package=NMsim)
 [![CRAN downloads](https://cranlogs.r-pkg.org/badges/NMsim)](https://cran.r-project.org/package=NMsim)
 [![Codecov test coverage](https://codecov.io/gh/NMautoverse/NMsim/branch/main/graph/badge.svg)](https://app.codecov.io/gh/NMautoverse/NMsim?branch=main)
-
-<!-- [![R-CMD-check](https://github.com/NMautoverse/NMsim/workflows/R-CMD-check/badge.svg)](https://github.com/NMautoverse/NMsim/actions) -->
+[![R-CMD-check](https://github.com/NMautoverse/NMsim/workflows/R-CMD-check/badge.svg)](https://github.com/NMautoverse/NMsim/actions)
 <!-- badges: end -->
 
 

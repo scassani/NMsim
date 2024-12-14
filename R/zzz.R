@@ -4,5 +4,5 @@
 
 ##' @importFrom utils packageVersion
 .onAttach <- function(libname,pkgname){
-    packageStartupMessage(paste0("NMsim ",packageVersion("NMsim"),". Browse NMsim documentation at\nhttps://nmautoverse.github.io/NMsim/"))
+    packageStartupMessage(paste0("NMsim ",packageVersion("NMsim"),". Browse NMsim documentation at\nhttps://NMautoverse.github.io/NMsim/"))
 }

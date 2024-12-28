@@ -170,7 +170,7 @@ simres.forest <- NMsim(file.mod # path to NONMEM model
                        )
 ```
 
-If you encounter issues with samples that do not run, please consider whether any of your uncertainty estimates on $THETA$'s could lead to sampled THETA's that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that THETA on the log scale to make sure all sampled values will be positive.
+If you encounter issues with samples that do not run, please consider whether any of your uncertainty estimates on `THETA`'s could lead to sampled `THETA`'s that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that THETA on the log scale to make sure all sampled values will be positive.
 
 
 ```{r}
@@ -256,8 +256,6 @@ fun.plot <- function(data,...){
 #forest.day1 <- fun.plot(sum.uncertain[period=="Day 1"],plot_title="Day 1")
 forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"],plot_title="Steady-State")
 
-#forest.day1
-forest.ss
 
 ```
 

@@ -53,7 +53,7 @@ test_that("NMsim_NWPRI",{
 
         mod <- NMreadSection("testOutput/xgxr032_sd1_NWPRI/xgxr032_sd1_NWPRI.mod")
         
-
+o
         ## ref <- readRDS(fileRef)
         expect_equal_to_reference(mod$THETAPV,fnAppend(fileRef,"THETAPV"))
         expect_equal_to_reference(mod$OMEGAP,fnAppend(fileRef,"OMEGAP"))

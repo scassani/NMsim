@@ -371,6 +371,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                   execute=TRUE,sge=FALSE,
                   nc=1,transform=NULL,
                   method.execute,
+                  inits,
                   method.update.inits,
                   create.dirs=TRUE,dir.psn,
                   modify.model,
@@ -512,7 +513,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     if(missing(path.nonmem)) path.nonmem <- NULL
     if(missing(method.execute)) method.execute <- NULL
     ## NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execute=method.execute,must.work=execute)
-NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execute=method.execute,must.work=FALSE)
+    NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execute=method.execute,must.work=FALSE)
 
     
     ## after definition of wait and wait.exec, wait is used by
@@ -537,9 +538,12 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
     
 
     if(missing(file.ext)) file.ext <- NULL
-    
+
+    if(missing(inits)) inits <- NULL
     if(missing(method.update.inits)) method.update.inits <- NULL
-    method.update.inits <- adjust.method.update.inits(method.update.inits,system.type=NMsimConf$system.type,dir.psn=NMsimConf$dir.psn,cmd.update.inits=cmd.update.inits,file.ext=file.ext)
+    inits <- adjust.method.update.inits(method.update.inits,system.type=NMsimConf$system.type,dir.psn=NMsimConf$dir.psn,cmd.update.inits=cmd.update.inits,file.ext=file.ext,inits=inits)
+    method.update.inits <- inits$method
+    file.ext <- inits$file.ext
     
     
 
@@ -908,6 +912,15 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
     }
     
 ### Generate the first version of file.sim.
+    if(missing(inits)){
+        inits <- NULL
+    }
+
+    if(is.null(inits)) inits <- list(method="none")
+
+    
+    
+    
     ## It would not need to, but beware PSN's update_inits needs to
     ## create a new file - don't try to overwrite an existing one.
     if(method.update.inits=="none"){
@@ -917,6 +930,10 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
 ##### todo all file.xyz arguments must be NULL or of equal length. And this should be done per model
     
     if(method.update.inits=="nmsim" && any(dt.models[,!file.exists(file.ext)])){
+        stop(paste("ext file(s) not found. Did you forget to copy it? Normally, NMsim needs that file to find estimated parameter values. If you do not have an ext file and you are running a simulation that does not need it, please use `method.update.inits=\"none\"`. Was expecting to find ",paste(dt.models[!file.exists(file.ext),file.ext],collapse="\n"),sep=""))
+    }
+
+    if(method.update.inits=="nmsim2" && inits$update && any(dt.models[,!file.exists(file.ext)])){
         stop(paste("ext file(s) not found. Did you forget to copy it? Normally, NMsim needs that file to find estimated parameter values. If you do not have an ext file and you are running a simulation that does not need it, please use `method.update.inits=\"none\"`. Was expecting to find ",paste(dt.models[!file.exists(file.ext),file.ext],collapse="\n"),sep=""))
     }
     
@@ -952,13 +969,25 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
             file.rename(file.path(dirname(file.mod),fn.sim.tmp),path.sim)
         },by=ROWMODEL]
     }
+    
     if(method.update.inits=="nmsim"){
         ## edits the simulation control stream in the
         ## background. dt.models not affected.
-
 ### because we use newfile, this will be printed to newfile. If not, it would just return a list of control stream lines.
         dt.models[,NMupdateInits(file.mod=file.mod,newfile=path.sim,fix=TRUE,file.ext=file.ext),by=.(ROWMODEL)]
+    }
 
+    if(method.update.inits=="nmsim2"){
+        ## edits the simulation control stream in the
+        ## background. dt.models not affected.
+### because we use newfile, this will be printed to newfile. If not, it would just return a list of control stream lines.
+
+        ## dt.models[,NMwriteInits(file.mod=file.mod,newfile=path.sim,file.ext=file.ext,),by=.(ROWMODEL)]
+        dt.models[,{
+            args.inits <- append(list(file.mod=file.mod,newfile=path.sim,file.ext=file.ext),
+                                 inits[setdiff(names(inits),"method")])
+            do.call(NMwriteInits,args.inits)
+        },by=.(ROWMODEL)]
     }
 
     
@@ -1103,26 +1132,26 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
 
 
 ##### Moved to after reuse.results - before NMexec()
-        ## if multiple models have been spawned, and files.needed has been generated, the only allowed method.execute is "nmsim"
-        if(nrow(dt.models.gen)>1 && "files.needed"%in%colnames(dt.models.gen)){
-            if(NMsimConf$method.execute!="nmsim"){
-                stop("Multiple simulation runs spawned, and they need additional files than the simulation input control streams. The only way this is supported is using method.execute=\"nmsim\".")
-            }
+    ## if multiple models have been spawned, and files.needed has been generated, the only allowed method.execute is "nmsim"
+    if(nrow(dt.models.gen)>1 && "files.needed"%in%colnames(dt.models.gen)){
+        if(NMsimConf$method.execute!="nmsim"){
+            stop("Multiple simulation runs spawned, and they need additional files than the simulation input control streams. The only way this is supported is using method.execute=\"nmsim\".")
         }
+    }
 
-        ## if multiple models spawned, direct is not allowed
-        if(nrow(dt.models.gen)>1){
-            if(NMsimConf$method.execute=="direct"){
-                stop("method.execute=\"direct\" cannot be used with simulation methods that spawn multiple simulation runs. Try method.execute=\"nmsim\" or method.execute=\"psn\".")
-            }
+    ## if multiple models spawned, direct is not allowed
+    if(nrow(dt.models.gen)>1){
+        if(NMsimConf$method.execute=="direct"){
+            stop("method.execute=\"direct\" cannot be used with simulation methods that spawn multiple simulation runs. Try method.execute=\"nmsim\" or method.execute=\"psn\".")
         }
+    }
 
-        ## if files.needed, psn execute cannot be used.
-        if("files.needed"%in%colnames(dt.models.gen)){
-            if(NMsimConf$method.execute=="psn"){
-                stop("method.execute=\"psn\" cannot be used with simulation methods that need additional files to run. Try method.execute=\"nmsim\".")
-            }
+    ## if files.needed, psn execute cannot be used.
+    if("files.needed"%in%colnames(dt.models.gen)){
+        if(NMsimConf$method.execute=="psn"){
+            stop("method.execute=\"psn\" cannot be used with simulation methods that need additional files to run. Try method.execute=\"nmsim\".")
         }
+    }
 
     
     
@@ -1295,7 +1324,8 @@ NMsimConf <- NMsimTestConf(path.nonmem=path.nonmem,dir.psn=dir.psn,method.execut
                                  ## width = 50,   # Progress bar width. Defaults to getOption("width")
                                  char = "=")
         }
-        
+
+###### execute jobs using NMexec
         dt.models[,lst:={
             simres.n <- NULL
             files.needed.n <- try(strsplit(files.needed,":")[[1]],silent=TRUE)

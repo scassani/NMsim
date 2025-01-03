@@ -27,6 +27,7 @@ NMsim(
   nc = 1,
   transform = NULL,
   method.execute,
+  inits,
   method.update.inits,
   create.dirs = TRUE,
   dir.psn,

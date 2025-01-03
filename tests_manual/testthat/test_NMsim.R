@@ -22,8 +22,11 @@ setorder(dt.sim.known,ID,TIME,EVID,CMT)
 
 
 ## NMdataConf(dir.psn="/opt/psn")
+if(F){
+    ## a manual linux setup
 path.nonmem <- "/opt/nonmem/nm751/run/nmfe75"
-## dir.psn <- "/opt/psn"
+NMdataConf(dir.psn= "/opt/psn")
+}
 ## NMdataConf(dir.psn=dir.psn)
 ##
 path.nonmem <- "/opt/NONMEM/nm75/run/nmfe75"
@@ -997,3 +1000,67 @@ test_that("as.fun=data.table in function call",{
     expect_true(is.data.table(simres))
 
 })
+
+
+
+###### using nmsim2 update inits method
+
+context("NMsim")
+test_that("basic - nmsim2 update inits",{
+    
+    ## fileRef <- "testReference/NMsim_14.rds"
+
+    file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
+
+    set.seed(43)
+    simres <- NMsim(file.mod,
+                    data=dt.sim,
+                    table.var="PRED IPRED",
+                    dir.sims="testOutput",
+                    name.sim="default_14",
+                    inits=list(method="nmsim2",update=TRUE),
+                    path.nonmem=path.nonmem
+                    )
+    
+    ## attributes(NMreadSim("testOutput/NMsim_xgxr021_default_01_paths.rds"))
+    fix.time(simres)
+    ## expect_equal_to_reference(simres[,!("sim")],fileRef)
+    expect_equal_to_reference(simres,fileRef)
+
+})
+
+
+###### using nmsim2 update inits method and modify parameter
+
+context("NMsim")
+test_that("basic - nmsim2 update inits",{
+    
+    ## fileRef <- "testReference/NMsim_15.rds"
+
+    file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
+
+    set.seed(43)
+    simres2 <- NMsim(file.mod,
+                    data=dt.sim,
+                    table.var="PRED IPRED",
+                    dir.sims="testOutput",
+                    name.sim="default_14",
+                    ## inits=list(method="nmsim2",update=TRUE,values=list(list(par.type="THETA",i=2,init=4))),
+                    inits=list(method="nmsim2",update=TRUE,values=list("THETA(2)"=list(init=4))),
+                    path.nonmem=path.nonmem
+                    )
+
+    simres3 <- NMsim(file.mod,
+                    data=dt.sim,
+                    table.var="PRED IPRED",
+                    dir.sims="testOutput",
+                    name.sim="default_14",
+                    ## inits=list(method="nmsim2",update=TRUE,values=list(list(par.type="THETA",i=2,init=4))),
+                    inits=list(method="nmsim2",update=TRUE,"THETA(2)"=list(init=4)),
+                    path.nonmem=path.nonmem
+                    )
+    
+   
+
+})
+

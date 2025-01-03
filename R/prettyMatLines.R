@@ -10,7 +10,7 @@
 ##' @keywords internal
 
 prettyMatLines <- function(block_mat_string) {
-  
+    
   blocksize = as.numeric(gsub(pattern = "[[:alpha:]]|\\(", replacement = "", x = regmatches(block_mat_string, m = regexpr("BLOCK\\(\\d+", block_mat_string))))
 
   dollar_block_label = paste0(unlist(strsplit(block_mat_string, " FIX "))[1], " FIX")

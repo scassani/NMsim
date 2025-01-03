@@ -1,3 +1,4 @@
+;; A comment 
 $PROBLEM    018 with 2 comp
 
 $INPUT ROW ID NOMTIME TIME EVID CMT AMT DV FLAG STUDY

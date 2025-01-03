@@ -141,7 +141,6 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL){
     res <- newpars[,
                    NMreplaceInits(files=unique(path.sim.0)
                                  ,newfile=unique(path.sim)
-                                 ,fix=TRUE
                                  ,inits=.SD
                                  ,quiet=TRUE)
                   ,by="SUBMODEL"]

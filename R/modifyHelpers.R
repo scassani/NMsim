@@ -19,17 +19,20 @@ add <- function(...,.pos="bottom"){
 
 ##' Create function that modifies text elements in a vector
 ##' @param ... Passed to `gsub()`
+##' @param fixed This is passed to gsub(), but `overwrite()`'s default behavior is the opposite of the one of `gsub()`. Default is `FALSE` which means that strings that are exactly matched will be replaced. This is useful because strings like `THETA(1)` contains special characters. Use `fixed=FALSE` to use regular expressions. Also, see other arguments accepted by `gsub()` for advanced features.
 ##' @return A function that runs `gsub` to character vectors
 ##' @examples
 ##' myfun <- overwrite("b","d")
 ##' myfun(c("a","b","c","abc"))
 ##' ## regular expressions
-##' myfun2 <- overwrite("b.*","d")
+##' myfun2 <- overwrite("b.*","d",fixed=FALSE)
 ##' myfun2(c("a","b","c","abc"))
 ##' @export
-overwrite <- function(...){
-
+overwrite <- function(...,fixed=TRUE){
+    
     function(x){
-        gsub(...,x=x)
+        do.call(gsub,
+                append(list(...),list(x=x,fixed=fixed))
+                )
     }
 }

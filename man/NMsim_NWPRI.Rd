@@ -20,9 +20,6 @@ multivariate normal distribution, i.e. from an ellipsoidal
 region R1 over which  only  a fraction of mass of the 
 normal occurs. This fraction is given by PLEV.}
 }
-\value{
-Path to simulation control stream
-}
 \description{
 Modify control stream for simulation with uncertainty
     using inverse-Wishart distribution for OMEGA and SIGMA

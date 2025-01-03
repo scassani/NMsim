@@ -4,13 +4,27 @@
 \alias{NMcreateMatLines}
 \title{Create text lines for OMEGA and SIGMA Nonmem sections}
 \usage{
-NMcreateMatLines(omegas, type)
+NMcreateMatLines(omegas, as.one.block = FALSE, fix = TRUE, type)
 }
 \arguments{
-\item{omegas}{See NMdata::NMreadExt and the pars element returned
+\item{omegas}{A data.table with at least `i`, `j` and `value`
+columns. See `NMdata::NMreadExt` and the pars element returned
 by that function.}
 
-\item{type}{The matrix type. OMEGA or SIGMA - case in-sensitive.}
+\item{as.one.block}{If `TRUE`, all values are printed as one
+block. If `FALSE` (default), matrix will be separeted into
+blocks based on position non-zero off-diagonal
+values. Generally speaking, for `OMEGA` matrices (var-cov
+matrices for ETAs), this should be `FALSE`, and for
+variance-covariance matrices (like `THETAP`), this should be
+`TRUE`.}
+
+\item{fix}{Include `FIX` for all lines? If not, none will be
+fixed. Currently, there is no support for keeping}
+
+\item{type}{The matrix type. `OMEGA` or `SIGMA` - case
+in-sensitive. Will be used to print say `$OMEGA` in front of
+each line.}
 }
 \value{
 Character vector

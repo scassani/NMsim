@@ -105,7 +105,7 @@ NMwriteData(dat.sim,file="../inst/examples/derived/dat_sim1.csv",genText=FALSE)
 
 `NMsim` does not include any plotting functionality, but here is a simple way to show dosing amounts and sample times. `NMdata::NMexpandDoses()` is used to _expand_ the doses coded with `ADDL`/`II` in order to get a data row to plot for each dose. We also take the sum of the amounts by time point in case doses are simultaneous. 
 
-```{r,fig.height=2}
+```{r,fig.height=2,fig.cap="After using `NMexpandDoses()` the simulation data set is plottet."}
 dtplot <- NMdata::NMexpandDoses(dat.sim,as.fun="data.table")
 dtplot <- dtplot[,.(AMT=sum(AMT)),by=.(ID,CMT,TIME,EVID)]
 

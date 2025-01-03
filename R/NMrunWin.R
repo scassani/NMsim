@@ -17,54 +17,74 @@ NMrunLin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,sg
 
     name <- NULL
     fn.lst <- fnExtension( fn.mod,".lst")
-    line.run <- sprintf("%s %s %s",path.nonmem,fn.mod,fn.lst)    
+    line.run <- sprintf("%s %s %s",path.nonmem,fn.mod,fn.lst)
+
     if(sge){
         ## executing from model execution dir.
-        jobname <- sub(pattern="^ *",replacement="", x=basename(fn.mod) )
+        jobname <- ##paste0(
+            sub(pattern="^ *",replacement="", x=basename(fn.mod) )
+        ## ,"_",
+        ## paste(sample(c(letters,LETTERS,as.character(0:9)),size=12,replace=T),collapse="")
+        ## )
         ## qsub does not allow a jobname to start in a numeric
         if(grepl("^[0-9]",jobname)) {
             jobname <- paste0("NMsim_",jobname)
         }
-        line.run <- sprintf('qsub -pe orte %s -V -N \"%s\" -j y -cwd -b y \"%s\" -background'
+        line.run <- sprintf('qsub -terse -pe orte %s -V -N \"%s\" -j y -cwd -b y \"%s\" -background'
                            ,
                             nc
                            ,
                             jobname
                            ,
                             line.run
-                            ## paste(path.nonmem,basename(fn.mod),fnExtension( basename(fn.mod),".lst"),"; echo DONE > NMexec_complete.txt")
-                            ##paste(path.nonmem,fn.mod,fn.lst)
-                            ## ,basename(pnm)
-                            ## ,getAbsolutePath(pnm)
-                            ## ,nc
                             )
 
         if(nc>1){
             line.run <- sprintf('%s -parafile=\"%s\" [nodes]=%s',line.run,getAbsolutePath(pnm),nc)
         }
-        
-        ## line.run <- sprintf("qsub -pe orte %s -V -N %s %s %s",
-        ##                     nc
-        ##                    ,jobname
-        ##                     path.nonmem,fn.mod,fnExtension(fn.mod,".lst"))
-        
+        ##line.run <- paste(line.run,"| read jobid_qsub")
+        line.run <- paste0("jobid_qsub=$(",line.run,"  2>&1)")
     }
+
+    if(F){
+        lines.wait <- c("RUNNING=1"
+                        ## ,sprintf("until [ -f %s ]; do",fn.lst)
+                       ,"until [ $RUNNING -eq 0 ]; do"
+                       ,"sleep 2"
+                       ,sprintf("if [ -f %s ] ; then
+  RUNNING=0
+fi",fn.lst)
+,"done"
+,sprintf("if [ -f %s ] ; then
+  txterr=`grep \" ERROR \" %s`
+  if [ \"$txterr\" != \"\" ] ; then 
+    RUNNING=0 
+    echo \"NMTRAN error found\"
+    exit 1;
+  fi
+fi",
+file.path("FMSG"),
+file.path("FMSG"))
+
+## ,sprintf("( tail -f -n4 %s & ) | grep -q \"Stop Time:\"",fn.lst)
+## ,"echo Stop found"
+
+,sprintf("while ! grep -q \"Stop Time\" %s ; do",fn.lst)
+,"sleep 2"
+,"done")
+    }
+
+    lines.wait <- c()
+    if(sge) {
+        path.wait.qsub <- system.file("bash/wait_qsub.sh",package="NMsim")
+        lines.wait <- paste(path.wait.qsub, "\"$jobid_qsub\"")
+    }
+    
     lines.bash <- c(
         "#!/bin/bash"
        ,""
        ,line.run
-       ## ,"stat=$?"
-       ## ,"if [ $stat -ne 0 ]; then"
-       ## ,"exit $stat;"
-       ## ,"fi"
-       ,sprintf("until [ -f %s ]; do",fn.lst)
-       ,"sleep 2"
-       ,"done"
-        ## ,sprintf("( tail -f -n4 %s & ) | grep -q \"Stop Time:\"",fn.lst)
-        ## ,"echo Stop found"
-       ,sprintf("while ! grep -q \"Stop Time\" %s ; do",fn.lst)
-       ,"sleep 2"
-       ,"done"
+       ,lines.wait
 ### copy output tables back
         ## ,sprintf("cp \'%s\' \'%s\'",paste(meta.tables[,name],collapse="' '"),dir.mod.abs)
        ,paste0("find . -type f -name ",paste0("\'",meta.tables[,name],"\'")," -exec cp {} \'",dir.mod.abs,"\' \\;")

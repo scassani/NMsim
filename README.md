@@ -13,8 +13,7 @@ status](https://www.r-pkg.org/badges/version/NMsim)](https://CRAN.R-project.org/
 downloads](https://cranlogs.r-pkg.org/badges/NMsim)](https://cran.r-project.org/package=NMsim)
 [![Codecov test
 coverage](https://codecov.io/gh/NMautoverse/NMsim/branch/main/graph/badge.svg)](https://app.codecov.io/gh/NMautoverse/NMsim?branch=main)
-
-<!-- [![R-CMD-check](https://github.com/NMautoverse/NMsim/workflows/R-CMD-check/badge.svg)](https://github.com/NMautoverse/NMsim/actions) -->
+[![R-CMD-check](https://github.com/NMautoverse/NMsim/workflows/R-CMD-check/badge.svg)](https://github.com/NMautoverse/NMsim/actions)
 <!-- badges: end -->
 
 Please make sure to read this at
@@ -88,7 +87,7 @@ The goal for NMsim is to automate the NONMEM simulation workflow and
 provide a simple, flexible, and powerful R interface. This allows for
 automation of most simulation-based analyses.
 
-<img src='man/figures/intro-tab.png' align="right" height="120" />
+<img src='man/figures/intro-tab.png' height="140" alt="NMsim can simulate NONMEM models right away - but only ifh NONMEM is avaiable." />
 
 ## Supported types of simulations
 

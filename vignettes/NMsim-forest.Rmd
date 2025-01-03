@@ -12,10 +12,10 @@ output:
     toc_float: true
     number_sections: false
     df_print: paged
-editor_options:
-  chunk_output_type: inline
-  code_folding: show
-  bibliography: [packages.bib]
+    editor_options:
+      chunk_output_type: inline
+      code_folding: show
+bibliography: [packages.bib]
 pkgdown:
   as_is: true
 ---
@@ -24,7 +24,7 @@ pkgdown:
 library(knitr)
 ```
 
-<img src='../man/figures/NMsimlogo240.png' align="right" height="120" />
+<img src='../man/figures/NMsimlogo240.png' align="right" height="120" alt="NMsim" />
 
 # Introduction
 The forest plot is an effective and widely recognized way to
@@ -55,12 +55,13 @@ library(NMsim,quietly=TRUE)
 library(NMdata,quietly=TRUE)  
 library(NMcalc)  ## Optional. Used to calculate AUC.
 library(coveffectsplot,quietly=TRUE)
+library(knitr) ## for printing tables with knitr::kable
 
 NMdataConf(
     path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
     dir.sims="simtmp-forest", ## where to store temporary simulation results
-    dir.res="simres-forest",   ## where to store final simulation results
-    as.fun="data.table"
+    dir.res="simres-forest"   ## where to store final simulation results
+    ## ,as.fun="data.table"
 )
 
 ```
@@ -162,6 +163,7 @@ simres.forest <- NMsim(file.mod # path to NONMEM model
                       ,data=dt.sim, # simulation dataset
                       ,name.sim="forest_mvrnorm" # output name suffix
                       ,method.sim=NMsim_VarCov # sampling with mvrnorm
+                      ,nsims=500
                       ,typical=TRUE # FALSE to include BSV
                       ,table.vars=cc(PRED,IPRED) # output table variables
                       ,seed.R=342 # seed for reproducibility
@@ -170,7 +172,7 @@ simres.forest <- NMsim(file.mod # path to NONMEM model
                        )
 ```
 
-If you encounter issues with samples that do not run, please consider whether any of your uncertainty estimates on `THETA`'s could lead to sampled `THETA`'s that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that THETA on the log scale to make sure all sampled values will be positive.
+If you encounter issues with samples that do not run, please consider whether any of your uncertainty estimates on `THETA`'s could lead to sampled `THETA`'s that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that THETA on the log scale to make sure all sampled values will be positive. A quick way to look for this is by combining parameter estimates (from the `.ext` file) and the automatic labeling of the parameters using `NMdata::NMrelate()`:
 
 
 ```{r}
@@ -184,12 +186,39 @@ NMdata::NMreadExt(file.mod)[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)
 `NMsim` provides a function to do the post processing of the set of simulations setup by `expandCovs()`. The key steps performed by this function are outlined below. Most importantly, it normalizes  the exposures by the reference value for each sampled set of parameters. Then, it derives median and a confidence interval as quantiles in the simulated distribution.
 
 
-The step reuired by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
 
 ```{r}
 ### Read simulation results
-simres <- NMreadSim("simres-forest/xgxr134_forest_simpar_MetaData.rds")
+simres <- NMreadSim("simres-forest/xgxr134_forest_mvrnorm_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
+## Check how many models returned simulation results
+as.data.table(simres)[,uniqueN(model.sim)]
+```
 
+If you encounter issues with samples that do not run, please consider
+whether any of your uncertainty estimates on $THETA$'s could lead to
+sampled THETA's that could make the model be undefined. This would
+often be absorption parameters, clearences, volumes or any other
+strictly positive parameter which is estimated with poor precision. If
+this happens, you may want to go back and estimate that THETA on the
+log scale to make sure all sampled values will be positive. A quick
+way to look into this is to look at the relative standard error for
+each `THETA`. In the following we merge in the first line in the model
+using each `THETA` so we can refresh our memory on the interpretation
+of each parameter without relying on a well formatted parameter table.
+
+
+```{r}
+NMdata::NMreadExt(file.mod,as.fun="data.table")[
+            par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
+    NMdata::mergeCheck(
+                NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],
+                by="par.name",quiet=TRUE)
+```
+
+
+The step required by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
+
+```{r}
 ### Define exposure metrics
 funs.exposure <- list(
     "Cmax"=function(x) max(x$PRED)
@@ -197,7 +226,7 @@ funs.exposure <- list(
     ## ,"Concentration at 4 hours"=function(x) x$value[x$TAPD==4]
 )
 
-sum.uncertain <- summarizeCovvar(simres,
+sum.uncertain <- summarizeCovs(simres,
                                  funs.exposure = funs.exposure,
                                  by=cc(period),
                                  cover.ci=.95
@@ -209,7 +238,7 @@ sum.uncertain <- summarizeCovvar(simres,
 We will use the R package `coveffectsplot` for plotting. `coveffectsplot::forest_plot()` requires certain column names so we adjust those first.
 
 ```{r,fig.width=10}
-
+setDT(sum.uncertain)
 setnames(sum.uncertain,
          cc(covvalf,predmm,predml,predmu,metric.var),
          cc(label,mid,lower,upper,paramname)
@@ -253,19 +282,17 @@ fun.plot <- function(data,...){
     )
 }
 
-#forest.day1 <- fun.plot(sum.uncertain[period=="Day 1"],plot_title="Day 1")
-forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"],plot_title="Steady-State")
-
-
+forest.day1 <- fun.plot(sum.uncertain[period=="Day 1"])
+forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"])
 ```
 
 
 ## Post processing explained step by step
-We are including the code from the main steps in the post processing function, `NMsim::summarizeCovvar()`. It is important that the scientist understands that what the forest plots derived in this document represent is the relative effect of the covariate on the exposure metric. This is derived by `NMsim::summarizeCovvar()` as quantiles of the exposure relative to the reference subject. The confidence interval hence expresses the uncertainty on the covariate effect for a subject with other covariates at reference values.
+We are including the code from the main steps in the post processing function, `NMsim::summarizeCovs()`. It is important that the scientist understands that what the forest plots derived in this document represent is the relative effect of the covariate on the exposure metric. This is derived by `NMsim::summarizeCovs()` as quantiles of the exposure relative to the reference subject. The confidence interval hence expresses the uncertainty on the covariate effect for a subject with other covariates at reference values.
 
 
 Notice, the code below consists of snippets from the
-`NMsim::summarizeCovvar()` function. The code is not intended to be
+`NMsim::summarizeCovs()` function. The code is not intended to be
 used on its own. 
 
 ```{r,eval=FALSE}

@@ -31,7 +31,7 @@ sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
     
     loadres <- requireNamespace("simpar",quietly=TRUE)
     if(!loadres) {
-        message("simpar not available. Please install from github or MPN.")
+        message("simpar not found. Please install from github or MPN.")
         return(NULL)        
     }
 

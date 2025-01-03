@@ -17,7 +17,6 @@
 ##'     multivariate normal distribution, i.e. from an ellipsoidal 
 ##'     region R1 over which  only  a fraction of mass of the 
 ##'     normal occurs. This fraction is given by PLEV.
-##' @return Path to simulation control stream
 ##' @details Simulate with parameter uncertainty. THETA parameters are
 ##'     sampled from a multivariate normal distribution while OMEGA
 ##'     and SIGMA are simulated from the inverse-Wishart
@@ -37,16 +36,13 @@
 
 NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 
-
     NMdata:::messageWrap("\nNMsim_NWPRI() currently only reliably simulates typical THETAs. Simulation with variability on OMEGA and SIGMA cannot be trusted. Always run this method in NMsim with `typical=TRUE`",fun.msg=message)
 
+    NMdata:::messageWrap("\nNMsim_NWPRI() with compatibility for NONMEM 7.60 depends on NMdata 0.1.9 or later.",fun.msg=message)
+    
     if(packageVersion("NMdata")<"0.1.6.932"){
         stop("NMsim_NWPRI requires NMdata 0.1.7 or later.")
     }
-    
-    
-### done add OMEGA/SIGMA blocks
-
     
     . <- NULL
     DF <- NULL
@@ -82,50 +78,55 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
     cov <- NMreadCov(fnExtension(file.mod,".cov"))
     pars <- NMreadExt(file.mod,return="pars",as.fun="data.table")[,value:=est]
 
-
-### Skipping add OMEGA block information based on off diagonal values - relying on NMdata::NMreadExt()
+    if(!"se"%in%colnames(pars)){
+        stop("ext file does not contain standard errors. A succussfull COVARIANCE step is needed for NMSIM_NWPRI to run.")
+    }
     
 
+### Add degrees of freedom for inverse-wishart distribution for OMEGA/SIGMA
     nwpri_df <- NWPRI_df(pars)
     nwpri_df[,line := paste0("$", par.type,"PD ", DF2, " FIX")]
-    
-### done add degrees of freedom
-    
+
     ## derive the different sets of new lines needed
     ## $THETAP section
     thetas <- pars[par.type=="THETA"][order(i)]
     lines.thetap <- c("$THETAP", paste(thetas[,est], "FIX"))
+    
     ## $THETAPV
-    cov.l <- mat2dt(cov,as.fun="data.table")
+    if(packageVersion("NMdata")>'0.1.8.3') {
+        cov.l <- mat2dt(cov,as.fun="data.table",triangle = "lower")
+    } else {
+        cov.l <- mat2dt(cov,as.fun="data.table",triangle = "upper")
+    }
     cov.l <- addParType(cov.l,suffix="i")
     cov.l <- addParType(cov.l,suffix="j")
+    
+    # Identify fixed thetas and set their diagonal in the $THETAPV cov matrix to be 1.0 for compatibility with nm7.60
+    cov.l = merge.data.table(x = cov.l, y = pars[par.type=="THETA",.(i, parameter.i=parameter,FIX)], by = c("i", "parameter.i"))
+    cov.l[i==j&FIX==1, value := 1.0]    
+    
     lines.thetapv <-
-        NMcreateMatLines(cov.l[par.type.i=="THETA"&par.type.j=="THETA", .(i=j, j=i, value, parameter.i, parameter.j, par.type.i,  par.name, par.type.j)], type="OMEGA")
-    lines.thetapv <- sub("\\$OMEGA","\\$THETAPV",lines.thetapv)
-    lines.thetapv = prettyMatLines(lines.thetapv)
+        NMcreateMatLines(
+            cov.l[par.type.i=="THETA"&par.type.j=="THETA", .(i, j, value, parameter.i, parameter.j, par.type.i,  par.name, par.type.j)]
+          , type="THETAPV",as.one.block=TRUE)
     
     ## $OMEGAP
-    ## note: set 0 FIXED sigmas/omegas to 1e-30 to avoid non-semi-positive definite matrices error
-    lines.omegap <- NMcreateMatLines(pars[par.type=="OMEGA",.(par.type,parameter,par.name,i,j,FIX,value=ifelse(value==0,1e-30,value))],type="OMEGA")
-    lines.omegap <- sub("\\$OMEGA","\\$OMEGAP",lines.omegap)
-    ## below was for previous version of NMcreateMatLines where it would not add FIX after non-block omegas. This was updated (in testing now)
-    ## lines.omegap  = sapply(lines.omegap, FUN = function(.x) ifelse((!grepl("BLOCK",.x)&!grepl("FIX",.x)), paste0(.x, " FIX"), .x), USE.NAMES = FALSE)
-    lines.omegap <- lapply(X=lines.omegap, FUN=function(.x) ifelse(grepl("BLOCK",.x), return(prettyMatLines(block_mat_string = .x)), return(.x))) 
-    lines.omegap <- unlist(lines.omegap)
+    # note: NMcreateMatLines sets 0 FIXED sigmas/omegas to 1e-30 to avoid non-semi-positive definite matrices error
+    lines.omegap <- NMcreateMatLines(
+        pars[par.type=="OMEGA"]
+       ,type="OMEGAP",as.one.block = FALSE)
     
     ## $OMEGAPD
-    lines.omegapd = nwpri_df[par.type=="OMEGA"]$line
+    # see nwpri_df() for calculations of degrees of freedom for inverse-wishart prior
+    lines.omegapd = nwpri_df[par.type=="OMEGA",line]
     
     ## $SIGMAP
-    ## note: set 0 FIXED sigmas/omegas to 1e-30 to avoid non-semi-positive definite matrices error
-    lines.sigmap <- NMcreateMatLines(pars[par.type=="SIGMA",.(par.type,parameter,par.name,i,j,FIX,value=ifelse(value==0,1e-30,value))],type="SIGMA")
-    lines.sigmap <- sub("\\$SIGMA","\\$SIGMAP",lines.sigmap)
-    ## lines.sigmap  = sapply(lines.sigmap, FUN = function(.x) ifelse((!grepl("BLOCK",.x)&!grepl("FIX",.x)), paste0(.x, " FIX"), .x), USE.NAMES = FALSE)
-    lines.sigmap <- lapply(X=lines.sigmap, FUN=function(.x) ifelse(grepl("BLOCK",.x), return(prettyMatLines(block_mat_string = .x)), return(.x))) 
-    lines.sigmap <- unlist(lines.sigmap)
+    lines.sigmap <- NMcreateMatLines(
+        pars[par.type=="SIGMA"]
+       ,type="SIGMAP")
     
     ## $SIGMAPD
-    lines.sigmapd = nwpri_df[par.type=="SIGMA"]$line
+    lines.sigmapd = nwpri_df[par.type=="SIGMA",line]
     
     ## $PRIOR
     lines.prior = sprintf("$PRIOR NWPRI PLEV=%f",PLEV)
@@ -133,13 +134,21 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
     all.lines = c(lines.prior, lines.thetap, lines.thetapv, lines.omegap, lines.omegapd, lines.sigmap, lines.sigmapd)
 
     
-    ## insert the lines into file.sim using NMdata::NMwriteSection(). Please see other simulation methods for inspiration - NMsim_typical is a simple one that shows the drill.
-    lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim, section="SIMULATION", location="before", newlines=all.lines, backup=FALSE,quiet=TRUE)
+    ## insert the lines into file.sim using NMdata::NMwriteSection().  
+    lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim, section="SIMULATION", location="before", newlines=all.lines, backup=FALSE, quiet=TRUE)
 
 ### add TRUE=PRIOR to $SIMULATION
-    
-    lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim,section="SIMULATION",location="after",newlines="TRUE=PRIOR",backup=FALSE,quiet=TRUE)
+    lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim, section="SIMULATION", location="after", newlines="TRUE=PRIOR", backup=FALSE, quiet=TRUE)
 
+### update $SIZES LTH and LVR to reflect the parameters in NWPRI (not resized automatically like other subroutines)
+    # add 10 to both numbers per Bob Bauer (doesn't hurt to have slightly more memory/size)
+    # LTH = number of thetas = $THETA + $THETAP + $OMEGAPD + $SIGMAPD
+    # LVR = number of diagonal omegas + sigmas = $OMEGA + $OMEGAP + $SIGMA + $SIGMAP + $THETAPV
+    lth = 2*nrow(pars[par.type=="THETA"]) + nrow(nwpri_df) + 10 
+    lvr = 2*nrow(pars[(par.type=="OMEGA"|par.type=="SIGMA")&i==j]) + nrow(pars[par.type=="THETA"]) + 10
+    
+    lines.sim = NMsim::NMupdateSizes(file.mod=NULL, newfile=NULL,lines = lines.sim, LTH = lth, LVR = lvr)
+    
 ### update the simulation control stream
     ## if(return.text){
     ##     return(lines.sim)

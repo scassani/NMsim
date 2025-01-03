@@ -4,14 +4,12 @@
 \alias{NMreplaceInits}
 \title{Replace initial values in Nonmem control stream}
 \usage{
-NMreplaceInits(inits, fix = FALSE, ...)
+NMreplaceInits(inits, ...)
 }
 \arguments{
 \item{inits}{A data.frame with new initial estimates, same style
 as returned by NMdata::NMreadExt. Column` par.type` can contain
 elements THETA, OMEGA, SIGMA.}
-
-\item{fix}{Fix the initial values? Default is not to.}
 
 \item{...}{Passed to NMdata::NMwriteSection. This is important for
 NMreplaceInits to run at all.}

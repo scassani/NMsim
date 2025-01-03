@@ -1,69 +1,86 @@
 ##' Create text lines for OMEGA and SIGMA Nonmem sections
 ##'
-##' @param omegas See NMdata::NMreadExt and the pars element returned
+##' @param omegas A data.table with at least `i`, `j` and `value`
+##'     columns. See `NMdata::NMreadExt` and the pars element returned
 ##'     by that function.
-##' @param type The matrix type. OMEGA or SIGMA - case in-sensitive.
+##' @param as.one.block If `TRUE`, all values are printed as one
+##'     block. If `FALSE` (default), matrix will be separeted into
+##'     blocks based on position non-zero off-diagonal
+##'     values. Generally speaking, for `OMEGA` matrices (var-cov
+##'     matrices for ETAs), this should be `FALSE`, and for
+##'     variance-covariance matrices (like `THETAP`), this should be
+##'     `TRUE`.
+##' @param fix Include `FIX` for all lines? If not, none will be
+##'     fixed. Currently, there is no support for keeping
+##' @param type The matrix type. `OMEGA` or `SIGMA` - case
+##'     in-sensitive. Will be used to print say `$OMEGA` in front of
+##'     each line.
 ##' @return Character vector
 ##'
 ##' @keywords internal
 
-NMcreateMatLines <- function(omegas,type){
+NMcreateMatLines <- function(omegas,as.one.block=FALSE,fix=TRUE,type){
+
     . <- NULL
-    j <- NULL
+    blocksize <- NULL
+    FIX <- NULL
     i <- NULL
-    value <- NULL
+    iblock <- NULL
+    j <- NULL
+    hasOff <- NULL    
     maxOff <- NULL
-    hasOff <- NULL
     offNonZero <- NULL
+    text <- NULL
+    value <- NULL
     
-    ## the code was written in the oppositie direction, so switching i
-    ## and j.
-    omegas.long <- omegas[,.(i=j,j=i,value)]
-    omegas.long[,maxOff:=0]
-    omegas.long[,hasOff:=FALSE]
-    omegas.long[,offNonZero:=abs(value)>1e-9&i!=j]
-
-    
-    if(any(omegas.long$offNonZero)){
-        omegas.long[,hasOff:=any(offNonZero==TRUE),by=.(i)]
+    fun.string.fix <- function(FIX) ifelse(FIX,"FIX","")
+    if(!missing(type)){
+        string.type <- paste0("$",toupper(type))
+    } else {
+        string.type <- ""
     }
-    omegas.long[hasOff==TRUE,maxOff:=max(j[abs(value)>1e-9]-i),by=.(i)]
 
     
+    if(as.one.block){
+        omegas[,blocksize:=max(i)-min(i)+1]
+        omegas[,iblock:=1]
+        omegas[,FIX:=as.integer(fix)]
+    }
 
-    is <- unique(omegas.long$i)
-
-    i.idx <- 1
+    setorder(omegas,i,j)
+    
+    
+    ## is <- unique(omegas$i)
     loopres <- c()
-    Netas <- omegas[,max(i)]
-
+    iblocks <- unique(omegas$iblock)
+    iblocks <- iblocks[!is.na(iblocks)]
 
     
-    while(i.idx <= length(is)){
-        i.this <- is[i.idx]
-        nis.block <- omegas.long[i==i.this,unique(maxOff)]
-        if(nis.block>0){
-            ## omegas.this <- omegas.long[i>=i.this&i<=(i.this+nis.block)&j<=(i.this+nis.block)]
-            ## omegas.this[,value.use:=value]
-            ## values.this[values.this==0] <- 1e-30
 
-            values.this <- omegas.long[i>=i.this&i<=(i.this+nis.block)&j<=(i.this+nis.block),value]
-            values.this[values.this==0] <- 1e-30
-            res <- paste0("BLOCK(",nis.block+1,") FIX ",paste(values.this,collapse=" "))
-            loopres <- c(loopres,res)
-            i.idx <- i.idx+nis.block+1
+    for(i.this in iblocks){
+        
+        values.this <- omegas[iblock==i.this]
+        this.blocksize <- values.this[,unique(blocksize)]
+        
+        if(this.blocksize>1){
+            ## derive fix
+            values.this[value==0,value:=1e-30]
+            res <- pasteBegin(
+                add=paste0("BLOCK(",this.blocksize,") ",fun.string.fix(values.this[i==i.this&j==i.this,FIX]))
+               ,
+                x=values.this[,.(text=paste(value,collapse=" ")),keyby=.(i)]$text
+            )
+            
         } else {
-            value.this <- omegas.long[i==i.this&j==i.this,value]
-            res <- paste(value.this, "FIX")
-            ## if(value.this==0){
-            ##     res <- paste(res,"FIX")
-            ## } 
-            loopres <- c(loopres,res)
-            i.idx <- i.idx+1
+            res <- values.this[,value]
+            if(values.this[,FIX])  res <- paste(res, fun.string.fix(1))
         }
+        res <- pasteBegin(add=string.type,x=res)
+        loopres <- c(loopres,res)
     }
-    lines.mat <- paste(paste0("$",toupper(type)),loopres)
     
+    lines.mat <- loopres
+
     return(lines.mat)
 }
 

@@ -118,7 +118,7 @@ NMexecDirectory <- function(file.mod,path.nonmem,files.needed,dir.data="..",syst
     meta.tables <- NMscanTables(file.mod.tmp,meta.only=TRUE,as.fun="data.table")
 
 ### execute nonmem
-    exts.cp <- c("lst","xml","ext","cov","cor","coi","phi","msf","msfi","msfo","shk" )
+    exts.cp <- c("coi","cor","cov","ext","lst","msf","msfi","msfo","phi","res","shk","xml")
 
     dir.mod.abs <- getAbsolutePath(dir.mod)
     if(system.type=="linux"){

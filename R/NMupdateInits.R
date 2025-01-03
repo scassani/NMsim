@@ -2,13 +2,11 @@
 ##' @param file.mod The control stream to update. Will not be edited.
 ##' @param file.ext 
 ##' @param newfile New file to generate
-##' @param fix Fix the values? Probably only TRUE is supported. Passed to \code{NMreplaceInits()}.
 ##' @return The resulting control stream path(s)
 ##' @import NMdata
 ##' @keywords internal
 
-NMupdateInits <- function(file.mod,file.ext,newfile,fix){
-    
+NMupdateInits <- function(file.mod,file.ext,newfile){
 
     i <- NULL
     est <- NULL
@@ -75,7 +73,7 @@ NMupdateInits <- function(file.mod,file.ext,newfile,fix){
     silent <- lapply(1:length(dt.pars.split),function(ndat){
         xdat <- dt.pars.split[[ndat]]
         ### because we use newfile, this will be printed to newfile. If not, it would just return a list of control stream lines.
-        res <- NMreplaceInits(files=file.mod,newfile=newfiles[[ndat]],inits=xdat,fix=fix,quiet=TRUE)
+        res <- NMreplaceInits(files=file.mod,newfile=newfiles[[ndat]],inits=xdat)
     })
 
     silent

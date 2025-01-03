@@ -1,0 +1,19 @@
+*** model
+to only contain "xgxr021", like the "model" column from NMscanData().
+
+model must be unique. if file.mod contains multiple models with same name, they must be numbered.
+
+file.mod=c(mod1="path1/q.mod",mod2="path2/q.mod")
+*** name.sim
+The value provided in the "name.sim" argument, defaulting to
+'default', as in the example above. This is the old "sim" column.
+
+This is useful if one model is
+simulated in two NMsim() calls and results are stacked (like
+?bootstrap? and ?NWPRI?).
+
+*** model.sim 
+to contain the contents of the old `model` column. So
+model+name.sim+numbering
+
+

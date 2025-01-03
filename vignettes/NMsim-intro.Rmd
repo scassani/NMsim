@@ -152,7 +152,7 @@ reuse.results <- TRUE
 knitr::write_bib(c('rmarkdown','data.table','NMdata','NMsim','xgxr'), 'intro-packages.bib')
 ```
 
-<img src="../reference/figures/NMsimlogo.png" alt="Logo" style="width:200px; float:right;">
+<img src="../reference/figures/NMsimlogo.png" alt="NMsim" style="width:200px; float:right;">
 
 # Objectives
 This introduction to NMsim aims at enabling NONMEM users to 
@@ -257,11 +257,11 @@ Notice, `NMcreateDoses()` has convenient behaviours. See `?NMcreateDoses` and th
 
 <details>
 <summary>Additional `NMcreateDoses()` examples</summary>
-```{r,gen-data-extra,echo=TRUE}
+```{r,gen-data-extra,echo=TRUE,eval=TRUE}
 ## arguments are expanded - makes loading easy
-NMcreateDoses(TIME=c(0,12,24,36),AMT=c(2,1)) |> head()
+NMcreateDoses(TIME=c(0,12,24,36),AMT=c(2,1))
 ```
-```{r,gen-data-extra2}
+```{r,gen-data-extra2,eval=TRUE}
 ## Different doses by covariate
 NMcreateDoses(TIME=c(0,12,24),AMT=data.table(AMT=c(2,1,4,2),DOSE=c(1,1,2,2))) 
 ```
@@ -273,7 +273,7 @@ For adding sampling times to a set of doses and/or samples, `addEVID2()` provide
 
 <details>
 <summary>Additional `addEVID2()` examples</summary>
-```{r,addEVID2-extra1}
+```{r,addEVID2-extra1,eval=TRUE}
 ## a dosing data set with two doses
 dt.dos <- NMcreateDoses(TIME=c(0,12),AMT=c(1))
 ```
@@ -289,7 +289,6 @@ addEVID2(dt.dos,TAPD=1:2,TIME=96,CMT=2)
 ## sampling two compartments - naming them
 addEVID2(dt.dos,TAPD=1:2,CMT=data.frame(CMT=2:3,DVID=c("Parent","Metabolite")))
 ```
-
 </details>
 
 ### Time since previous dose
@@ -299,6 +298,15 @@ While not used in these examples, it's worth mentioning `NMdata::addTAPD()` for 
 ```{r}
 dat.sim <- addTAPD(dat.sim)
 ```
+
+### Check the simulation dataset
+A quick way to check for a lot of common issues in a NONMEM data set is running `NMcheckData()`:
+```{r,eval=TRUE}
+NMcheckData(dat.sim,type.data="sim")
+```
+
+It is also advised to plot the simulation data set. See [Creation of Simulation Data Sets](NMsim-DataCreate.html) for more details.
+
 
 
 # Typical subject simulation
@@ -342,8 +350,8 @@ lapply(fnExtension(file2.mod.source,cc(mod,ext,cov,lst,phi)),file.copy,to="model
 
 ```{r,two-models-show,echo=TRUE,eval=FALSE}
 file2.mod <- "models/xgxr114.mod"
-simres.typ2 <- NMsim(file.mod=c("2_compartments"=file.mod,
-                                "1_compartment"=file2.mod),
+simres.typ2 <- NMsim(file.mod=c("2 compartments"=file.mod,
+                                "1 compartment"=file2.mod),
                      data=data.sim,
                      typical=TRUE ## FIX all OMEGA's to zero
                      )
@@ -357,12 +365,12 @@ subset(simres.typ2,EVID==2) |>
 ```{r,two-models,echo=FALSE,fig.cap="Simulation of multiple models and even multiple data sets is handled within one `NMsim()` call."}
 file2.mod <- "models/xgxr114.mod"
 simres.typ2 <- NMsim(
-    file.mod=c("2_compartments"=file.mod,"1_compartment"=file2.mod),
+    file.mod=c("2 compartments"=file.mod,"1 compartment"=file2.mod),
     data=data.sim,
     typical=TRUE,
     name.sim="typsubj",
     nmquiet=TRUE, ## suppress terminal text from NONMEM
-    quiet=TRUE, ## Suppress messages from NMsim
+    ## quiet=TRUE, ## Suppress messages from NMsim
     reuse.results=reuse.results ## Reuse results if already on file
 )
 

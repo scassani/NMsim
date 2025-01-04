@@ -45,11 +45,17 @@ NMreplaceInits <- function(inits,...){
                          ,OMEGA=lines.omega
                          ,SIGMA=lines.sigma)
 
-    
-    res <- NMwriteSection(list.sections=list.sections
-                         ,quiet=TRUE
-                         ,...
-                          )
 
+    dots <- list(...)
+    if(!"quiet"%in%names(dots)) {
+        dots$quiet <- TRUE
+    }
+    dots$list.sections <- list.sections
+    ## res <- NMwriteSection(list.sections=list.sections
+    ##                      ,quiet=TRUE
+    ##                      ,...
+    ##                       )
+    res <- do.call(NMwriteSection,dots)
+    
     invisible(res)
 }

@@ -47,6 +47,8 @@ NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,w
     if(packageVersion("NMdata")<"0.1.8.905"){
         stop("NMupdateSizes requires NMdata 0.1.9 or later.")
     }
+
+    
     
     sizes.new <- list(...)
 ### check sizes.new

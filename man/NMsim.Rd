@@ -32,6 +32,7 @@ NMsim(
   create.dirs = TRUE,
   dir.psn,
   modify.model,
+  sizes,
   sim.dir.from.scratch = TRUE,
   col.row,
   args.NMscanData,
@@ -78,13 +79,13 @@ suffix. A short string describing the sim is recommended like
 \code{NMdata::NMorderColumns} before saving dataset and
 running simulations? Default is TRUE.}
 
-\item{file.ext}{Optionally provide a parameter estimate file from
-Nonmem. This is normally not needed since `NMsim` will by
-default use the ext file stored next to the input control
-stream (replacing the file name extension with `.ext`). If
-using method.update.inits="psn", this argument cannot be
-used. If you want provide parameters to be used for the
-simulation, look at the `ext` argument to `NMsim_VarCov`.}
+\item{file.ext}{Depecated. Use
+`inits=list(file.ext="path/to/file.ext") instead`. Optionally
+provide a parameter estimate file from Nonmem. This is
+normally not needed since `NMsim` will by default use the ext
+file stored next to the input control stream (replacing the
+file name extension with `.ext`). If using
+method.update.inits="psn", this argument cannot be used.}
 
 \item{script}{The path to the script where this is run. For
 stamping of dataset so results can be traced back to code.}
@@ -136,8 +137,8 @@ and replaced by a new one with just the provided variables. If
 many variables are exported, and much fewer are used, it can
 speed up NMsim significantly to only export what is needed
 (sometimes this is as little as "PRED IPRED"). Nonmem writes
-data slowly so reducing output data can make a big difference
-in execution time. See \code{table.options} too.}
+data slowly so reducing output data can make a very big
+difference in execution time. See \code{table.options} too.}
 
 \item{table.options}{A character vector or a string of
 space-separated options. Only used if \code{table.vars} is
@@ -161,8 +162,9 @@ step. See details section on oter methods, and see examples
 and especially vignettes on how to use the different provided
 methods.}
 
-\item{typical}{Run with all ETAs fixed to zero? Technically all ETAs=0 is obtained by replacing
-\code{$OMEGA} by a zero matrix. Default is FALSE.}
+\item{typical}{Run with all ETAs fixed to zero? Technically all
+ETAs=0 is obtained by replacing \code{$OMEGA} by a zero
+matrix. Default is FALSE.}
 
 \item{execute}{Execute the simulation or only prepare it?
 `execute=FALSE` can be useful if you want to do additional
@@ -173,8 +175,8 @@ useful if creating a large number of simulations,
 e.g. simulate with all parameter estimates from a bootstrap
 result.}
 
-\item{nc}{Number of cores used in parallelization. This is so far
-only supported with \code{method.execute="psn"}.}
+\item{nc}{Number of cores used in parallelization. Only used if
+`sge=TRUE`.}
 
 \item{transform}{A list defining transformations to be applied
 after the Nonmem simulations and before plotting. For each
@@ -186,13 +188,33 @@ transform, the contents must be the function to apply.}
 PSN's execute), and "direct" (just run Nonmem directly and
 dump all the temporary files). "nmsim" has advantages over
 "psn" that makes it the only supported method when
-type.sim="NMsim_EBE". "psn" has the simple advantage that
-the path to nonmem does not have to be specified if "execute"
-is in the system search path. So as long as you know where
-your Nonmem executable is, "nmsim" is recommended. The default
-is "nmsim" if path.nonmem is specified, and "psn" if not.}
+type.sim="NMsim_EBE". "psn" has the simple advantage that the
+path to nonmem does not have to be specified if "execute" is
+in the system search path. So as long as you know where your
+Nonmem executable is, "nmsim" is recommended. The default is
+"nmsim" if path.nonmem is specified, and "psn" if not.}
 
-\item{method.update.inits}{The initial values of all parameters
+\item{inits}{Control the parameter values. `inits` is a list. The
+    `method` element controls which method is used to do this, and
+    this corresponds to the old `method.update.inits` argument. If
+    using the new `method=nmsim2` you can specify parameter
+    values, fix/unfix them, and edit lower and upper limits for
+    estimation. If inits contains `method=nmsim2`, all other
+    arguments are passed to `NMwriteInits`. This is a flexible
+    method that allows for modification of the parameter values
+    and is expected to be the default method in the
+    future. Example which will update the parameter values based
+    on the available estimate, but with `THETA(2)=1.3`:
+    `inits=list(method="nmsim2","THETA(2)"=list(init=1.3))`. See
+    `?NMwriteInits` too.
+
+See `method.update.inits` methods for other methods available. See
+also `file.ext` which can now be handled by `inits` too. This
+change is done because it collects the update of the "initial"
+parameter values into one interface rather than multiple
+arguments.}
+
+\item{method.update.inits}{This argument is being deprecated, please migrate to `inits` instead. The initial values of all parameters
     are by updated from the estimated model before running the
     simulation. NMsim can do this with a native function or use
     PSN to do it - or the step can be skipped to not update the
@@ -241,6 +263,12 @@ edit sections. This is an advanced feature which is not needed
 to run most simulations. It is however powerful for some types
 of analyses, like modifying parameter values. See vignettes
 for further information.}
+
+\item{sizes}{If needed, adjust the `$SIZES` section by providing a
+list of arguments to `NMupdateSizes()`. Example:
+`sizes=list(PD=80)`. See `?NMupdateSizes` for details. Don't
+use arguments like `file.mod` and `newfile` which are handled
+internally.}
 
 \item{sim.dir.from.scratch}{If TRUE (default) this will wipe the
 simulation directory before running new simulations. The
@@ -297,7 +325,8 @@ NMdataConf.}
 \item{suffix.sim}{Deprecated. Use name.sim instead.}
 
 \item{text.table}{A character string including the variables to
-export from Nonmem.}
+export from Nonmem. Deprecated. Use `table.vars` and
+`table.options` instead.}
 
 \item{system.type}{A charachter string, either \"windows\" or
 \"linux\" - case insensitive. Windows is only experimentally

@@ -24,6 +24,21 @@ test_that("Basic",{
         res <- NMupdateSizes(file.mod,LTV=50,write=FALSE)
 
         expect_equal_to_reference(res,fileRef)
+
+        if(F){
+            ref <- readRDS(fileRef)
+            dt.res <- data.table(text=res)[,line:=.I]
+            dt.ref <- data.table(text=ref)[,line:=.I]
+
+            dt.all <- merge(dt.res,dt.ref,by="line")
+            names(dt.all)
+            dt.all[,text.x==text.y]
+
+            opts <- options(widt=200)
+            print(dt.all)
+            options(opts)
+        }
+        
     }
     
 })

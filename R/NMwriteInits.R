@@ -1,20 +1,72 @@
-##' Writes a parameter table to a control stream
+##' Writes a parameter values to a control stream
 ##'
+##' Edit parameter values, fix/unfix them, or edit lower/upper bounds.
+##' 
+##' @param file.mod Path to control stream.
+##' @param update If `TRUE` (default), the parameter values are
+##'     updated based on the `.ext` file.
+##' @param file.ext Optionally provide the path to an `.ext` file. If
+##'     not provided, the default is to replace the file name
+##'     extention on `file.mod` with `.ext`. This is only used if
+##'     `update=TRUE`.
 ##' @param values A list of lists. Each list specifies a parameter
-##'     with named elements. par.type and i are required. j is
-##'     required for OMEGA and SIGMA. value, ll, ul and fix can be
-##'     supplied to modify the parameter. See examples.
-##'
+##'     with named elements. Must be named by the parameter name. ll,
+##'     ul and fix can be supplied to modify the parameter. See
+##'     examples. Notice, you can use `...` instead. `values` may be easier for programming but other than that, most users will find `...` more intuitive.
+##' @param newfile If provided, the results are written to this file
+##'     as a new input control stream.
+##' @param ... Parameter specifications. See examples,
+##' @return a control stream as lines in a character vector.
 ##' @examples
-##' values=list( list(par.type="THETA",i=2,value=1.4),
-##'              list(par.type="THETA",i=3,FIX=1),
-##'              list(par.type="OMEGA",i=2,j=2,value=0.1))
+##' ## Requires NMdata 0.1.9
+##' \dontrun{
+##' file.mod <- system.file("examples/nonmem/xgxr021.mod",package="NMsim") 
+##' NMwriteInits(file.mod,
+##' values=list( "theta(2)"=list(value=1.4),
+##'              "THETA(3)"=list(FIX=1),
+##'              "omega(2,2)"=list(value=0.1))
+##' )
+##' NMwriteInits(file.mod,
+##'   "theta(2)"=list(value=1.4),
+##'   "THETA(3)"=list(FIX=1),
+##'   "omega(2,2)"=list(value=0.1)
+##' )
+##' }
+##' @import NMdata
+##' @import data.table
+##' @export 
 
 #### ext should not be mandatory. If not supplied, just make changes based on control stream.
 
 ## list(type="omega",i=3,j=3,init=4)
 NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
-    
+
+    . <- NULL
+    modified <- NULL
+    par.type <- NULL
+    i <- NULL
+    j <- NULL
+    value <- NULL
+    string.elem <- NULL
+    elemnum <- NULL
+    elemnum_ll <- NULL
+    elemnum_init <- NULL
+    elemnum_ul <- NULL
+    linenum <- NULL
+    iblock <- NULL
+    V1 <- NULL
+    text <- NULL
+    type.elem <- NULL
+    value.elem_ll <- NULL
+    value.elem_init <- NULL
+    value.elem_ul <- NULL
+    value.elem <- NULL
+    value.elem_FIX <- NULL
+
+    if(packageVersion("NMdata")<"0.1.8.921"){
+        stop("NMwriteInits requires NMdata 0.1.9 or later.")
+    }
+
     
     if(missing(values)) values <- NULL
     dots <- list(...)
@@ -38,6 +90,8 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     ## dont dcast. Stickto one elem per row. But I think we must create a new element typu ll,init,ul. Because the current string.elem has all three elements written. 
 
     paste.ll.init.ul <- function(ll,init,ul,FIX){
+        res <- NULL
+        
         if(any(is.na(init))) stop("An initial value must be provided")
         if(any(!is.na(ul)&is.na(ll))) stop("if upper limit is provided, lower limit must also be provided.")
         dt <- data.table(ll=ll,init=init,ul=ul)[,row:=.I]
@@ -75,6 +129,8 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     
 ### Implement changes as requested in values
     fun.update.vals <- function(dt,value,name){
+        par.type <- NULL
+        text <- NULL
         
         names(value) <- tolower(names(value))
 
@@ -172,23 +228,24 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     lines.new <- readLines(file.mod)
 
     fun.update.ctl <- function(lines.old,section,dt.lines){
+        text <- NULL
         newsection <- dt.lines[par.type==section,text]
         if(length(newsection)==0) return(lines.old)
         
-        NMwriteSectionOne(lines=lines.old,
-                          section=section,
-                          newlines=newsection,
-                          location="replace")
+        NMdata:::NMwriteSectionOne(lines=lines.old,
+                                   section=section,
+                                   newlines=newsection,
+                                   location="replace")
     }
 
     lines.new <- fun.update.ctl(lines.new,section="THETA",dt.lines=lines.all)
     lines.new <- fun.update.ctl(lines.new,section="OMEGA",dt.lines=lines.all)
     lines.new <- fun.update.ctl(lines.new,section="SIGMA",dt.lines=lines.all)
     
-    lines.new <- NMwriteSectionOne(lines=lines.new,
-                                   section="THETA",
-                                   newlines=lines.all[par.type=="THETA",text],
-                                   location="replace")
+    lines.new <- NMdata:::NMwriteSectionOne(lines=lines.new,
+                                            section="THETA",
+                                            newlines=lines.all[par.type=="THETA",text],
+                                            location="replace")
 
 
     if(!is.null(newfile)){

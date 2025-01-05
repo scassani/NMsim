@@ -175,9 +175,9 @@ simres.forest <- NMsim(file.mod # path to NONMEM model
 If you encounter issues with samples that do not run, consider whether any of your uncertainty estimates on `THETA`'s could lead to sampled `THETA`'s that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that THETA on the log scale to make sure all sampled values will be positive. A quick way to look for this is by combining parameter estimates (from the `.ext` file) and the automatic labeling of the parameters using `NMdata::NMrelate()`:
 
 
-```{r}
+```{r,echo=TRUE}
 NMdata::NMreadExt(file.mod,as.fun="data.table")[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
-    NMdata::mergeCheck(NMrelate(file.mod,par.type="THETA")[,.(par.name,code)],by="par.name",quiet=TRUE)
+    NMdata::mergeCheck(NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],by="par.name",quiet=TRUE)
 ```
 
 

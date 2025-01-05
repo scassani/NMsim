@@ -71,11 +71,13 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     if(missing(values)) values <- NULL
     dots <- list(...)
     values <- append(values,dots)
+
+    if(missing(newfile)) newfile <- NULL
     
     mod <- NMreadSection(file.mod)
-    thetas.mod <- NMreadCtlPars(mod$THETA,section="THETA")
-    omegas.mod <- NMreadCtlPars(mod$OMEGA,section="OMEGA")
-    sigmas.mod <- NMreadCtlPars(mod$SIGMA,section="SIGMA")
+    thetas.mod <- NMreadCtlPars(mod$THETA,section="THETA",as.fun="data.table")
+    omegas.mod <- NMreadCtlPars(mod$OMEGA,section="OMEGA",as.fun="data.table")
+    sigmas.mod <- NMreadCtlPars(mod$SIGMA,section="SIGMA",as.fun="data.table")
 
 ### not sure if the dcasting should be before or after updating
     pars.l <- rbind(thetas.mod,omegas.mod,sigmas.mod)
@@ -90,6 +92,7 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     ## dont dcast. Stickto one elem per row. But I think we must create a new element typu ll,init,ul. Because the current string.elem has all three elements written. 
 
     paste.ll.init.ul <- function(ll,init,ul,FIX){
+        
         res <- NULL
         
         if(any(is.na(init))) stop("An initial value must be provided")
@@ -134,16 +137,16 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
         
         names(value) <- tolower(names(value))
 
+        name <- toupper(name)
         name <- gsub(" +","",name)
-        name <- tolower(name)
-        par.type <- sub("^([a-z]+)\\(.*","\\1",name)
+        par.type <- sub("^([A-Z]+)\\(.*","\\1",name)
 
-        if(par.type=="theta"){
+        if(par.type=="THETA"){
             i <- as.integer(sub(paste0(par.type,"\\(([0-9]+)\\)"),"\\1",name))
             j <- NA
         }
 
-        if(par.type%in%c("omega","sigma")){
+        if(par.type%in%c("OMEGA","SIGMA")){
             i <- as.integer(sub(paste0(par.type,"\\(([0-9]+),([0-9]+)\\)"),"\\1",name))
             j <- as.integer(sub(paste0(par.type,"\\(([0-9]+),([0-9]+)\\)"),"\\2",name))
         }
@@ -171,6 +174,9 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
                 value$fix <- ""
             }
         }
+
+
+        
         
         ## value.values <- value[setdiff(names(value),c("par.type","i","j"))]
         value.values <- value
@@ -205,6 +211,8 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 ######### format paramters for ctl
     inits.w[,type.elem:="ll.init.ul"]
     inits.w[,row:=1:.N]
+
+    
     
     inits.w[,string.elem:=paste.ll.init.ul(value.elem_ll,value.elem_init,value.elem_ul,value.elem_FIX),by=row]
     inits.w[,elemnum:=min(elemnum_ll,elemnum_init,elemnum_ul,na.rm=TRUE),by=row]

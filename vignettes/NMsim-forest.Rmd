@@ -1,5 +1,5 @@
 ---
-title: "Simulation-based forest plots with NMsim"
+title: "Simulation-Based Forest Plots with NMsim"
 author: 
   - name: "Philip Delff"
   - name: "Boris Grinshpun"
@@ -49,12 +49,12 @@ their questions most effectively.
 
 # Initialization
 
-```{r,setup,echo=TRUE}
+```{r,setup,echo=TRUE,message=FALSE}
 library(data.table)
-library(NMsim,quietly=TRUE)
-library(NMdata,quietly=TRUE)  
+library(NMsim)
+library(NMdata)  
 library(NMcalc)  ## Optional. Used to calculate AUC.
-library(coveffectsplot,quietly=TRUE)
+library(coveffectsplot)
 library(knitr) ## for printing tables with knitr::kable
 
 NMdataConf(
@@ -177,7 +177,8 @@ If you encounter issues with samples that do not run, consider whether any of yo
 
 ```{r,echo=TRUE}
 NMdata::NMreadExt(file.mod,as.fun="data.table")[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
-    NMdata::mergeCheck(NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],by="par.name",quiet=TRUE)
+    NMdata::mergeCheck(NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],by="par.name",quiet=TRUE) |>
+    kable()
 ```
 
 

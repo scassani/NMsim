@@ -1,0 +1,52 @@
+NMsim provides an interface to running modified Nonmem models. With Nonmem's `$DESIGN` features, simple NMsim calls can solve tasks such as 
+
+- ...
+- ...
+
+
+`NMsim` can be used for other types of model executions than simulations. To run an estimation model on a provided data set, use `method.sim=NMsim_asis`:
+
+```{r,eval=FALSE}
+NMsim(file.mod,
+      data,
+      method.sim=NMsim_asis)
+```
+
+If you are on linux/unix and have access to a sge-type cluster, you
+can add `sge=TRUE` to submit to the cluster using `qsub`. 
+
+### Generate data set
+
+### Modify sections
+The `modify.model` 
+To rewrite the `$ESTIMATION` section to use FOCEI, you can simply overwrite the `$ESTIMATION` section:
+
+
+```{r,eval=FALSE}
+NMsim(file.mod,
+      data,
+      method.sim=NMsim_asis,
+      sge=TRUE,
+      modify.model=list(ESTIMATION="$ESTIMATION METHOD=COND INTER MAXEVAL=9999 NOABORT NSIG=2 SIGL=6 PRINT=5 POSTHOC")
+      )
+```
+
+The `$DESIGN` section can similarly be inserted.
+
+### Modify and fix parameter values
+The coming NMsim 0.1.6 and accompanying NMdata 0.1.9 provide a simple
+interface to controlling the parameter sections `$THETA`, `$OMEGA` and
+`$SIGMA`. The default is to update these sections with the estimated
+values in a `.ext` file which NMsim will look for next to the
+simulated control stream, if not instructed otherwise. To fix
+`THETA(1)` to the estimated value, you can do:
+
+
+```{r,eval=FALSE}
+NMsim(file.mod,
+      data,
+      method.sim=NMsim_asis,
+      sge=TRUE,
+      inits=list(method="nmsim2","theta(2)=list(fix=1)")
+      )
+```

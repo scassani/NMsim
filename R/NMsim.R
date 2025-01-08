@@ -542,15 +542,8 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
     ## args.psn.execute
     if(missing(args.psn.execute)) args.psn.execute <- NULL
-    ## args.psn.execute <- simpleCharArg("args.psn.execute"
-    ##                                  ,args.psn.execute
-    ##                                  ,default="-clean=5 -model_dir_name -nm_output=xml,ext,cov,cor,coi,phi"
-    ##                                  ,accepted=NULL
-    ##                                  ,clean=FALSE
-    ##                                  ,lower=FALSE)
     if(missing(clean)) clean <- 1
     
-
     if(missing(file.ext)) file.ext <- NULL
 
     if(missing(inits)) inits <- NULL
@@ -926,11 +919,11 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     }
     
 ### Generate the first version of file.sim.
-    if(missing(inits)){
-        inits <- NULL
-    }
+    ## if(missing(inits)){
+    ##     inits <- NULL
+    ## }
 
-    if(is.null(inits)) inits <- list(method="none")
+    ##if(is.null(inits)) inits <- list(method="nmsim",update=TRUE)
 
     
     
@@ -943,11 +936,11 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
 ##### todo all file.xyz arguments must be NULL or of equal length. And this should be done per model
     
-    if(method.update.inits=="nmsim" && any(dt.models[,!file.exists(file.ext)])){
+    if(method.update.inits=="nmsim.deprec" && any(dt.models[,!file.exists(file.ext)])){
         stop(paste("ext file(s) not found. Did you forget to copy it? Normally, NMsim needs that file to find estimated parameter values. If you do not have an ext file and you are running a simulation that does not need it, please use `method.update.inits=\"none\"`. Was expecting to find ",paste(dt.models[!file.exists(file.ext),file.ext],collapse="\n"),sep=""))
     }
 
-    if(method.update.inits=="nmsim2" && inits$update && any(dt.models[,!file.exists(file.ext)])){
+    if(method.update.inits=="nmsim" && inits$update && any(dt.models[,!file.exists(file.ext)])){
         stop(paste("ext file(s) not found. Did you forget to copy it? Normally, NMsim needs that file to find estimated parameter values. If you do not have an ext file and you are running a simulation that does not need it, please use `method.update.inits=\"none\"`. Was expecting to find ",paste(dt.models[!file.exists(file.ext),file.ext],collapse="\n"),sep=""))
     }
     
@@ -984,14 +977,14 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         },by=ROWMODEL]
     }
     
-    if(method.update.inits=="nmsim"){
+    if(method.update.inits=="nmsim.deprec"){
         ## edits the simulation control stream in the
         ## background. dt.models not affected.
 ### because we use newfile, this will be printed to newfile. If not, it would just return a list of control stream lines.
         dt.models[,NMupdateInits(file.mod=file.mod,newfile=path.sim,file.ext=file.ext),by=.(ROWMODEL)]
     }
 
-    if(method.update.inits=="nmsim2"){
+    if(method.update.inits=="nmsim"){
         ## edits the simulation control stream in the
         ## background. dt.models not affected.
 ### because we use newfile, this will be printed to newfile. If not, it would just return a list of control stream lines.

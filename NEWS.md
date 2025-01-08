@@ -1,5 +1,13 @@
 # NMsim 0.1.6
 
+* NMSim_NWPRI()
+
+* sizes
+
+* inits
+
+* improved monitoring of Nonmem jobs
+
 ## Bugfixes
 
 * `overwrite()` is a helper function intended to use in `NMsim()`'s

@@ -9,19 +9,21 @@ adjust.method.update.inits <- function(method.update.inits,system.type,dir.psn,c
     if(missing(inits)) inits <- NULL
     if(missing(method.update.inits)) method.update.inits <- NULL
 
-    if(!is.null(method.update.inits)){
+    if(is.null(method.update.inits)){
+        ### if nothing is provided, we use nmsim.deprec in order to support NMdata<0.1.9
+        if(length(inits)==0) {
+            inits$method <- "nmsim.deprec"
+        } else {
+            ## inits is provided, but no method included.
+            if(!"method" %in% names(inits)) inits$method <- "nmsim"
+        }
+    } else {
         if(tolower(method.update.inits)=="nmsim") {
             method.update.inits <- "nmsim.deprec"
         }
         inits$method <- method.update.inits
-    } else {
-        if(is.null(inits$method)) inits$method <- "nmsim"
     }
-    ## method.update.inits <- inits$method
 
-    ## if(is.null(inits$update) && !is.null(method.update.inits) && method.update.inits=="none"){
-    ##     inits$update <- FALSE
-    ## }
     if(inits$method!="none" && is.null(inits$update)) inits$update <- TRUE
         
     

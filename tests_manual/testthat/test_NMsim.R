@@ -1056,11 +1056,20 @@ test_that("basic - nmsim2 update inits",{
                     table.var="PRED IPRED",
                     dir.sims="testOutput",
                     name.sim="default_14",
-                    ## inits=list(method="nmsim2",update=TRUE,values=list(list(par.type="THETA",i=2,init=4))),
-                    inits=list(method="nmsim2",update=TRUE,"THETA(2)"=list(init=4)),
+                    inits=list("THETA(2)"=list(init=4)),
                     path.nonmem=path.nonmem
                     )
-    
+
+
+        simres4 <- NMsim(file.mod,
+                    data=dt.sim,
+                    table.var="PRED IPRED",
+                    dir.sims="testOutput",
+                    name.sim="default_14",
+                    inits=list("THETA(2)"=list(init=4,fix=1,ul=34)),
+                    path.nonmem=path.nonmem
+                    )
+
    
 
 })

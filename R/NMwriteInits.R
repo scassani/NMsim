@@ -73,14 +73,16 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     values <- append(values,dots)
 
     if(missing(newfile)) newfile <- NULL
+
     
-    mod <- NMreadSection(file.mod)
+####     
+    mod <- NMreadSection(file.mod,keep.name=TRUE)
     thetas.mod <- NMreadCtlPars(mod$THETA,section="THETA",as.fun="data.table")
     omegas.mod <- NMreadCtlPars(mod$OMEGA,section="OMEGA",as.fun="data.table")
     sigmas.mod <- NMreadCtlPars(mod$SIGMA,section="SIGMA",as.fun="data.table")
 
 ### not sure if the dcasting should be before or after updating
-    pars.l <- rbind(thetas.mod,omegas.mod,sigmas.mod)
+    pars.l <- rbind(thetas.mod$elements,omegas.mod$elements,sigmas.mod$elements)
     
     if(is.null(file.ext)) file.ext <- file.mod
 
@@ -229,8 +231,45 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     ## idx.update <- elems.all[par.type%in%c("OMEGA","SIGMA"), row[1], by = .(par.type,iblock)][,V1]
     idx.update <- elems.all[, row[1], by = .(par.type,iblock)][,V1]
     elems.all[idx.update, string.elem := paste(paste0("$",par.type),string.elem)]
-    lines.all <- elems.all[,.(text=paste(string.elem,collapse=" ")),keyby=.(par.type,linenum)]
 
+    ## lines.all should also include empty lines and before and after text
+
+    lines.all <- elems.all[,.(text=paste(string.elem,collapse=" ")),keyby=.(par.type,linenum)]
+    mod.lines <- rbind(
+        thetas.mod$lines[,par.type:="THETA"]
+       ,
+        omegas.mod$lines[,par.type:="OMEGA"],
+        sigmas.mod$lines[,par.type:="SIGMA"])
+
+    
+    
+    lines.all.2 <- elems.all[,.(newtext=paste(string.elem,collapse=" ")),keyby=.(par.type,linenum)]
+    lines.all.2[,elems.found:=TRUE]
+##### this is the new total lines obj
+    lines.all.3 <- mergeCheck(mod.lines,lines.all.2,by=c("par.type","linenum"),all.x=TRUE,quiet=TRUE)
+##### correct elems.found=NA to FALSE
+    lines.all.3[is.na(elems.found),elems.found:=FALSE]
+#### update newtext for lines without elements. This will only work if text was read with keep.name=FALSE
+    lines.all.3[elems.found==FALSE,newtext:=text]
+
+    
+    lines.all.3
+    ## lines.all.3[elems.found==TRUE,newtext:=paste(
+    ##                                   sub(pattern=paste0("\\$ *",par.type),"",text.before,ignore.case=TRUE)
+    ##                                  ,newtext,
+    ##                                   paste0(";",text.after)
+    ##                               ),by=.(par.type,linenum)]
+
+    lines.all.3[elems.found==TRUE&!is.na(text.before),newtext:=paste(
+                                                          sub(pattern=paste0("\\$ *",par.type),"",text.before,ignore.case=TRUE)
+                                                         ,newtext
+                                                      ),by=.(par.type,linenum)]
+
+    lines.all.3[elems.found==TRUE&!is.na(text.after),newtext:=paste(
+                                                         newtext,
+                                                         paste0(";",text.after)
+                                                     ),by=.(par.type,linenum)]
+    lines.all.3[,text:=newtext]
     
 
     lines.new <- readLines(file.mod)
@@ -246,15 +285,10 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
                                    location="replace")
     }
 
-    lines.new <- fun.update.ctl(lines.new,section="THETA",dt.lines=lines.all)
-    lines.new <- fun.update.ctl(lines.new,section="OMEGA",dt.lines=lines.all)
-    lines.new <- fun.update.ctl(lines.new,section="SIGMA",dt.lines=lines.all)
+    lines.new <- fun.update.ctl(lines.new,section="THETA",dt.lines=lines.all.3)
+    lines.new <- fun.update.ctl(lines.new,section="OMEGA",dt.lines=lines.all.3)
+    lines.new <- fun.update.ctl(lines.new,section="SIGMA",dt.lines=lines.all.3)
     
-    lines.new <- NMdata:::NMwriteSectionOne(lines=lines.new,
-                                            section="THETA",
-                                            newlines=lines.all[par.type=="THETA",text],
-                                            location="replace")
-
 
     if(!is.null(newfile)){
         writeTextFile(lines.new,newfile)

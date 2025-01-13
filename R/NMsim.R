@@ -1258,9 +1258,8 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
     if(missing(sizes)) sizes <- NULL
     if(!is.null(sizes)){
-        
         dt.models[,{
-            args.sizes <- append(list(file.mod=path.sim,newfile=file.mod),sizes)
+            args.sizes <- append(list(file.mod=path.sim,newfile=path.sim,write=TRUE),sizes)
             do.call(NMupdateSizes,args.sizes)
         },by=.(ROWMODEL2)]
     }

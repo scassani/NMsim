@@ -257,7 +257,6 @@ test_that("sizes",{
                       method.update.inits="nmsim")
 
         mod <- readLines("testOutput/xgxr032_sizes_1/xgxr032_sizes_1.mod")
-        mod    
 
         ## ref <- readRDS(fileRef)
         expect_equal_to_reference(mod,fileRef)
@@ -265,13 +264,16 @@ test_that("sizes",{
     
 })
 
+
+
+
 test_that("inits - modify parameter",{
 
     fileRef <- "testReference/NMsim_inits_06.rds"
     
     file.mod <- "testData/nonmem/xgxr032.mod"
 
-    if(packageVersion("NMdata")>"0.1.8.922"){
+    if(packageVersion("NMdata")>"0.1.8.923"){
         sim1 <- NMsim(file.mod=file.mod,
                       data=dat.sim,
                       dir.sim="testOutput",

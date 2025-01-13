@@ -63,7 +63,7 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     value.elem <- NULL
     value.elem_FIX <- NULL
 
-    if(packageVersion("NMdata")<"0.1.8.921"){
+    if(packageVersion("NMdata")<"0.1.8.924"){
         stop("NMwriteInits requires NMdata 0.1.9 or later.")
     }
 

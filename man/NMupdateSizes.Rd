@@ -6,7 +6,7 @@
 \usage{
 NMupdateSizes(
   file.mod = NULL,
-  newfile = file.mod,
+  newfile,
   lines = NULL,
   wipe = FALSE,
   write = !is.null(newfile),

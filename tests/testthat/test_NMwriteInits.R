@@ -30,9 +30,6 @@ if(packageVersion("NMdata")>"0.1.921"){
     expect_equal_to_reference(res1,fileRef)
 
 
-
-    
-       ,
     ## unfix
     fileRef <- "testReference/NMwriteInits_02.rds"
     res1 <- NMwriteInits(file.mod,"OMEGA(1,1)"=list(fix=0))
@@ -41,27 +38,36 @@ if(packageVersion("NMdata")>"0.1.921"){
     NMreadSection(file.mod,section="omega")
     expect_equal_to_reference(res1,fileRef)
 
-
-
        
 #### fix a block
-        NMwriteInits(file.mod,"OMEGA(2,2)"=list(fix=1))
+    fileRef <- "testReference/NMwriteInits_03.rds"
+    res1 <- NMwriteInits(file.mod,"OMEGA(2,2)"=list(fix=1))
+    res1 <- NMreadSection(lines=res1,section="omega")
+    
+    NMreadSection(file.mod,section="omega")
+    expect_equal_to_reference(res1,fileRef)
 
     
     ### modify omega in a block
-        NMwriteInits(file.mod,"OMEGA(2,2)"=list(init=1))
+    fileRef <- "testReference/NMwriteInits_04.rds"
+    res1 <- NMwriteInits(file.mod,"OMEGA(2,2)"=list(init=1))
+    res1 <- NMreadSection(lines=res1,section="omega")
+    
+    NMreadSection(file.mod,section="omega")
+    expect_equal_to_reference(res1,fileRef)
 
-    )
-
+}
 })
 
 
 test_that("comments on parameters",{
-    fileRef <- "testReference/NMwriteInits_02.rds"
+if(packageVersion("NMdata")>"0.1.921"){
+    fileRef <- "testReference/NMwriteInits_05.rds"
     file.mod <- "testData/nonmem/xgxr033com.mod"
     ## NMreadSection(file.mod,section="THETA")
     res <- NMwriteInits(file.mod,"THETA(1)"=list(init=3),"OMEGA(3,2)"=list(init=-4),"OMEGA(3,3)"=list(init=6),update=FALSE)
     ## NMreadCtlPars(readLines(file.mod),section="OMEGA")
     expect_equal_to_reference(res,fileRef)
+    }
 })
 

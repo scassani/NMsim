@@ -42,11 +42,12 @@
 ##' @importFrom utils modifyList
 ##' @export
 
-NMupdateSizes <- function(file.mod=NULL,newfile=file.mod,lines=NULL,wipe=FALSE,write=!is.null(newfile),...){
+NMupdateSizes <- function(file.mod=NULL,newfile,lines=NULL,wipe=FALSE,write=!is.null(newfile),...){
     
     if(packageVersion("NMdata")<"0.1.8.905"){
         stop("NMupdateSizes requires NMdata 0.1.9 or later.")
     }
+    
 
     
     

@@ -264,3 +264,32 @@ test_that("sizes",{
     }
     
 })
+
+test_that("inits - modify parameter",{
+
+    fileRef <- "testReference/NMsim_inits_06.rds"
+    
+    file.mod <- "testData/nonmem/xgxr032.mod"
+
+    if(packageVersion("NMdata")>"0.1.8.922"){
+        sim1 <- NMsim(file.mod=file.mod,
+                      data=dat.sim,
+                      dir.sim="testOutput",
+                      name.sim = "inits_1",
+                      ## method.sim=NMsim_VarCov,
+                      ## inits=list(method="nmsim","THETA(2)"=list(init=4,fix=1)),
+                      inits=list("THETA(2)"=list(init=4,fix=1)),
+                      seed.nm=2342,
+                      seed.R=2,
+                      execute=FALSE
+                      )
+
+        mod <- readLines("testOutput/xgxr032_inits_1/xgxr032_inits_1.mod")
+        mod    
+
+        ## ref <- readRDS(fileRef)
+        expect_equal_to_reference(mod,fileRef)
+    }
+    
+})
+

@@ -47,6 +47,6 @@ NMsim(file.mod,
       data,
       method.sim=NMsim_asis,
       sge=TRUE,
-      inits=list(method="nmsim2","theta(2)=list(fix=1)")
+      inits=list("theta(2)"=list(fix=1))
       )
 ```

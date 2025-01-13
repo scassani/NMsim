@@ -14,6 +14,8 @@ if(F){
 }
 
 test_that("Basic",{
+if(packageVersion("NMdata")>"0.1.921"){
+    
     fileRef <- "testReference/NMwriteInits_01.rds"
     
     file.mod <- "testData/nonmem/xgxr033.mod"
@@ -50,8 +52,6 @@ test_that("Basic",{
         NMwriteInits(file.mod,"OMEGA(2,2)"=list(init=1))
 
     )
-
-    
 
 })
 

@@ -287,6 +287,7 @@ Notice, `NMcreateDoses()` has convenient behaviours. See `?NMcreateDoses` and th
 
 <details>
 <summary>Additional `NMcreateDoses()` examples</summary>
+
 ```{r,gen-data-extra,echo=TRUE,eval=TRUE}
 ## arguments are expanded - makes loading easy
 NMcreateDoses(TIME=c(0,12,24,36),AMT=c(2,1))

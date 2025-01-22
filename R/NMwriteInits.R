@@ -36,32 +36,37 @@
 ##' @import data.table
 ##' @export 
 
-#### ext should not be mandatory. If not supplied, just make changes based on control stream.
+#### Limitation: ll, init, and ul must be on same line
 
-## list(type="omega",i=3,j=3,init=4)
+#### Limitation: If using something like CL=(.1,4,15), two of those cannot be on the same line
+
 NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 
     . <- NULL
-    modified <- NULL
-    par.type <- NULL
-    i <- NULL
-    j <- NULL
-    value <- NULL
-    string.elem <- NULL
     elemnum <- NULL
     elemnum_ll <- NULL
     elemnum_init <- NULL
     elemnum_ul <- NULL
-    linenum <- NULL
+    elems.found <- NULL
+    i <- NULL
     iblock <- NULL
-    V1 <- NULL
+    j <- NULL
+    linenum <- NULL
+    modified <- NULL
+    newtext <- NULL
+    par.type <- NULL
+    string.elem <- NULL
     text <- NULL
+    text.after <- NULL
+    text.before <- NULL
     type.elem <- NULL
     value.elem_ll <- NULL
     value.elem_init <- NULL
     value.elem_ul <- NULL
     value.elem <- NULL
     value.elem_FIX <- NULL
+    value <- NULL
+    V1 <- NULL
 
     if(packageVersion("NMdata")<"0.1.8.924"){
         stop("NMwriteInits requires NMdata 0.1.9 or later.")
@@ -75,14 +80,20 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     if(missing(newfile)) newfile <- NULL
 
     
-####     
+#### 
+
+    if(F){
     mod <- NMreadSection(file.mod,keep.name=TRUE)
-    thetas.mod <- NMreadCtlPars(mod$THETA,section="THETA",as.fun="data.table")
-    omegas.mod <- NMreadCtlPars(mod$OMEGA,section="OMEGA",as.fun="data.table")
-    sigmas.mod <- NMreadCtlPars(mod$SIGMA,section="SIGMA",as.fun="data.table")
+        thetas.mod <- NMreadCtlPars(mod$THETA,section="THETA",as.fun="data.table")
+        omegas.mod <- NMreadCtlPars(mod$OMEGA,section="OMEGA",as.fun="data.table")
+        sigmas.mod <- NMreadCtlPars(mod$SIGMA,section="SIGMA",as.fun="data.table")
 
 ### not sure if the dcasting should be before or after updating
-    pars.l <- rbind(thetas.mod$elements,omegas.mod$elements,sigmas.mod$elements)
+        pars.l <- rbind(thetas.mod$elements,omegas.mod$elements,sigmas.mod$elements)
+    }
+    
+    inits.orig <- NMreadInits(file=file.mod,return="all",as.fun="data.table")
+    pars.l <- inits.orig$elements
     
     if(is.null(file.ext)) file.ext <- file.mod
 
@@ -91,8 +102,6 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 ############## write  parameter sections
     ## need to write line by line. All elements in a line written one at a time
     
-    ## dont dcast. Stickto one elem per row. But I think we must create a new element typu ll,init,ul. Because the current string.elem has all three elements written. 
-
     paste.ll.init.ul <- function(ll,init,ul,FIX){
         
         res <- NULL
@@ -235,12 +244,15 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     ## lines.all should also include empty lines and before and after text
 
     lines.all <- elems.all[,.(text=paste(string.elem,collapse=" ")),keyby=.(par.type,linenum)]
-    mod.lines <- rbind(
-        thetas.mod$lines[,par.type:="THETA"]
-       ,
-        omegas.mod$lines[,par.type:="OMEGA"],
-        sigmas.mod$lines[,par.type:="SIGMA"])
 
+    if(F){
+        mod.lines <- rbind(
+            thetas.mod$lines[,par.type:="THETA"]
+           ,
+            omegas.mod$lines[,par.type:="OMEGA"],
+            sigmas.mod$lines[,par.type:="SIGMA"])
+    }
+    mod.lines <- inits.orig$lines
     
     
     lines.all.2 <- elems.all[,.(newtext=paste(string.elem,collapse=" ")),keyby=.(par.type,linenum)]
@@ -250,10 +262,9 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 ##### correct elems.found=NA to FALSE
     lines.all.3[is.na(elems.found),elems.found:=FALSE]
 #### update newtext for lines without elements. This will only work if text was read with keep.name=FALSE
-    lines.all.3[elems.found==FALSE,newtext:=text]
+    lines.all.3[elems.found==FALSE,newtext:=sub(pattern=paste0("^ *\\$ *",par.type),replacement="",x=text,ignore.case=TRUE),by=.(par.type,linenum)]
 
     
-    lines.all.3
     ## lines.all.3[elems.found==TRUE,newtext:=paste(
     ##                                   sub(pattern=paste0("\\$ *",par.type),"",text.before,ignore.case=TRUE)
     ##                                  ,newtext,

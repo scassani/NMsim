@@ -2,7 +2,8 @@
 ##'
 ##' @param omegas A data.table with at least `i`, `j` and `value`
 ##'     columns. See `NMdata::NMreadExt` and the pars element returned
-##'     by that function.
+##'     by that function. Must at least have columns `i`, `j`,
+##'     `value`, `iblock`, `blocksize`, `FIX`.
 ##' @param as.one.block If `TRUE`, all values are printed as one
 ##'     block. If `FALSE` (default), matrix will be separeted into
 ##'     blocks based on position non-zero off-diagonal

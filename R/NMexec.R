@@ -300,47 +300,12 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
             string.cmd <- NMexecDirectory(file.mod,NMsimConf$path.nonmem,files.needed=files.needed,system.type=NMsimConf$system.type,dir.data=dir.data,clean=clean,sge,nc,pnm=pnm)
             dir.tmp <- dirname(string.cmd)
 
-            if(F){
-                ##         if(sge) {
-
-                if(nc==1){
-                    ## string.cmd <- sprintf("cd %s; qsub -terse -wd \'%s\' %s",getwd(),dirname(string.cmd),string.cmd)
-                    ## I am not sure if absolute path is needed here.
-                    string.cmd <- sprintf('cd "%s"; qsub -terse -wd \'%s\' %s',
-                                          getwd(),getAbsolutePath(dirname(string.cmd)),string.cmd)
-                    ## string.cmd <- paste0("CURWD=",getwd()," ",string.cmd)
-
-##### for nc>1 this can be used <nc> is nc evaluated
-                    ## qsub -pe orte <nc> -V -N <name for qstat> -j y -cwd -b y /opt/NONMEM/nm75/run/nmfe75 psn.mod psn.lst -background -parafile=/path/to/pnm [nodes]=<nc>
-                } else {
-### executing from getwd()
-                    ## string.cmd <- sprintf('cd %s; qsub -pe orte %s -V -N NMsim -j y -cwd -b y %s %s %s -background -parafile=%s [nodes]=%s' ,getwd(),nc,path.nonmem,file.mod,fnExtension(file.mod,"lst"),pnm,nc)
-                    ## executing from model execution dir.
-                    jobname <- basename(file.mod)
-                    ## qsub does not allow a jobname to start in a numeric
-                    if(grepl("^ *[0-9]",jobname)) {
-                        jobname <- paste0("NMsim_",jobname)
-                    }
-                    string.cmd <- sprintf('cd \"%s\"; qsub -pe orte %s -V -N \"%s\" -j y -cwd -b y \"./%s\" -background -parafile=%s [nodes]=%s; cd \"%s\"'
-                                         ,dirname(string.cmd)
-                                         ,nc
-                                         ,jobname
-                                         ,basename(string.cmd)
-                                          ##,basename(pnm)
-                                         ,getAbsolutePath(pnm)
-                                         ,nc
-                                         ,getwd())
-                }
-                wait <- TRUE
-            }
-            ## } else { 
             if(NMsimConf$system.type=="linux"){
                 string.cmd <- sprintf("cd \"%s\"; \"./%s\"",dirname(string.cmd),basename(string.cmd))
             }
             if(NMsimConf$system.type=="windows"){
                 string.cmd <- sprintf("CD \"%s\";call \"%s\"",dirname(string.cmd),basename(string.cmd))
             }
-            ## }
         }
         
         if(NMsimConf$system.type=="windows"){

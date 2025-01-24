@@ -166,7 +166,7 @@ test_that("multiple $TABLE on sge",{
     
 })
 
-test_that("multiple $TABLE",{
+test_that("multiple $TABLE - clean=5",{
 
     fileRef <- "testReference/NMexec_05.rds"
 
@@ -180,6 +180,7 @@ test_that("multiple $TABLE",{
 
     if(F){
         ref <- readRDS(fileRef)
+        ref
     }
     
 })

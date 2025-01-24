@@ -21,22 +21,18 @@ NMrunLin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,sg
 
     if(sge){
         ## executing from model execution dir.
-        jobname <- ##paste0(
+        jobname <- 
             sub(pattern="^ *",replacement="", x=basename(fn.mod) )
-        ## ,"_",
-        ## paste(sample(c(letters,LETTERS,as.character(0:9)),size=12,replace=T),collapse="")
-        ## )
         ## qsub does not allow a jobname to start in a numeric
         if(grepl("^[0-9]",jobname)) {
             jobname <- paste0("NMsim_",jobname)
         }
-        line.run <- sprintf('qsub -terse -pe orte %s -V -N \"%s\" -j y -cwd -b y \"%s\" -background'
-                           ,
-                            nc
-                           ,
-                            jobname
-                           ,
-                            line.run
+        line.run <- sprintf('qsub -terse -pe orte %s -V  -e \"%s\" -o \"%s\" -N \"%s\" -j y -cwd -b y \"%s\" -background'
+                           ,nc
+                           ,"NMexec.err"
+                           ,"NMexec.out"
+                           ,jobname
+                           ,line.run
                             )
 
         if(nc>1){
@@ -86,8 +82,10 @@ file.path("FMSG"))
        ,line.run
        ,lines.wait
 ### copy output tables back
-        ## ,sprintf("cp \'%s\' \'%s\'",paste(meta.tables[,name],collapse="' '"),dir.mod.abs)
+### this would be simpler. Needs testing.
+        ## ,sprintf("find . -type f -name \'%s\' -exec cp {} \'%s\' \\;",meta.tables[,name],dir.mod.abs)
        ,paste0("find . -type f -name ",paste0("\'",meta.tables[,name],"\'")," -exec cp {} \'",dir.mod.abs,"\' \\;")
+
 ### copy wanted files back to orig location of fn.mod 
        ,paste0("find . -type f -name ",paste0("\'*.",exts.cp,"\'")," -exec cp {} \'",dir.mod.abs,"\' \\;")
        ,""
@@ -103,8 +101,11 @@ file.path("FMSG"))
         
     }
     if(clean==5){
-        lines.bash <- c(lines.bash,
-                        sprintf("cd ..; rm -r \"%s\"",dir.mod.abs)
+        lines.bash <- c(lines.bash
+                       ,"oldwd=$PWD"
+                       ,"cd .."
+                       ,"rm -r \"$oldwd\""
+                       ,""
                         )
     }
     lines.bash
@@ -145,8 +146,12 @@ NMrunWin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean){
     }
 
     if(clean==5){
-        lines.bat <- c(lines.bat,
-                       sprintf("CD .. & rd /s /q \"%s\"",dir.mod.abs)
+
+        lines.bat <- c(lines.bat
+                       ,"set \"oldwd=%cd%\""
+                       ,"CD .."
+                       ##sprintf("CD .. & rd /s /q \"%s\"",dir.tmp)
+                       ,"rd /s /q \"%oldwd%\""
                        )
     }
     

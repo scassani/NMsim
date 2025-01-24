@@ -1,4 +1,4 @@
-Sun Oct 27 16:58:28 EDT 2024
+Fri Jan 24 12:51:05 EST 2025
 $PROBLEM    031 SAEM
 
 $INPUT ROW ID NOMTIME TIME EVID CMT AMT DV FLAG STUDY
@@ -82,9 +82,9 @@ NM-TRAN MESSAGES
  IT IS POSSIBLE THAT SOME WARNING MESSAGES WERE SUPPRESSED.
 
 License Registered to: Vertex Pharmaceuticals Inc
-Expiration Date:    14 JAN 2025
-Current Date:       27 OCT 2024
-Days until program expires :  82
+Expiration Date:    14 JAN 2026
+Current Date:       24 JAN 2025
+Days until program expires : 355
 1NONLINEAR MIXED EFFECTS MODEL PROGRAM (NONMEM) VERSION 7.5.0
  ORIGINALLY DEVELOPED BY STUART BEAL, LEWIS SHEINER, AND ALISON BOECKMANN
  CURRENT DEVELOPERS ARE ROBERT BAUER, ICON DEVELOPMENT SOLUTIONS,
@@ -235,9 +235,6 @@ Days until program expires :  82
 0PK SUBROUTINE CALLED WITH EVERY EVENT RECORD.
  PK SUBROUTINE NOT CALLED AT NONEVENT (ADDITIONAL OR LAGGED) DOSE TIMES.
 0ERROR SUBROUTINE CALLED WITH EVERY EVENT RECORD.
-
- #PARA: PARAFILE=/data/home/philipde/wdirs/NMsim/tests_manual/testthat/testData/nonmem/xgxr032.pnm, PROTOCOL=MPI, NODES= 16
-
 1
 
 
@@ -329,120 +326,120 @@ Days until program expires :  82
 
  Stochastic/Burn-in Mode
  iteration        -1000  SAEMOBJ=   1000.7656001845789
- iteration         -990  SAEMOBJ=  -1957.5925345830487
- iteration         -980  SAEMOBJ=  -2215.3016911337045
- iteration         -970  SAEMOBJ=  -2226.2325909876749
- iteration         -960  SAEMOBJ=  -2259.1857150998590
- iteration         -950  SAEMOBJ=  -2241.2930078017630
- iteration         -940  SAEMOBJ=  -2265.3057605117269
- iteration         -930  SAEMOBJ=  -2257.8732475643355
- iteration         -920  SAEMOBJ=  -2255.7636343012032
- iteration         -910  SAEMOBJ=  -2244.1160635145006
- iteration         -900  SAEMOBJ=  -2255.6067948076320
- iteration         -890  SAEMOBJ=  -2240.7889407657731
+ iteration         -990  SAEMOBJ=  -1957.5925334779376
+ iteration         -980  SAEMOBJ=  -2215.3016910106744
+ iteration         -970  SAEMOBJ=  -2226.2325909840770
+ iteration         -960  SAEMOBJ=  -2259.1857151001432
+ iteration         -950  SAEMOBJ=  -2241.2930077996016
+ iteration         -940  SAEMOBJ=  -2265.3057605121166
+ iteration         -930  SAEMOBJ=  -2257.8732475636129
+ iteration         -920  SAEMOBJ=  -2255.7636343012928
+ iteration         -910  SAEMOBJ=  -2244.1160635136321
+ iteration         -900  SAEMOBJ=  -2255.6067948086361
+ iteration         -890  SAEMOBJ=  -2240.7889407642615
  Convergence achieved
  Reduced Stochastic/Accumulation Mode
- iteration            0  SAEMOBJ=  -2258.4440587122995
- iteration           10  SAEMOBJ=  -2273.9441413111663
- iteration           20  SAEMOBJ=  -2273.3852993491837
- iteration           30  SAEMOBJ=  -2273.6808679746832
- iteration           40  SAEMOBJ=  -2272.1638339935575
- iteration           50  SAEMOBJ=  -2271.8922901263704
- iteration           60  SAEMOBJ=  -2272.2840648260103
- iteration           70  SAEMOBJ=  -2272.1827517939269
- iteration           80  SAEMOBJ=  -2272.3719918222660
- iteration           90  SAEMOBJ=  -2271.7101041549599
- iteration          100  SAEMOBJ=  -2271.5903864696179
- iteration          110  SAEMOBJ=  -2271.6977058724137
- iteration          120  SAEMOBJ=  -2271.7275323214503
- iteration          130  SAEMOBJ=  -2271.5968375138114
- iteration          140  SAEMOBJ=  -2271.5262296931910
- iteration          150  SAEMOBJ=  -2271.4707356184044
- iteration          160  SAEMOBJ=  -2271.3275144348322
- iteration          170  SAEMOBJ=  -2271.3150046721466
- iteration          180  SAEMOBJ=  -2271.3208306606375
- iteration          190  SAEMOBJ=  -2271.3271392712741
- iteration          200  SAEMOBJ=  -2271.2603948396691
- iteration          210  SAEMOBJ=  -2271.5022666794480
- iteration          220  SAEMOBJ=  -2271.5207531131996
- iteration          230  SAEMOBJ=  -2271.6102689040881
- iteration          240  SAEMOBJ=  -2271.5566215548947
- iteration          250  SAEMOBJ=  -2271.4869436707022
- iteration          260  SAEMOBJ=  -2271.3933323022411
- iteration          270  SAEMOBJ=  -2271.3083781941050
- iteration          280  SAEMOBJ=  -2271.2379985725602
- iteration          290  SAEMOBJ=  -2271.2534740844435
- iteration          300  SAEMOBJ=  -2271.2991832319790
- iteration          310  SAEMOBJ=  -2271.1703950752094
- iteration          320  SAEMOBJ=  -2271.1620160145694
- iteration          330  SAEMOBJ=  -2271.2202790018523
- iteration          340  SAEMOBJ=  -2271.1609614540635
- iteration          350  SAEMOBJ=  -2270.9731502190111
- iteration          360  SAEMOBJ=  -2271.0867622137484
- iteration          370  SAEMOBJ=  -2271.0789120929276
- iteration          380  SAEMOBJ=  -2271.1557012358471
- iteration          390  SAEMOBJ=  -2271.1511737017313
- iteration          400  SAEMOBJ=  -2271.2522632167393
- iteration          410  SAEMOBJ=  -2271.1893098497117
- iteration          420  SAEMOBJ=  -2271.2334193268680
- iteration          430  SAEMOBJ=  -2271.1855148237287
- iteration          440  SAEMOBJ=  -2271.3012726144857
- iteration          450  SAEMOBJ=  -2271.3609263667004
- iteration          460  SAEMOBJ=  -2271.3441288131116
- iteration          470  SAEMOBJ=  -2271.3085678106727
- iteration          480  SAEMOBJ=  -2271.3622460133552
- iteration          490  SAEMOBJ=  -2271.4360302512500
- iteration          500  SAEMOBJ=  -2271.4675898859305
- iteration          510  SAEMOBJ=  -2271.4642706399659
- iteration          520  SAEMOBJ=  -2271.4595989081272
- iteration          530  SAEMOBJ=  -2271.4724243215251
- iteration          540  SAEMOBJ=  -2271.4658805883018
- iteration          550  SAEMOBJ=  -2271.5240146850856
- iteration          560  SAEMOBJ=  -2271.5761682074522
- iteration          570  SAEMOBJ=  -2271.5317675386891
- iteration          580  SAEMOBJ=  -2271.4898583420663
- iteration          590  SAEMOBJ=  -2271.5105879282978
- iteration          600  SAEMOBJ=  -2271.5568681935324
- iteration          610  SAEMOBJ=  -2271.5969502173821
- iteration          620  SAEMOBJ=  -2271.5998824075386
- iteration          630  SAEMOBJ=  -2271.6392165345951
- iteration          640  SAEMOBJ=  -2271.6454697381619
- iteration          650  SAEMOBJ=  -2271.7238994222830
- iteration          660  SAEMOBJ=  -2271.7580323154539
- iteration          670  SAEMOBJ=  -2271.7788177852835
- iteration          680  SAEMOBJ=  -2271.8388196190126
- iteration          690  SAEMOBJ=  -2271.8456591078198
- iteration          700  SAEMOBJ=  -2271.8584143516400
- iteration          710  SAEMOBJ=  -2271.8701928028408
- iteration          720  SAEMOBJ=  -2271.9380989930928
- iteration          730  SAEMOBJ=  -2271.8418213779555
- iteration          740  SAEMOBJ=  -2271.8080991558541
- iteration          750  SAEMOBJ=  -2271.8474805137480
- iteration          760  SAEMOBJ=  -2271.8744339558948
- iteration          770  SAEMOBJ=  -2271.9023428685668
- iteration          780  SAEMOBJ=  -2271.9293958532157
- iteration          790  SAEMOBJ=  -2271.9217225256139
- iteration          800  SAEMOBJ=  -2271.9693290175187
- iteration          810  SAEMOBJ=  -2271.9921518102860
- iteration          820  SAEMOBJ=  -2271.9577030401524
- iteration          830  SAEMOBJ=  -2271.9748239490164
- iteration          840  SAEMOBJ=  -2271.9712136552075
- iteration          850  SAEMOBJ=  -2271.9598165081902
- iteration          860  SAEMOBJ=  -2271.9926302368685
- iteration          870  SAEMOBJ=  -2271.9713432607059
- iteration          880  SAEMOBJ=  -2271.9640434812532
- iteration          890  SAEMOBJ=  -2271.9217741996754
- iteration          900  SAEMOBJ=  -2271.9660970314139
- iteration          910  SAEMOBJ=  -2272.0232961679853
- iteration          920  SAEMOBJ=  -2272.0334835786771
- iteration          930  SAEMOBJ=  -2272.0568967997569
- iteration          940  SAEMOBJ=  -2272.0990178591437
- iteration          950  SAEMOBJ=  -2272.0655570396584
- iteration          960  SAEMOBJ=  -2272.0672668078819
- iteration          970  SAEMOBJ=  -2272.0570713684688
- iteration          980  SAEMOBJ=  -2272.0178998770161
- iteration          990  SAEMOBJ=  -2272.0199467857155
- iteration         1000  SAEMOBJ=  -2272.0392093164564
+ iteration            0  SAEMOBJ=  -2258.4440587118952
+ iteration           10  SAEMOBJ=  -2273.9441413113823
+ iteration           20  SAEMOBJ=  -2273.3852993493251
+ iteration           30  SAEMOBJ=  -2273.6808679747969
+ iteration           40  SAEMOBJ=  -2272.1638339936517
+ iteration           50  SAEMOBJ=  -2271.8922901264318
+ iteration           60  SAEMOBJ=  -2272.2840648260503
+ iteration           70  SAEMOBJ=  -2272.1827517939487
+ iteration           80  SAEMOBJ=  -2272.3719918222787
+ iteration           90  SAEMOBJ=  -2271.7101041549622
+ iteration          100  SAEMOBJ=  -2271.5903864696115
+ iteration          110  SAEMOBJ=  -2271.6977058724069
+ iteration          120  SAEMOBJ=  -2271.7275323214449
+ iteration          130  SAEMOBJ=  -2271.5968375138104
+ iteration          140  SAEMOBJ=  -2271.5262296931905
+ iteration          150  SAEMOBJ=  -2271.4707356184026
+ iteration          160  SAEMOBJ=  -2271.3275144348290
+ iteration          170  SAEMOBJ=  -2271.3150046721421
+ iteration          180  SAEMOBJ=  -2271.3208306606339
+ iteration          190  SAEMOBJ=  -2271.3271392712695
+ iteration          200  SAEMOBJ=  -2271.2603948396636
+ iteration          210  SAEMOBJ=  -2271.5022666794425
+ iteration          220  SAEMOBJ=  -2271.5207531131946
+ iteration          230  SAEMOBJ=  -2271.6102689040836
+ iteration          240  SAEMOBJ=  -2271.5566215548902
+ iteration          250  SAEMOBJ=  -2271.4869436706981
+ iteration          260  SAEMOBJ=  -2271.3933323022370
+ iteration          270  SAEMOBJ=  -2271.3083781941014
+ iteration          280  SAEMOBJ=  -2271.2379985725547
+ iteration          290  SAEMOBJ=  -2271.2534740844385
+ iteration          300  SAEMOBJ=  -2271.2991832319722
+ iteration          310  SAEMOBJ=  -2271.1703950752026
+ iteration          320  SAEMOBJ=  -2271.1620160145621
+ iteration          330  SAEMOBJ=  -2271.2202790018450
+ iteration          340  SAEMOBJ=  -2271.1609614540544
+ iteration          350  SAEMOBJ=  -2270.9731502190020
+ iteration          360  SAEMOBJ=  -2271.0867622137380
+ iteration          370  SAEMOBJ=  -2271.0789120929171
+ iteration          380  SAEMOBJ=  -2271.1557012358357
+ iteration          390  SAEMOBJ=  -2271.1511737017199
+ iteration          400  SAEMOBJ=  -2271.2522632167279
+ iteration          410  SAEMOBJ=  -2271.1893098497003
+ iteration          420  SAEMOBJ=  -2271.2334193268575
+ iteration          430  SAEMOBJ=  -2271.1855148237182
+ iteration          440  SAEMOBJ=  -2271.3012726144757
+ iteration          450  SAEMOBJ=  -2271.3609263666895
+ iteration          460  SAEMOBJ=  -2271.3441288130998
+ iteration          470  SAEMOBJ=  -2271.3085678106609
+ iteration          480  SAEMOBJ=  -2271.3622460133433
+ iteration          490  SAEMOBJ=  -2271.4360302512382
+ iteration          500  SAEMOBJ=  -2271.4675898859186
+ iteration          510  SAEMOBJ=  -2271.4642706399541
+ iteration          520  SAEMOBJ=  -2271.4595989081145
+ iteration          530  SAEMOBJ=  -2271.4724243215132
+ iteration          540  SAEMOBJ=  -2271.4658805882891
+ iteration          550  SAEMOBJ=  -2271.5240146850724
+ iteration          560  SAEMOBJ=  -2271.5761682074394
+ iteration          570  SAEMOBJ=  -2271.5317675386768
+ iteration          580  SAEMOBJ=  -2271.4898583420540
+ iteration          590  SAEMOBJ=  -2271.5105879282851
+ iteration          600  SAEMOBJ=  -2271.5568681935197
+ iteration          610  SAEMOBJ=  -2271.5969502173689
+ iteration          620  SAEMOBJ=  -2271.5998824075250
+ iteration          630  SAEMOBJ=  -2271.6392165345810
+ iteration          640  SAEMOBJ=  -2271.6454697381473
+ iteration          650  SAEMOBJ=  -2271.7238994222685
+ iteration          660  SAEMOBJ=  -2271.7580323154398
+ iteration          670  SAEMOBJ=  -2271.7788177852694
+ iteration          680  SAEMOBJ=  -2271.8388196189981
+ iteration          690  SAEMOBJ=  -2271.8456591078057
+ iteration          700  SAEMOBJ=  -2271.8584143516259
+ iteration          710  SAEMOBJ=  -2271.8701928028268
+ iteration          720  SAEMOBJ=  -2271.9380989930783
+ iteration          730  SAEMOBJ=  -2271.8418213779410
+ iteration          740  SAEMOBJ=  -2271.8080991558404
+ iteration          750  SAEMOBJ=  -2271.8474805137348
+ iteration          760  SAEMOBJ=  -2271.8744339558816
+ iteration          770  SAEMOBJ=  -2271.9023428685532
+ iteration          780  SAEMOBJ=  -2271.9293958532025
+ iteration          790  SAEMOBJ=  -2271.9217225256007
+ iteration          800  SAEMOBJ=  -2271.9693290175055
+ iteration          810  SAEMOBJ=  -2271.9921518102728
+ iteration          820  SAEMOBJ=  -2271.9577030401392
+ iteration          830  SAEMOBJ=  -2271.9748239490032
+ iteration          840  SAEMOBJ=  -2271.9712136551948
+ iteration          850  SAEMOBJ=  -2271.9598165081775
+ iteration          860  SAEMOBJ=  -2271.9926302368563
+ iteration          870  SAEMOBJ=  -2271.9713432606936
+ iteration          880  SAEMOBJ=  -2271.9640434812404
+ iteration          890  SAEMOBJ=  -2271.9217741996627
+ iteration          900  SAEMOBJ=  -2271.9660970314017
+ iteration          910  SAEMOBJ=  -2272.0232961679726
+ iteration          920  SAEMOBJ=  -2272.0334835786648
+ iteration          930  SAEMOBJ=  -2272.0568967997447
+ iteration          940  SAEMOBJ=  -2272.0990178591319
+ iteration          950  SAEMOBJ=  -2272.0655570396466
+ iteration          960  SAEMOBJ=  -2272.0672668078701
+ iteration          970  SAEMOBJ=  -2272.0570713684569
+ iteration          980  SAEMOBJ=  -2272.0178998770043
+ iteration          990  SAEMOBJ=  -2272.0199467857037
+ iteration         1000  SAEMOBJ=  -2272.0392093164451
 
  #TERM:
  STOCHASTIC PORTION WAS COMPLETED
@@ -468,19 +465,19 @@ Days until program expires :  82
   
  TOTAL DATA POINTS NORMALLY DISTRIBUTED (N):          641
  N*LOG(2PI) CONSTANT TO OBJECTIVE FUNCTION:    1178.0791995683903     
- OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -2272.0392093164564     
- OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -1093.9600097480661     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -2272.0392093164451     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -1093.9600097480547     
  REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
   
  TOTAL EFFECTIVE ETAS (NIND*NETA):                           180
  NIND*NETA*LOG(2PI) CONSTANT TO OBJECTIVE FUNCTION:    330.81787195368219     
- OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -2272.0392093164564     
- OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -1941.2213373627742     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -2272.0392093164451     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -1941.2213373627628     
  REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
   
  #TERE:
- Elapsed estimation  time in seconds:    11.96
- Elapsed covariance  time in seconds:     0.05
+ Elapsed estimation  time in seconds:    27.79
+ Elapsed covariance  time in seconds:     0.01
 1
  
  
@@ -1100,20 +1097,20 @@ Days until program expires :  82
 
  MONITORING OF SEARCH:
 
- iteration            0  OBJ=  -1722.9519893282265 eff.=    5599. Smpl.=    5000. Fit.= 0.94132
- iteration            1  OBJ=  -1723.7470984986778 eff.=    1781. Smpl.=    5000. Fit.= 0.79165
- iteration            2  OBJ=  -1723.7638536485847 eff.=    1889. Smpl.=    5000. Fit.= 0.80493
- iteration            3  OBJ=  -1723.2478887493478 eff.=    1990. Smpl.=    5000. Fit.= 0.81406
- iteration            4  OBJ=  -1723.2661204046083 eff.=    1984. Smpl.=    5000. Fit.= 0.81401
- iteration            5  OBJ=  -1723.2359118056236 eff.=    2009. Smpl.=    5000. Fit.= 0.81505
- iteration            6  OBJ=  -1723.3425638356775 eff.=    2002. Smpl.=    5000. Fit.= 0.81511
- iteration            7  OBJ=  -1723.2111306434977 eff.=    2006. Smpl.=    5000. Fit.= 0.81507
- iteration            8  OBJ=  -1723.3632931213797 eff.=    2001. Smpl.=    5000. Fit.= 0.81495
+ iteration            0  OBJ=  -1722.9519894074472 eff.=    5599. Smpl.=    5000. Fit.= 0.94132
+ iteration            1  OBJ=  -1723.7470985015229 eff.=    1781. Smpl.=    5000. Fit.= 0.79165
+ iteration            2  OBJ=  -1723.7638536499833 eff.=    1889. Smpl.=    5000. Fit.= 0.80493
+ iteration            3  OBJ=  -1723.2478887492739 eff.=    1990. Smpl.=    5000. Fit.= 0.81406
+ iteration            4  OBJ=  -1723.2661204046371 eff.=    1984. Smpl.=    5000. Fit.= 0.81401
+ iteration            5  OBJ=  -1723.2359118055765 eff.=    2009. Smpl.=    5000. Fit.= 0.81505
+ iteration            6  OBJ=  -1723.3425638356796 eff.=    2002. Smpl.=    5000. Fit.= 0.81511
+ iteration            7  OBJ=  -1723.2111306434979 eff.=    2006. Smpl.=    5000. Fit.= 0.81507
+ iteration            8  OBJ=  -1723.3632931213795 eff.=    2001. Smpl.=    5000. Fit.= 0.81495
  iteration            9  OBJ=  -1723.5837635904700 eff.=    2008. Smpl.=    5000. Fit.= 0.81501
- iteration           10  OBJ=  -1723.3293683322588 eff.=    1995. Smpl.=    5000. Fit.= 0.81426
- iteration           11  OBJ=  -1723.7045587716652 eff.=    2004. Smpl.=    5000. Fit.= 0.81500
+ iteration           10  OBJ=  -1723.3293683322611 eff.=    1995. Smpl.=    5000. Fit.= 0.81426
+ iteration           11  OBJ=  -1723.7045587716668 eff.=    2004. Smpl.=    5000. Fit.= 0.81500
  Convergence achieved
- iteration           11  OBJ=  -1722.9091908084513 eff.=    1991. Smpl.=    5000. Fit.= 0.81448
+ iteration           11  OBJ=  -1722.9091908084556 eff.=    1991. Smpl.=    5000. Fit.= 0.81448
 
  #TERM:
  EXPECTATION ONLY PROCESS WAS COMPLETED
@@ -1139,15 +1136,15 @@ Days until program expires :  82
   
  TOTAL DATA POINTS NORMALLY DISTRIBUTED (N):          641
  N*LOG(2PI) CONSTANT TO OBJECTIVE FUNCTION:    1178.0791995683903     
- OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -1722.9091908084513     
- OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -544.82999124006096     
+ OBJECTIVE FUNCTION VALUE WITHOUT CONSTANT:   -1722.9091908084556     
+ OBJECTIVE FUNCTION VALUE WITH CONSTANT:      -544.82999124006528     
  REPORTED OBJECTIVE FUNCTION DOES NOT CONTAIN CONSTANT
   
  TOTAL EFFECTIVE ETAS (NIND*NETA):                           180
   
  #TERE:
- Elapsed estimation  time in seconds:     4.51
- Elapsed covariance  time in seconds:    16.82
+ Elapsed estimation  time in seconds:    37.98
+ Elapsed covariance  time in seconds:   159.11
 1
  
  
@@ -1682,8 +1679,8 @@ Days until program expires :  82
  
          9.79E-02  3.36E-01  4.17E-01  6.35E-01  8.38E-01  1.00E+00  1.36E+00  3.31E+00
  
- Elapsed postprocess time in seconds:     0.21
- Elapsed finaloutput time in seconds:     0.05
- #CPUT: Total CPU Time in Seconds,      376.839
+ Elapsed postprocess time in seconds:     0.04
+ Elapsed finaloutput time in seconds:     0.03
+ #CPUT: Total CPU Time in Seconds,      225.029
 Stop Time:
-Sun Oct 27 16:59:18 EDT 2024
+Fri Jan 24 12:54:55 EST 2025

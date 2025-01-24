@@ -9,7 +9,8 @@ NMcreateMatLines(omegas, as.one.block = FALSE, fix = TRUE, type)
 \arguments{
 \item{omegas}{A data.table with at least `i`, `j` and `value`
 columns. See `NMdata::NMreadExt` and the pars element returned
-by that function.}
+by that function. Must at least have columns `i`, `j`,
+`value`, `iblock`, `blocksize`, `FIX`.}
 
 \item{as.one.block}{If `TRUE`, all values are printed as one
 block. If `FALSE` (default), matrix will be separeted into

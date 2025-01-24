@@ -36,7 +36,7 @@
 ##' @import data.table
 ##' @export 
 
-#### Limitation: ll, init, and ul must be on same line
+#### Limitation: lower, init, and upper must be on same line
 
 #### Limitation: If using something like CL=(.1,4,15), two of those cannot be on the same line
 
@@ -44,9 +44,9 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 
     . <- NULL
     elemnum <- NULL
-    elemnum_ll <- NULL
+    elemnum_lower <- NULL
     elemnum_init <- NULL
-    elemnum_ul <- NULL
+    elemnum_upper <- NULL
     elems.found <- NULL
     i <- NULL
     iblock <- NULL
@@ -60,9 +60,9 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     text.after <- NULL
     text.before <- NULL
     type.elem <- NULL
-    value.elem_ll <- NULL
+    value.elem_lower <- NULL
     value.elem_init <- NULL
-    value.elem_ul <- NULL
+    value.elem_upper <- NULL
     value.elem <- NULL
     value.elem_FIX <- NULL
     value <- NULL
@@ -82,15 +82,6 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     
 #### 
 
-    if(F){
-    mod <- NMreadSection(file.mod,keep.name=TRUE)
-        thetas.mod <- NMreadCtlPars(mod$THETA,section="THETA",as.fun="data.table")
-        omegas.mod <- NMreadCtlPars(mod$OMEGA,section="OMEGA",as.fun="data.table")
-        sigmas.mod <- NMreadCtlPars(mod$SIGMA,section="SIGMA",as.fun="data.table")
-
-### not sure if the dcasting should be before or after updating
-        pars.l <- rbind(thetas.mod$elements,omegas.mod$elements,sigmas.mod$elements)
-    }
     
     inits.orig <- NMreadInits(file=file.mod,return="all",as.fun="data.table")
     pars.l <- inits.orig$elements
@@ -102,33 +93,35 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 ############## write  parameter sections
     ## need to write line by line. All elements in a line written one at a time
     
-    paste.ll.init.ul <- function(ll,init,ul,FIX){
+    paste.ll.init.ul <- function(lower,init,upper,FIX){
         
         res <- NULL
         
         if(any(is.na(init))) stop("An initial value must be provided")
-        if(any(!is.na(ul)&is.na(ll))) stop("if upper limit is provided, lower limit must also be provided.")
-        dt <- data.table(ll=ll,init=init,ul=ul)[,row:=.I]
+        if(any(!is.na(upper)&is.na(lower))) stop("if upper limit is provided, lower limit must also be provided.")
+        dt <- data.table(lower=lower,init=init,upper=upper)[,row:=.I]
         dt[init=="SAME",res:=init]
-        dt[init!="SAME",res:=paste0("(",paste(setdiff(c(ll,init,ul),NA),collapse=","),")",FIX),by=row]
-        dt[init!="SAME"&is.na(ll)&is.na(ul),res:=paste0(init,FIX),by=row]
+        dt[init!="SAME",res:=paste0("(",paste(setdiff(c(lower,init,upper),NA),collapse=","),")",FIX),by=row]
+        dt[init!="SAME"&is.na(lower)&is.na(upper),res:=paste0(init,FIX),by=row]
         dt$res
     }
-    ## reduce ll, init and ul lines to just ll.init.ul lines
+    ## reduce lower, init and upper lines to just ll.init.upper lines
 ### for  this approach, dcast, then paste.ll...
     ## this is complicated. Better make paste function operate on long format.
     
-######### Limitation: ll, init, and ul must be on same line
+######### Limitation: lower, init, and upper must be on same line
     pars.l[type.elem=="FIX",value.elem:=fifelse(value.elem=="1"," FIX","")]
     inits.w <- dcast(
-        pars.l[type.elem%in%c("ll","init","ul","FIX")]
+        pars.l[type.elem%in%c("lower","init","upper","FIX")]
        ,par.type+linenum+parnum+i+j+iblock+blocksize~type.elem,value.var=c("elemnum","value.elem"),funs.aggregate=min)
 
-### the rest of the code is dependent on all of init, ll, and ul being available.
-    cols.miss <- setdiff(outer(c("value.elem","elemnum"),c("init","ll","ul","FIX"),FUN=paste,sep="_"),colnames(inits.w))
+### the rest of the code is dependent on all of init, lower, and upper being available.
+    cols.miss <- setdiff(outer(c("value.elem","elemnum"),c("init","lower","upper","FIX"),FUN=paste,sep="_"),colnames(inits.w))
     inits.w[,(cols.miss):=NA_character_]
     ##    inits.w[,fix:=ifelse(FIX=="1","FIX","")]
     inits.w[is.na(value.elem_FIX),value.elem_FIX:=""]
+
+    
     
 ############ update paramters
     inits.w[,modified:=0]
@@ -193,7 +186,7 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
         value.values <- value
         names.vals <- names(value.values)
         names.vals[names.vals=="fix"] <- "FIX"
-        names.vals[names.vals%in%c("init","ll","ul","FIX")] <- paste0("value.elem_",names.vals[names.vals%in%c("init","ll","ul","FIX")])
+        names.vals[names.vals%in%c("init","lower","upper","FIX")] <- paste0("value.elem_",names.vals[names.vals%in%c("init","lower","upper","FIX")])
         names(value.values) <- names.vals
         ## make sure FIX is "" or " FIX"
 
@@ -211,7 +204,7 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 
     
     names.values <- names(values)
-    if(!is.null(values)){
+    if(length(values)){
         for(I in 1:length(values)){
             inits.w <- fun.update.vals(inits.w,values[[I]],names.values[I])
         }
@@ -225,12 +218,12 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 
     
     
-    inits.w[,string.elem:=paste.ll.init.ul(value.elem_ll,value.elem_init,value.elem_ul,value.elem_FIX),by=row]
-    inits.w[,elemnum:=min(elemnum_ll,elemnum_init,elemnum_ul,na.rm=TRUE),by=row]
+    inits.w[,string.elem:=paste.ll.init.ul(value.elem_lower,value.elem_init,value.elem_upper,value.elem_FIX),by=row]
+    inits.w[,elemnum:=min(elemnum_lower,elemnum_init,elemnum_upper,na.rm=TRUE),by=row]
 
     cnames.common <- intersect(colnames(pars.l),colnames(inits.w))
     elems.all <- rbind(
-        pars.l[!type.elem%in%c("ll","init","ul","FIX")][,cnames.common,with=FALSE]
+        pars.l[!type.elem%in%c("lower","init","upper","FIX")][,cnames.common,with=FALSE]
        ,
         inits.w[,cnames.common,with=FALSE]
     )
@@ -245,16 +238,9 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 
     lines.all <- elems.all[,.(text=paste(string.elem,collapse=" ")),keyby=.(par.type,linenum)]
 
-    if(F){
-        mod.lines <- rbind(
-            thetas.mod$lines[,par.type:="THETA"]
-           ,
-            omegas.mod$lines[,par.type:="OMEGA"],
-            sigmas.mod$lines[,par.type:="SIGMA"])
-    }
     mod.lines <- inits.orig$lines
     
-    
+   
     lines.all.2 <- elems.all[,.(newtext=paste(string.elem,collapse=" ")),keyby=.(par.type,linenum)]
     lines.all.2[,elems.found:=TRUE]
 ##### this is the new total lines obj
@@ -265,11 +251,6 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     lines.all.3[elems.found==FALSE,newtext:=sub(pattern=paste0("^ *\\$ *",par.type),replacement="",x=text,ignore.case=TRUE),by=.(par.type,linenum)]
 
     
-    ## lines.all.3[elems.found==TRUE,newtext:=paste(
-    ##                                   sub(pattern=paste0("\\$ *",par.type),"",text.before,ignore.case=TRUE)
-    ##                                  ,newtext,
-    ##                                   paste0(";",text.after)
-    ##                               ),by=.(par.type,linenum)]
 
     lines.all.3[elems.found==TRUE&!is.na(text.before),newtext:=paste(
                                                           sub(pattern=paste0("\\$ *",par.type),"",text.before,ignore.case=TRUE)

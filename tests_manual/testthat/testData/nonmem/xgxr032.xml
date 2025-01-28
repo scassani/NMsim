@@ -5,7 +5,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://namespaces.oreilly.com/xmlnut/address output.xsd"
 xmlns:nm="http://namespaces.oreilly.com/xmlnut/address"
 >
-<nm:start_datetime>2025-01-24T12:51:10.717</nm:start_datetime>
+<nm:start_datetime>2025-01-27T17:10:09.606</nm:start_datetime>
 <nm:control_stream><![CDATA[
 $PROBLEM    031 SAEM
 
@@ -93,8 +93,8 @@ $TABLE ETAS(1:LAST) NOAPPEND NOPRINT FILE=xgxr032_etas.txt
 <nm:license_information><![CDATA[
 License Registered to: Vertex Pharmaceuticals Inc
 Expiration Date:    14 JAN 2026
-Current Date:       24 JAN 2025
-Days until program expires : 355
+Current Date:       27 JAN 2025
+Days until program expires : 352
 ]]></nm:license_information>
 <nm:program_information><![CDATA[
 1NONLINEAR MIXED EFFECTS MODEL PROGRAM (NONMEM) VERSION 7.5.0
@@ -565,11 +565,11 @@ Days until program expires : 355
 <nm:col nm:cname='EPS2'>100.00000000000000</nm:col>
 </nm:row>
 </nm:epsshrinkvr>
-<nm:estimation_elapsed_time>27.79</nm:estimation_elapsed_time>
+<nm:estimation_elapsed_time>26.98</nm:estimation_elapsed_time>
 <nm:covariance_information><![CDATA[
 ]]></nm:covariance_information>
 <nm:covariance_status nm:error='0' nm:numnegeigenvalues='0' nm:mineigenvalue='0.20895561624734366' nm:maxeigenvalue='11093.513583069933' nm:rms='0.0000000000000000'/>
-<nm:covariance_elapsed_time>0.01</nm:covariance_elapsed_time>
+<nm:covariance_elapsed_time>0.00</nm:covariance_elapsed_time>
 <nm:final_objective_function_text>FINAL VALUE OF LIKELIHOOD FUNCTION</nm:final_objective_function_text>
 <nm:final_objective_function>-2272.0392093164451</nm:final_objective_function>
 <nm:theta>
@@ -1906,11 +1906,11 @@ Days until program expires : 355
 <nm:col nm:cname='EPS2'>100.00000000000000</nm:col>
 </nm:row>
 </nm:epsshrinkvr>
-<nm:estimation_elapsed_time>37.98</nm:estimation_elapsed_time>
+<nm:estimation_elapsed_time>37.94</nm:estimation_elapsed_time>
 <nm:covariance_information><![CDATA[
 ]]></nm:covariance_information>
 <nm:covariance_status nm:error='0' nm:numnegeigenvalues='0' nm:mineigenvalue='0.20861059101484347' nm:maxeigenvalue='11098.038838590030' nm:rms='0.0000000000000000'/>
-<nm:covariance_elapsed_time>159.11</nm:covariance_elapsed_time>
+<nm:covariance_elapsed_time>156.59</nm:covariance_elapsed_time>
 <nm:final_objective_function_text>FINAL VALUE OF OBJECTIVE FUNCTION</nm:final_objective_function_text>
 <nm:final_objective_function>-1722.9091908084556</nm:final_objective_function>
 <nm:theta>
@@ -3060,6 +3060,6 @@ Days until program expires : 355
 </nm:post_process_times>
 </nm:problem>
 </nm:nonmem>
-<nm:stop_datetime>2025-01-24T12:54:55.774</nm:stop_datetime>
-<nm:total_cputime>225.029</nm:total_cputime>
+<nm:stop_datetime>2025-01-27T17:13:51.318</nm:stop_datetime>
+<nm:total_cputime>221.688</nm:total_cputime>
 </nm:output>

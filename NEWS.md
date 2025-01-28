@@ -6,7 +6,11 @@
 
 * inits
 
-* improved monitoring of Nonmem jobs
+* Nonmem execution
+
+ - improved monitoring of Nonmem jobs
+ 
+ - post.fun argument
 
 ## Bugfixes
 

@@ -14,7 +14,7 @@ if(F){
 }
 
 test_that("Basic",{
-if(packageVersion("NMdata")>"0.1.921"){
+if(packageVersion("NMdata")>"0.1.8.921"){
     
     fileRef <- "testReference/NMwriteInits_01.rds"
     
@@ -61,9 +61,9 @@ if(packageVersion("NMdata")>"0.1.921"){
 
 
 test_that("comments on parameters",{
-if(packageVersion("NMdata")>"0.1.921"){
+if(packageVersion("NMdata")>"0.1.8.921"){
     fileRef <- "testReference/NMwriteInits_05.rds"
-    file.mod <- "testData/nonmem/xgxr033com.mod"
+    file.mod <- "testData/nonmem/xgxr033.mod"
     ## NMreadSection(file.mod,section="THETA")
     res <- NMwriteInits(file.mod,"THETA(1)"=list(init=3),"OMEGA(3,2)"=list(init=-4),"OMEGA(3,3)"=list(init=6),update=FALSE)
     ## NMreadCtlPars(readLines(file.mod),section="OMEGA")

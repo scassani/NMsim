@@ -13,7 +13,8 @@ NMrunLin(
   clean,
   sge,
   nc,
-  pnm
+  pnm,
+  fun.post = NULL
 )
 }
 \arguments{

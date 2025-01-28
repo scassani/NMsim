@@ -54,6 +54,7 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     linenum <- NULL
     modified <- NULL
     newtext <- NULL
+    nchars.active <- NULL
     par.type <- NULL
     string.elem <- NULL
     text <- NULL
@@ -257,6 +258,13 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
                                                          ,newtext
                                                       ),by=.(par.type,linenum)]
 
+    
+    ## number of characters to reserve for before+newtext
+    lines.all.3[elems.found==TRUE,nchars.active:=max(nchar(newtext))+1,by="par.type"]
+    lines.all.3[,row:=.I]
+    
+    lines.all.3[elems.found==TRUE,newtext:=paste0(newtext,paste(rep(" ",nchars.active-nchar(newtext)),collapse="")),by=row]
+    
     lines.all.3[elems.found==TRUE&!is.na(text.after),newtext:=paste(
                                                          newtext,
                                                          paste0(";",text.after)

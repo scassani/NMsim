@@ -10,20 +10,21 @@ NMexec(
   dir,
   sge = TRUE,
   input.archive,
-  nc = 64,
+  nc,
   dir.data = NULL,
   wait = FALSE,
-  args.psn.execute,
+  path.nonmem,
   update.only = FALSE,
-  nmquiet = FALSE,
+  fun.post,
   method.execute,
   dir.psn,
-  path.nonmem,
-  system.type,
+  args.psn.execute,
   files.needed,
   clean = 1,
   backup = TRUE,
-  quiet = FALSE
+  quiet = FALSE,
+  nmquiet = FALSE,
+  system.type
 )
 }
 \arguments{
@@ -60,15 +61,23 @@ available again? This is useful if calling NMexec from a
 function that needs to wait for the output of the Nonmem run
 to be available for further processing.}
 
-\item{args.psn.execute}{A character string with arguments passed
-to execute. Default is
-"-model_dir_name -nm_output=coi,cor,cov,ext,phi,shk,xml".}
+\item{path.nonmem}{The path to the nonmem executable. Only used if
+\code{method.execute="direct"} or
+\code{method.execute="nmsim"} (which is not default). If this
+argument is not supplied, NMexec will try to run nmfe75,
+i.e. this has to be available in the path of the underlying
+shell. The default value can be modified using
+\code{NMdata::NMdataConf}, like
+\code{NMdataConf(path.nonmem="/path/to/nonmem")}}
 
 \item{update.only}{Only run model(s) if control stream or data
 updated since last run?}
 
-\item{nmquiet}{Suppress terminal output from `Nonmem`. This is
-likely to only work on linux/unix systems.}
+\item{fun.post}{A function of the path to the control stream
+(`file.mod`) that generates bash code to be evaluated once
+Nonmem is done. This can be used to automatically run a
+goodness-of-fit script or a simulation script after model
+estimation.}
 
 \item{method.execute}{How to run Nonmem. Must be one of 'psn',
     'nmsim', or 'direct'. 
@@ -103,18 +112,9 @@ in the system path, or if the user should want to be explicit
 about where to find them (i.e. want to use a specific
 installed version of PSN).}
 
-\item{path.nonmem}{The path to the nonmem executable. Only used if
-\code{method.execute="direct"} or
-\code{method.execute="nmsim"} (which is not default). If this
-argument is not supplied, NMexec will try to run nmfe75,
-i.e. this has to be available in the path of the underlying
-shell. The default value can be modified using
-\code{NMdata::NMdataConf}, like
-\code{NMdataConf(path.nonmem="/path/to/nonmem")}}
-
-\item{system.type}{A charachter string, either \"windows\" or
-\"linux\" - case insensitive. Windows is only experimentally
-supported. Default is to use \code{Sys.info()[["sysname"]]}.}
+\item{args.psn.execute}{A character string with arguments passed
+to execute. Default is
+"-model_dir_name -nm_output=coi,cor,cov,ext,phi,shk,xml".}
 
 \item{files.needed}{In case method.execute="nmsim", this argument
 specifies files to be copied into the temporary directory
@@ -135,6 +135,13 @@ deleted before running.}
 
 \item{quiet}{Suppress messages on what NMexec is doing? Default is
 FALSE.}
+
+\item{nmquiet}{Suppress terminal output from `Nonmem`. This is
+likely to only work on linux/unix systems.}
+
+\item{system.type}{A charachter string, either \"windows\" or
+\"linux\" - case insensitive. Windows is only experimentally
+supported. Default is to use \code{Sys.info()[["sysname"]]}.}
 }
 \value{
 NULL (invisibly)

@@ -13,7 +13,8 @@ NMexecDirectory(
   clean,
   sge = nc > 1,
   nc = 1,
-  pnm
+  pnm,
+  fun.post = NULL
 )
 }
 \arguments{

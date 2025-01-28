@@ -39,7 +39,7 @@ callNonmemDirect <- function(file.mod,path.nonmem){
 
 ## do not export. NMexec will call this.
 
-NMexecDirectory <- function(file.mod,path.nonmem,files.needed,dir.data="..",system.type,clean,sge=nc>1,nc=1,pnm){
+NMexecDirectory <- function(file.mod,path.nonmem,files.needed,dir.data="..",system.type,clean,sge=nc>1,nc=1,pnm,fun.post=NULL){
     
     ## if(missing(method)||is.null(method)) method <- "directory"
     ## if(!(is.characther(method) && length(method)==1)||!method%in%cc(directory,direct)){
@@ -85,8 +85,6 @@ NMexecDirectory <- function(file.mod,path.nonmem,files.needed,dir.data="..",syst
     
 ### copy input data to temp dir. 
     if(copy.data){
-
-        
         file.copy(extr.data$path.csv,dir.tmp)
 ### modify .mod to use local copy of input data. Notice the newfile
 ### arg to NMwriteSection creating file.mod.tmp.
@@ -123,7 +121,7 @@ NMexecDirectory <- function(file.mod,path.nonmem,files.needed,dir.data="..",syst
     dir.mod.abs <- getAbsolutePath(dir.mod)
     if(system.type=="linux"){
 
-        lines.script <- NMrunLin(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem=path.nonmem,clean=clean,sge=sge,nc=nc,pnm=pnm)
+        lines.script <- NMrunLin(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem=path.nonmem,clean=clean,sge=sge,nc=nc,pnm=pnm,fun.post=fun.post)
         path.script <- file.path(dir.tmp,"run_nonmem.sh")
         writeTextFile(lines.script,path.script)
         Sys.chmod(path.script, mode = "0777", use_umask = FALSE)

@@ -8,7 +8,8 @@
 ##' @return lines (charachter) for new control stream
 ##' @keywords internal
 
-NMwritePreamble <- function(file.mod,description=NULL,based.on=NULL,author=NULL,write.file=TRUE){
+## should use getLines so user can specify either file.mod or lines 
+NMwritePreamble <- function(file.mod,lines,description=NULL,based.on=NULL,author=NULL,write.file=TRUE){
 
     line <- NULL
     has.field <- NULL
@@ -22,6 +23,7 @@ NMwritePreamble <- function(file.mod,description=NULL,based.on=NULL,author=NULL,
     contents.updated <- NULL
     include <- NULL
 
+    
     lines <- readLines(file.mod)
 
     all.idx <- NMreadSection(lines=lines,return="idx")

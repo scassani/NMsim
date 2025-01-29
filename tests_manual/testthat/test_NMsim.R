@@ -24,8 +24,8 @@ setorder(dt.sim.known,ID,TIME,EVID,CMT)
 ## NMdataConf(dir.psn="/opt/psn")
 if(F){
     ## a manual linux setup
-path.nonmem <- "/opt/nonmem/nm751/run/nmfe75"
-NMdataConf(dir.psn= "/opt/psn")
+    path.nonmem <- "/opt/nonmem/nm751/run/nmfe75"
+    NMdataConf(dir.psn= "/opt/psn")
 }
 ## NMdataConf(dir.psn=dir.psn)
 ##
@@ -505,7 +505,7 @@ test_that("multiple data sets",{
     fileRef <- "testReference/NMsim_07.rds"
     file.mod <- "testData/nonmem/xgxr032.mod"
     data.multiple <- split(dt.sim.known,by="ID")
-    ## data.multiple
+    data.multiple.orig <- copy(data.multiple)
 
     set.seed(43)
     simres.multidata <- NMsim(file.mod,
@@ -520,6 +520,8 @@ test_that("multiple data sets",{
                              ,path.nonmem=path.nonmem
                               )
 
+    expect_equal(data.multiple,data.multiple.orig)
+    
     expect_equal(nrow(simres.multidata),nrow(dt.sim.known))
 
 
@@ -776,26 +778,22 @@ test_that("basic - a model that fails on NMTRAN",{
 
     set.seed(43)
 
-    expect_error(
+    simres <- NMsim(file.mod,
+                    data=dt.sim,
+                    ## table.var="PRED IPRED",
+                    ## dir.sims="testOutput",
+                    name.sim="nmtranfail"
+                   ,sge=F
+                   ,nmquiet=F
+                   ,wait=TRUE,
+                    path.nonmem=path.nonmem
+                    )
 
-        NMsim(file.mod,
-              data=dt.sim,
-              ## table.var="PRED IPRED",
-              ## dir.sims="testOutput",
-              name.sim="nmtranfail"
-             ,sge=F
-             ,nmquiet=F
-             ,wait=TRUE,
-              path.nonmem=path.nonmem
-              )
+    expect_equal(nrow(simres),0)
 
+    expect_equal(
+        nrow(NMreadSim(simres)),0
     )
-
-    ## expect_equal(nrow(simres),0)
-
-    ## expect_equal(
-    ##     nrow(NMreadSim(simres)),0
-    ## )
 
 })
 
@@ -898,6 +896,11 @@ test_that("basic - default",{
 
     expect_equal_to_reference(omega.sim,fileRef)
 
+    if(F){
+        ref <- readRDS(fileRef)
+        ref
+        omega.sim
+    }
     
 
 })
@@ -1006,10 +1009,9 @@ test_that("as.fun=data.table in function call",{
 
 ###### using nmsim2 update inits method
 
-context("NMsim")
-test_that("basic - nmsim2 update inits",{
+test_that("basic - nmsim update inits",{
     
-    ## fileRef <- "testReference/NMsim_14.rds"
+    fileRef <- "testReference/NMsim_14.rds"
 
     file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
 
@@ -1019,7 +1021,7 @@ test_that("basic - nmsim2 update inits",{
                     table.var="PRED IPRED",
                     dir.sims="testOutput",
                     name.sim="default_14",
-                    inits=list(method="nmsim2",update=TRUE),
+                    inits=list(update=TRUE),
                     path.nonmem=path.nonmem
                     )
     
@@ -1028,13 +1030,18 @@ test_that("basic - nmsim2 update inits",{
     ## expect_equal_to_reference(simres[,!("sim")],fileRef)
     expect_equal_to_reference(simres,fileRef)
 
+    if(F){
+        readRDS(fileRef)
+        simres
+    }
+    
 })
 
 
 ###### using nmsim2 update inits method and modify parameter
 
 context("NMsim")
-test_that("basic - nmsim2 update inits",{
+test_that("basic - nmsim update inits",{
     
     ## fileRef <- "testReference/NMsim_15.rds"
 
@@ -1042,35 +1049,45 @@ test_that("basic - nmsim2 update inits",{
 
     set.seed(43)
     simres2 <- NMsim(file.mod,
-                    data=dt.sim,
-                    table.var="PRED IPRED",
-                    dir.sims="testOutput",
-                    name.sim="default_14",
-                    ## inits=list(method="nmsim2",update=TRUE,values=list(list(par.type="THETA",i=2,init=4))),
-                    inits=list(method="nmsim2",update=TRUE,values=list("THETA(2)"=list(init=4))),
-                    path.nonmem=path.nonmem
-                    )
+                     data=dt.sim,
+                     table.var="PRED IPRED",
+                     dir.sims="testOutput",
+                     name.sim="default_15",
+                     inits=list(update=TRUE,values=list("THETA(2)"=list(init=4))),
+                     path.nonmem=path.nonmem
+                     )
 
     simres3 <- NMsim(file.mod,
-                    data=dt.sim,
-                    table.var="PRED IPRED",
-                    dir.sims="testOutput",
-                    name.sim="default_14",
-                    inits=list("THETA(2)"=list(init=4)),
-                    path.nonmem=path.nonmem
-                    )
+                     data=dt.sim,
+                     table.var="PRED IPRED",
+                     dir.sims="testOutput",
+                     name.sim="default_16",
+                     inits=list("THETA(2)"=list(init=4)),
+                     path.nonmem=path.nonmem
+                     )
 
 
-        simres4 <- NMsim(file.mod,
-                    data=dt.sim,
-                    table.var="PRED IPRED",
-                    dir.sims="testOutput",
-                    name.sim="default_14",
-                    inits=list("THETA(2)"=list(init=4,fix=1,ul=34)),
-                    path.nonmem=path.nonmem
-                    )
+    simres4 <- NMsim(file.mod,
+                     data=dt.sim,
+                     table.var="PRED IPRED",
+                     dir.sims="testOutput",
+                     name.sim="default_17",
+                     inits=list("THETA(2)"=list(init=4,fix=1,upper=34)),
+                     path.nonmem=path.nonmem
+                     )
 
-   
+
+    
+    expect_error(NMsim(file.mod,
+                       data=dt.sim,
+                       table.var="PRED IPRED",
+                       dir.sims="testOutput",
+                       name.sim="default_18",
+                       inits=list("THETA(2)"=list(init=4,fix=1,upprr=34)),
+                       path.nonmem=path.nonmem
+                       ))
+
+    
 
 })
 

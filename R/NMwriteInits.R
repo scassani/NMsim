@@ -22,14 +22,14 @@
 ##' \dontrun{
 ##' file.mod <- system.file("examples/nonmem/xgxr021.mod",package="NMsim") 
 ##' NMwriteInits(file.mod,
-##' values=list( "theta(2)"=list(value=1.4),
+##' values=list( "theta(2)"=list(init=1.4),
 ##'              "THETA(3)"=list(FIX=1),
-##'              "omega(2,2)"=list(value=0.1))
+##'              "omega(2,2)"=list(init=0.1))
 ##' )
 ##' NMwriteInits(file.mod,
-##'   "theta(2)"=list(value=1.4),
+##'   "theta(2)"=list(init=1.4),
 ##'   "THETA(3)"=list(FIX=1),
-##'   "omega(2,2)"=list(value=0.1)
+##'   "omega(2,2)"=list(init=0.1)
 ##' )
 ##' }
 ##' @import NMdata
@@ -77,7 +77,13 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     if(missing(values)) values <- NULL
     dots <- list(...)
     values <- append(values,dots)
+    if(any(!tolower(sapply(values,names))%in%c("init","lower","upper","fix"))){
+        stop("`values` must be a list of named lists.
+  Example: values=list('theta(1)'=list(init=2))
+  The allowed elements in each list is 'init', 'lower', 'upper', and 'fix'.")
+    }
 
+    
     if(missing(newfile)) newfile <- NULL
 
     

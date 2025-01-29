@@ -771,6 +771,10 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
     }
     if(!is.null(data) && is.list(data) && !is.data.frame(data)) {
+        ## if the list contains data.tables, we don't want to edit the data directly (by ref)
+        if(any(sapply(data,is.data.table))){
+            data <- copy(data)
+        }
         names.data <- names(data)
         if(is.null(names.data)) {
             names.data <- as.character(1:length(data))
@@ -884,7 +888,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         if(!quiet) message(sprintf("Reading from simulation results on file:\n%s",dt.models[,paste(unique(path.rds),collapse="\n")]))
         
         simres <- try(NMreadSim(dt.models[,path.rds],wait=wait,quiet=quiet,progress=progress,as.fun=as.fun))
-        if(!inherits(simres,"try-error")) {
+        if(inherits(simres,"try-error")) {
+            message("Reading results on file returned error(s). Simulations will be re-run even though `reuse.results=TRUE`.")
+        } else {
             return(returnSimres(simres))
         }
     }
@@ -1421,6 +1427,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     ## if(execute && (wait.exec||wait)){
     if(is.NMsimRes(simres) || (execute && (wait.exec||wait))){
         if(!quiet){
+            if(nrow(simres)==0){
+                message("Simulation results are empty. An empty data.frame is returned.")
+            }
             message("\nSimulation results returned. Re-read them without re-simulating using:\n",paste(sprintf("  simres <- NMreadSim(\"%s\")",dt.models[,unique(path.rds)]),collapse="\n"))
         }
         return(returnSimres(simres))

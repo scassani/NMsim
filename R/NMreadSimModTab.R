@@ -314,7 +314,8 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     res <- as.fun(res)
     setattr(res,"NMsimModTab",modtab)
     addClass(res,"NMsimRes")
-    
+
+### if no models ran successfully, res will be a zero-row data table. Should that be saved?
     if(!is.null(rdstab$path.results.read)){
         NMwriteData(res,
                     file=rdstab$path.results.read,

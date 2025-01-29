@@ -38,14 +38,14 @@ Edit parameter values, fix/unfix them, or edit lower/upper bounds.
 \dontrun{
 file.mod <- system.file("examples/nonmem/xgxr021.mod",package="NMsim") 
 NMwriteInits(file.mod,
-values=list( "theta(2)"=list(value=1.4),
+values=list( "theta(2)"=list(init=1.4),
              "THETA(3)"=list(FIX=1),
-             "omega(2,2)"=list(value=0.1))
+             "omega(2,2)"=list(init=0.1))
 )
 NMwriteInits(file.mod,
-  "theta(2)"=list(value=1.4),
+  "theta(2)"=list(init=1.4),
   "THETA(3)"=list(FIX=1),
-  "omega(2,2)"=list(value=0.1)
+  "omega(2,2)"=list(init=0.1)
 )
 }
 }

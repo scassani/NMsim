@@ -23,8 +23,8 @@ NMwritePreamble <- function(file.mod,lines,description=NULL,based.on=NULL,author
     contents.updated <- NULL
     include <- NULL
 
-    
-    lines <- readLines(file.mod)
+    lines <- getLines(file=file.mod,lines=lines)
+    ## lines <- readLines(file.mod)
 
     all.idx <- NMreadSection(lines=lines,return="idx")
     code.start <- min(do.call(c,all.idx))

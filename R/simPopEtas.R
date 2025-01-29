@@ -5,7 +5,7 @@
 ##'     file name extension is not `.ext`, add `auto.ext=FALSE` (see
 ##'     ...).
 ##' @param N Number of subjects to generate
-##' @param seed Optional seed. Will be passed to `set.seed`. Same
+##' @param seed.R Optional seed. Will be passed to `set.seed`. Same
 ##'     thing as running `set.seed` just before calling
 ##'     `simPopEtas()`.
 ##' @param pars A long-format parameter table containing par.type and
@@ -21,14 +21,15 @@
 ##'     as.fun="data.table". The default can be configured using
 ##'     NMdataConf.
 ##' @param file.mod Deprecated. Use file instead.
-##' @param ... Additional arguments passed to NMdata::NMreadExt(). 
+##' @param seed Deprecated. Use seed.R instead.
+##' @param ... Additional arguments passed to NMdata::NMreadExt().
 ##' @return A data.frame
 ##' @import data.table
 ##' @import NMdata
 ##' @importFrom MASS mvrnorm
 ##' @export
 
-simPopEtas <- function(file,N,seed,pars,file.phi,as.fun,file.mod,...){
+simPopEtas <- function(file,N,seed.R,pars,file.phi,as.fun,file.mod,seed,...){
 
     par.type <- NULL
     i <- NULL
@@ -36,12 +37,11 @@ simPopEtas <- function(file,N,seed,pars,file.phi,as.fun,file.mod,...){
     dt.res <- NULL
     TABLENO <- NULL
     
-    if(!missing(seed)) set.seed(seed)
+    if(missing(seed.R)) seed.R <- NULL
     if(missing(pars)) pars <- NULL
     if(missing(file)) file <- NULL
     if(missing(file.phi)) file.phi <- NULL
 
-    ## name.sim
     if(!missing(file.mod)){
         if(!is.null(file)){
             stop("file and file.mod supplied. Use file and not the deprecated file.mod. ")
@@ -49,6 +49,17 @@ simPopEtas <- function(file,N,seed,pars,file.phi,as.fun,file.mod,...){
         message("file.mod is deprecated. Use file.")
         file <- file.mod
     }
+
+    ## seed deprecated with NMsim 0.1.6 2025-01-29 
+    if(missing(seed)) seed <- NULL
+    if(!missing(seed)){
+        if(!is.null(seed.R)){
+            stop("`seed.R` and `seed` supplied. Use `seed.R` and not the deprecated seed. ")
+        }
+        message("seed is deprecated. Use `seed.R`.")
+        seed.R <- seed
+    }
+    if(!missing(seed)) set.seed(seed)
     
     if(missing(as.fun)) as.fun <- NULL
     as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)

@@ -888,7 +888,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         if(!quiet) message(sprintf("Reading from simulation results on file:\n%s",dt.models[,paste(unique(path.rds),collapse="\n")]))
         
         simres <- try(NMreadSim(dt.models[,path.rds],wait=wait,quiet=quiet,progress=progress,as.fun=as.fun))
-        if(inherits(simres,"try-error")) {
+        if(inherits(simres,"try-error") || is.null(simres) || nrow(simres)==0) {
             message("Reading results on file returned error(s). Simulations will be re-run even though `reuse.results=TRUE`.")
         } else {
             return(returnSimres(simres))

@@ -316,7 +316,8 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     addClass(res,"NMsimRes")
 
 ### if no models ran successfully, res will be a zero-row data table. Should that be saved?
-    if(!is.null(rdstab$path.results.read)){
+    if(!is.null(rdstab$path.results.read) ){
+        if(nrow(res)>0){
         NMwriteData(res,
                     file=rdstab$path.results.read,
                     formats.write="fst",
@@ -324,9 +325,10 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
                     quiet=TRUE)
         ## this message may confuse because the user may think this has not happened if they don't see the message. And the message will only appear the first time data is being read.
         ## message("Results have been efficiently stored in results folder.")
-    }
-
-
+        } else {
+            message("Results empty.")
+        }
+}
     res
 
 }

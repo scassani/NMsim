@@ -784,17 +784,34 @@ test_that("basic - a model that fails on NMTRAN",{
                     ## dir.sims="testOutput",
                     name.sim="nmtranfail"
                    ,sge=F
+                   ,seed.R=12
                    ,nmquiet=F
                    ,wait=TRUE,
                     path.nonmem=path.nonmem
                     )
-
+    
     expect_equal(nrow(simres),0)
 
     expect_equal(
         nrow(NMreadSim(simres)),0
     )
 
+    ### rerunning the exact same sim with reuse.results to test how a failed sim is handled.
+    simres2 <- NMsim(file.mod,
+                    data=dt.sim,
+                    ## table.var="PRED IPRED",
+                    ## dir.sims="testOutput",
+                    name.sim="nmtranfail"
+                   ,sge=F
+                   ,seed.R=12
+                   ,nmquiet=F
+                   ,wait=TRUE,
+                    path.nonmem=path.nonmem
+                   ,reuse.results=TRUE
+                    )
+    
+    expect_equal(fix.time(simres),fix.time(simres2))
+    
 })
 
 
@@ -1010,7 +1027,13 @@ test_that("as.fun=data.table in function call",{
 ###### using nmsim2 update inits method
 
 test_that("basic - nmsim update inits",{
-    
+    NMdataConf(reset=TRUE)
+    NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75",
+               as.fun="data.table")
+    NMdataConf(dir.sims="testOutput/simtmp")
+    NMdataConf(dir.res="testOutput/simres")
+
+
     fileRef <- "testReference/NMsim_14.rds"
 
     file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"

@@ -4,7 +4,7 @@
 \alias{simPopEtas}
 \title{Generate a population based on a Nonmem model}
 \usage{
-simPopEtas(file, N, seed, pars, file.phi, as.fun, file.mod, ...)
+simPopEtas(file, N, seed.R, pars, file.phi, as.fun, file.mod, seed, ...)
 }
 \arguments{
 \item{file}{Passed to `NMdata::NMreadExt()`. Path to ext file. By
@@ -15,7 +15,7 @@ file name extension is not `.ext`, add `auto.ext=FALSE` (see
 
 \item{N}{Number of subjects to generate}
 
-\item{seed}{Optional seed. Will be passed to `set.seed`. Same
+\item{seed.R}{Optional seed. Will be passed to `set.seed`. Same
 thing as running `set.seed` just before calling
 `simPopEtas()`.}
 
@@ -35,6 +35,8 @@ as.fun="data.table". The default can be configured using
 NMdataConf.}
 
 \item{file.mod}{Deprecated. Use file instead.}
+
+\item{seed}{Deprecated. Use seed.R instead.}
 
 \item{...}{Additional arguments passed to NMdata::NMreadExt().}
 }

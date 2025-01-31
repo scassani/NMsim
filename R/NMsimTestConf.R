@@ -72,7 +72,7 @@ NMsimTestConf <- function(path.nonmem,dir.psn,method.execute,must.work=FALSE,sys
         method.execute.def <- "none"
     }
     res$method.execute <- simpleCharArg("method.execute",method.execute,method.execute.def,cc(psn,direct,nmsim,none))
-    if(res$method.execute%in%cc(direct,nmsim) && is.null(res$path.nonmem)){
+    if(res$method.execute%in%cc(direct,nmsim) && (is.null(res$path.nonmem) || res$path.nonmem=="none" || res$path.nonmem=="")){
         stop("When method.execute is direct or nmsim, path.nonmem must be provided.")
     }
 

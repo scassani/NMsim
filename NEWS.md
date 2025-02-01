@@ -1,10 +1,19 @@
 # NMsim 0.1.6
 
-* NMSim_NWPRI()
+* A major improvement is implemented on `NMSim_NWPRI()`, the
+  simulation method that leverages the Nonmem `NWPRI` subroutine to
+  simulate models with parameter uncertainty. This method was first
+  included in NMsim 0.1.3 but - as was clearly declared in that
+  version - it could only be trusted for simulation of `THETA`s. After
+  further development in both `NMsim` and `NMdata` to support this as
+  well as bugfixes in the new Nonmem 7.6.0, we are excited to share
+  full support for simulation with parameter uncertainty using the
+  inverse Wishart distribution through this simple interface.
+  
+  
+* The `$SIZES` can not easily be controlled using the simple `sizes` argument in `NMsim()`. It leverages a new function `NMupdateSizes()` which can be used to edit `$SIZES` independently of the `NMsim()` function.
 
-* sizes
-
-* inits
+* Parameter initial values, bounds and whether parameters are fixed can now also be 
 
 * Nonmem execution
 

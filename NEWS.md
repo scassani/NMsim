@@ -6,20 +6,39 @@
   included in NMsim 0.1.3 but - as was clearly declared in that
   version - it could only be trusted for simulation of `THETA`s. After
   further development in both `NMsim` and `NMdata` to support this as
-  well as bugfixes in the new Nonmem 7.6.0, we are excited to share
-  full support for simulation with parameter uncertainty using the
-  inverse Wishart distribution through this simple interface.
+  well as bugfixes in the new Nonmem 7.6.0, NMsim provides full
+  support for simulation with parameter uncertainty using the inverse
+  Wishart distribution through this simple interface.
   
-  
-* The `$SIZES` can not easily be controlled using the simple `sizes` argument in `NMsim()`. It leverages a new function `NMupdateSizes()` which can be used to edit `$SIZES` independently of the `NMsim()` function.
+* A new arguments `inits` is introduced to manually specify parameter
+  (initial) values. This is the values that go into `$THETA`, `$OMEGA`
+  and `SIGMA` sections of the control stream. To simulate with the
+  final estimated values (stored in a `.ext` file), simply add
+  `inits=list("theta(1)"=list(init=1.2))`.  For simulation, only the
+  parameter values (init) may be of interest, but if you are using
+  NMsim for estimation too, bounds and whether parameters are fixed
+  can now also controlled. `BLOCK` structures in `$OMEGA` and `SIGMA`
+  can currently not be changed (say, correlation of two random effects
+  cannot be introduced or removed).
 
-* Parameter initial values, bounds and whether parameters are fixed can now also be 
+* The `$SIZES` can now easily be controlled using the simple `sizes`
+  argument in `NMsim()`. It leverages a new function `NMupdateSizes()`
+  which can be used to edit `$SIZES` independently of the `NMsim()`
+  function. In `NMsim()` just add the argument like
+  `sizes=list(PD=100)` which will update or add `$SIZES PD=100` as
+  needed. See documentation for more details.
 
 * Nonmem execution
 
- - improved monitoring of Nonmem jobs
+ - improved monitoring of Nonmem jobs. In NMsim 0.1.5, `NMsim()` would
+   not always catch and properly handled failed runs. This is much
+   better handled now.
  
- - post.fun argument
+ - A new `post.fun` argument has been introduced in `NMexec()` to run
+   additional code once Nonmem has finished. This can be used to
+   automatically initiate creation of goodness of fit plots,
+   simulations or any full workflows run using `Rscript` after
+   estimation of models.
 
 ## Bugfixes
 

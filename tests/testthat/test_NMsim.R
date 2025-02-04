@@ -51,6 +51,8 @@ test_that("Basic",{
     ## ref <- readRDS(fileRef)
     expect_equal_to_reference(sim1,fileRef)
 
+    ## readLines("testOutput/xgxr025_sd1/xgxr025_sd1.mod")
+    
 })
 ## }
 

@@ -9,7 +9,9 @@ context("NMsim_NWPRI.R")
 
 library(data.table)
 library(NMdata)
-NMdataConf(reset=TRUE)
+NMdataConf(reset=TRUE,
+           dir.sim="testOutput"
+)
 
 
 ### so far disabled because test relies on NMdata 0.1.7
@@ -44,7 +46,6 @@ test_that("NMsim_NWPRI",{
         
         sim1 <- NMsim(file.mod=file.mod,
                       data=dat.sim,
-                      dir.sim="testOutput",
                       name.sim = "sd1_NWPRI",
                       method.sim=NMsim_NWPRI,
                       seed.nm=2342,
@@ -98,7 +99,6 @@ if(packageVersion("NMdata") >= "0.1.8.904") {
         
         sim1 <- NMsim(file.mod=file.mod,
                       data=dat.sim,
-                      dir.sim="testOutput",
                       name.sim = "sd2_NWPRI",
                       method.sim=NMsim_NWPRI,
                       seed.nm=2342,

@@ -49,3 +49,18 @@ test_that("Only one value per source",{
 })
 
 
+test_that("basic",{
+
+    fileRef <- "testReference/NMseed_04.rds"
+
+    if(F){
+        NMseed(models=data.table(1))
+        NMseed(models=data.table(1),nseeds=2)
+    }
+
+    set.seed(42)
+    res1 <- NMseed(models=data.table(1),values=2)
+
+    expect_equal_to_reference(res1,fileRef)
+    
+})

@@ -10,11 +10,6 @@
   support for simulation with parameter uncertainty using the inverse
   Wishart distribution through this simple interface.
   
-<<<<<<< HEAD
-* The `$SIZES` can not easily be controlled using the simple `sizes` argument in `NMsim()`. It leverages a new function `NMupdateSizes()` which can be used to edit `$SIZES` independently of the `NMsim()` function.
-
-* Parameter initial values, bounds and whether parameters are fixed can now also be 
-=======
 * A new arguments `inits` is introduced to manually specify parameter
   (initial) values. This is the values that go into `$THETA`, `$OMEGA`
   and `SIGMA` sections of the control stream. To simulate with the
@@ -32,13 +27,14 @@
   function. In `NMsim()` just add the argument like
   `sizes=list(PD=100)` which will update or add `$SIZES PD=100` as
   needed. See documentation for more details.
->>>>>>> ac5d3e7fc03bd37bb7fd56c85ec24c70eece86c8
 
 * Nonmem execution
 
- - improved monitoring of Nonmem jobs. In NMsim 0.1.5, `NMsim()` would
-   not always catch and properly handled failed runs. This is much
-   better handled now.
+ - Improved monitoring of Nonmem jobs. In NMsim 0.1.5, `NMsim()` would
+   not always catch and properly handled failed runs. On Linux, this
+   is much better handled now. On Windows, failures still may not be
+   caught properly - more work to be don on Windows to align with the
+   approach on Linux.
  
  - A new `post.fun` argument has been introduced in `NMexec()` to run
    additional code once Nonmem has finished. This can be used to

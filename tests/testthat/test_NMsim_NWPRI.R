@@ -9,14 +9,14 @@ context("NMsim_NWPRI.R")
 
 library(data.table)
 library(NMdata)
-NMdataConf(reset=TRUE,
-           dir.sim="testOutput"
-)
+NMdataConf(reset=TRUE)
+
+NMdataConf(dir.sims="testOutput")
 
 
 ### so far disabled because test relies on NMdata 0.1.7
 
-t.amt <- data.table(DOSE=c(100,400))
+dt.amt <- data.table(DOSE=c(100,400))
 dt.amt[,AMT:=DOSE*1000]
 dt.amt
 doses.sd <- NMcreateDoses(TIME=0,AMT=dt.amt,as.fun="data.table")

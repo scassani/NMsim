@@ -77,7 +77,9 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
     if(missing(values)) values <- NULL
     dots <- list(...)
     values <- append(values,dots)
-    if(any(!tolower(sapply(values,names))%in%c("init","lower","upper","fix"))){
+    
+    
+    if(any(!tolower(unlist(sapply(values,names)))%in%c("init","lower","upper","fix"))){
         stop("`values` must be a list of named lists.
   Example: values=list('theta(1)'=list(init=2))
   The allowed elements in each list is 'init', 'lower', 'upper', and 'fix'.")

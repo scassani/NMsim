@@ -150,8 +150,10 @@ provided. If constructing a new output table with
 
 \item{text.sim}{A character string to be pasted into
 $SIMULATION. This must not contain seed or SUBPROBLEM which
-are handled separately. Default is to include "ONLYSIM". To
-avoid that, use text.sim="".}
+are handled separately. Default is to include "ONLYSIM". You
+cannot avoid that using `text.sim`. If you need to drop
+`ONLYSIM`, use
+`modify.model=list(simulation=list(overwrite("ONLYSIM","")))`.}
 
 \item{method.sim}{A function (not quoted) that creates the
 simulation control stream and other necessary files for a

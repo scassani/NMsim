@@ -16,7 +16,7 @@ NMdataConf(reset=TRUE,
 
 ### so far disabled because test relies on NMdata 0.1.7
 
-dt.amt <- data.table(DOSE=c(100,400))
+t.amt <- data.table(DOSE=c(100,400))
 dt.amt[,AMT:=DOSE*1000]
 dt.amt
 doses.sd <- NMcreateDoses(TIME=0,AMT=dt.amt,as.fun="data.table")

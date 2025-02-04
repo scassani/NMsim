@@ -10,7 +10,6 @@
   full support for simulation with parameter uncertainty using the
   inverse Wishart distribution through this simple interface.
   
-  
 * The `$SIZES` can not easily be controlled using the simple `sizes` argument in `NMsim()`. It leverages a new function `NMupdateSizes()` which can be used to edit `$SIZES` independently of the `NMsim()` function.
 
 * Parameter initial values, bounds and whether parameters are fixed can now also be 

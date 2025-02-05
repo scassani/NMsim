@@ -97,7 +97,8 @@ test_that("modify.model",{
         ref <- readRDS(fileRef)
         ref$PK
         ref$ERROR
-
+NMreadSection(file.mod,section="ERROR")
+        
         mod$THETA
         ref$THETA
 
@@ -302,5 +303,30 @@ test_that("inits - modify parameter",{
 
 }
     
+})
+
+test_that("No ONLYSIM",{
+
+###  On windows this gives and error that tmp.dat is not found.
+    fileRef <- "testReference/NMsim_07.rds"
+
+    file.mod <- "testData/nonmem/xgxr025.mod"
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "sd1",
+                  seed.nm=2342,
+                  onlysim=FALSE,
+                  execute=FALSE,
+                  method.update.inits="nmsim")
+
+    ## ref <- readRDS(fileRef)
+    expect_equal_to_reference(sim1,fileRef)
+
+    res1 <- NMreadSection(readRDS(sim1)$path.sim,section="sim")
+    res1 <- NMdata:::cleanSpaces(res1)
+
+    expect_equal(res1,"$SIMULATION (2342)")
+
 })
 

@@ -9,6 +9,8 @@
 ##' @param data.sim See \code{?NMsim}.
 ##' @param nsims Number of replications wanted. The default is 1. If
 ##'     greater, multiple control streams will be generated.
+##' @param onlysim Include `ONLYSIM` in `$SIMULATION`? Default is
+##'     `TRUE`. Only applied when `replace.sim=`TRUE`.
 ##' @param replace.sim If there is a $SIMULATION section in the
 ##'     contents of file.sim, should it be replaced? Default is
 ##'     yes. See the \code{list.section} argument to \code{NMsim} for
@@ -21,7 +23,7 @@
 ##' @return Character vector of simulation control stream paths
 ##' @export
 
-NMsim_default <- function(file.sim,file.mod,data.sim,nsims=1,replace.sim=TRUE,return.text=FALSE){
+NMsim_default <- function(file.sim,file.mod,data.sim,nsims=1,onlysim=TRUE,replace.sim=TRUE,return.text=FALSE){
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
@@ -53,8 +55,9 @@ NMsim_default <- function(file.sim,file.mod,data.sim,nsims=1,replace.sim=TRUE,re
 
         ## define the $SIM section to insert
         ## section.sim <- sprintf("$SIMULATION ONLYSIM (%s)",seed)
-        section.sim <- "$SIMULATION ONLYSIM"
-        ## section.sim <- "$SIMULATION"
+        ## section.sim <- "$SIMULATION ONLYSIM"
+        section.sim <- "$SIMULATION"
+        if(onlysim) section.sim <- paste(section.sim,"ONLYSIM")
 
         ## remove any existing $SIM
         lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim,section="$SIMULATION",

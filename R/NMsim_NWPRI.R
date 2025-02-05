@@ -36,9 +36,7 @@
 
 NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 
-    NMdata:::messageWrap("\nNMsim_NWPRI() currently only reliably simulates typical THETAs. Simulation with variability on OMEGA and SIGMA cannot be trusted. Always run this method in NMsim with `typical=TRUE`",fun.msg=message)
-
-    NMdata:::messageWrap("\nNMsim_NWPRI() with compatibility for NONMEM 7.60 depends on NMdata 0.1.9 or later.",fun.msg=message)
+    NMdata:::messageWrap("NMsim_NWPRI: Simulation with variability on OMEGA and SIGMA are only reliable starting from Nonmem 7.60. Prior to Nonmem 7.60, NMsim_NWPRI reliably samples THETAs only. For that to work, also make sure to use NMdata >= 0.1.9. To explicitly skip sampling OMEGAs, run NMsim with `typical=TRUE`",fun.msg=message)
     
     if(packageVersion("NMdata")<"0.1.6.932"){
         stop("NMsim_NWPRI requires NMdata 0.1.7 or later.")
@@ -68,8 +66,6 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
     value <- NULL
 
 
-    
-    
 ### NMsim_default() is run because it inserts $SIMULATION instead of
 ### $ESTIMATION and a few other things that are always needed.
     files.needed.def <- NMsim_default(file.sim=file.sim,file.mod,data.sim)

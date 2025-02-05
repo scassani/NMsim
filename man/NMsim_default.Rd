@@ -10,6 +10,7 @@ NMsim_default(
   file.mod,
   data.sim,
   nsims = 1,
+  onlysim = TRUE,
   replace.sim = TRUE,
   return.text = FALSE
 )
@@ -23,6 +24,9 @@ NMsim_default(
 
 \item{nsims}{Number of replications wanted. The default is 1. If
 greater, multiple control streams will be generated.}
+
+\item{onlysim}{Include `ONLYSIM` in `$SIMULATION`? Default is
+`TRUE`. Only applied when `replace.sim=`TRUE`.}
 
 \item{replace.sim}{If there is a $SIMULATION section in the
 contents of file.sim, should it be replaced? Default is

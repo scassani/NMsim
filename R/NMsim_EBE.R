@@ -48,7 +48,7 @@ NMsim_EBE <- function(file.sim,file.mod,data.sim,file.phi,return.text=FALSE){
     }
 
     path.phi.sim <- fnAppend(fnExtension(file.sim,".phi"),"input")
-    files.needed.def <- NMsim_default(file.sim=file.sim,file.mod=file.mod,data.sim=data.sim)
+    files.needed.def <- NMsim_default(file.sim=file.sim,file.mod=file.mod,data.sim=data.sim,onlysim=FALSE)
 
     lines.sim <- readLines(file.sim)
     
@@ -58,9 +58,9 @@ NMsim_EBE <- function(file.sim,file.mod,data.sim,file.phi,return.text=FALSE){
     
     
 ### $SIM ONLYSIM does not work in combination with $ESTIM, so we have to drop ONLYSIM
-    lines.section.sim <- NMreadSection(lines=lines.sim,section="SIM")
-    lines.section.sim <- sub("ONLYSIM(ULATION)*","",lines.section.sim)
-    lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim,section="SIM",newlines=lines.section.sim,backup=FALSE,quiet=TRUE)
+    ## lines.section.sim <- NMreadSection(lines=lines.sim,section="SIM")
+    ## lines.section.sim <- sub("ONLYSIM(ULATION)*","",lines.section.sim)
+    ## lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim,section="SIM",newlines=lines.section.sim,backup=FALSE,quiet=TRUE)
 
     
     

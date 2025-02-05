@@ -52,12 +52,6 @@
   matrix for theta estimates into `$THETAPV` which would make NONMEM
   fail. Fixed.
 
-## Other improvements
-
-* `NMexec()` now does a better job looking for NMtran errors during
-  model runs. This can identify a terminated Nonmem run instead of
-  waiting for it to finish.
-
 # NMsim 0.1.5
 
 ## New features

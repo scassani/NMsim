@@ -2,9 +2,12 @@
 ##' Note: This function currently only works with fixed blocks as in 
 ##'       the NMsim_NWPRI functionality for printing $THETAPV.
 ##'
-##' @param block_mat_string Output of NMsim::NMcreateMatLines. This is a string of
-##' OMEGA/SIGMA estimates that will be wrapped onto multiple lines for ease of
-##' reading in NONMEM control streams.
+##' @param block_mat_string Output of NMsim::NMcreateMatLines. This is
+##'     a string of OMEGA/SIGMA estimates that will be wrapped onto
+##'     multiple lines for ease of reading in NONMEM control streams.
+##' @details This function is currently not used by any functions in
+##'     NMsim and is for now deprecated. NMcreateMatLines() handles
+##'     this internally.
 ##' @return Character vector
 ##'
 ##' @keywords internal

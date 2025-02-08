@@ -17,6 +17,7 @@
 ##'     multivariate normal distribution, i.e. from an ellipsoidal 
 ##'     region R1 over which  only  a fraction of mass of the 
 ##'     normal occurs. This fraction is given by PLEV.
+##' @param ... Additional arguments passed to `NMsim_default()`.
 ##' @details Simulate with parameter uncertainty. THETA parameters are
 ##'     sampled from a multivariate normal distribution while OMEGA
 ##'     and SIGMA are simulated from the inverse-Wishart
@@ -34,7 +35,7 @@
 ##' }
 ##' @export
 
-NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
+NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999,...){
 
     NMdata:::messageWrap("NMsim_NWPRI: Simulation with variability on OMEGA and SIGMA are only reliable starting from Nonmem 7.60. Prior to Nonmem 7.60, NMsim_NWPRI reliably samples THETAs only. For that to work, also make sure to use NMdata >= 0.1.9. To explicitly skip sampling OMEGAs, run NMsim with `typical=TRUE`",fun.msg=message)
     
@@ -68,7 +69,7 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999){
 
 ### NMsim_default() is run because it inserts $SIMULATION instead of
 ### $ESTIMATION and a few other things that are always needed.
-    files.needed.def <- NMsim_default(file.sim=file.sim,file.mod,data.sim)
+    files.needed.def <- NMsim_default(file.sim=file.sim,file.mod,data.sim,...)
     lines.sim <- readLines(file.sim)
 
     cov <- NMreadCov(fnExtension(file.mod,".cov"))

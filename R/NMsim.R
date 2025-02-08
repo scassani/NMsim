@@ -62,12 +62,12 @@
 ##'     after the Nonmem simulations and before plotting. For each
 ##'     list element, its name refers to the name of the column to
 ##'     transform, the contents must be the function to apply.
-##' @param seed.R A value passed to \code{set.seed()}. It may be
-##'     better use \code{seed.R} rather than calling \code{set.seed()}
-##'     manually because the seed can then be captured and stored by
-##'     \code{NMsim()} for reproducibility. See \code{seed.nm} for
-##'     finer control of the seeds that are used in the Nonmem control
-##'     streams.
+##' @param seed.R A value passed to \code{set.seed()}. It is
+##'     recommended to use \code{seed.R} rather than calling
+##'     \code{set.seed()} manually because the seed can then be
+##'     captured and stored by \code{NMsim()} for reproducibility. See
+##'     \code{seed.nm} for finer control of the seeds that are used in
+##'     the Nonmem control streams.
 ##' @param seed.nm Control Nonmem seeds. If a numeric, a vector or a
 ##'     `data.frame`, these are used as the the seed values (a single
 ##'     value or vector will be recycled so make sure the dimesnsions
@@ -322,7 +322,7 @@
 ##'     handling seeds are NMsim features that are done in addition to
 ##'     the \code{method.sim}. Also the \code{modeify.model} argument
 ##'     is handled in addition to the \code{method.sim}. The
-##'     \code{subproblems} and \code{seed} arguments are available to
+##'     \code{subproblems} and \code{seed.nm} arguments are available to
 ##'     all methods creating a \code{$SIMULATION} section.
 ##'
 ##' Notice, the following functions are internally available to

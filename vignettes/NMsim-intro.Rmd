@@ -11,14 +11,16 @@ output:
       toc_depth: 4
       toc_float: true
       number_sections: false
-      df_print: paged
+      df_print: kable
       editor_options:
         chunk_output_type: inline
       code_folding: show
 bibliography: [packages.bib]
 pkgdown:
   as_is: true
+
 ---
+
 
 ```{css echo=FALSE}
 
@@ -108,6 +110,32 @@ div.data {
  border: solid 5px #FFDE9C;
  /* background-image: url("Stats graph_ffffff.png"); */
 }
+
+
+/* ----------- code fold button ------------- */
+.showopt {
+  display:inline-block;
+  width: 120px;
+  height: 29px;
+  text-align: center;
+  font-weight:400;
+  vertical-align: middle !important;
+  float: right;
+  font-family: sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+  border-color: #adb1b8 #a2a6ac #8d9096;
+  border-style: solid;
+  box-shadow: rgba(255,255,255,.6) 0 1px 0 inset;
+  background-image:none;
+}
+
+pre{
+  width:100%;
+}
+
+
+
 
 ``` 
 
@@ -205,10 +233,11 @@ simres <- NMsim(file.mod=file.mod,data=data.sim)
 simres <- NMreadSim("simres-intro/xgxr021_noname_MetaData.rds")
 ```
 
-<details>
 <summary>Plot simulation results (click to show code)</summary>
 
+<div class="fold s">
 ```{r,simple-sim-plot,eval=TRUE,echo=TRUE,results="hide"}
+
 datl <- as.data.table(simres) |>
     melt(measure.vars=cc(PRED,IPRED,Y))
 
@@ -218,13 +247,14 @@ plot1 <- ggplot(datl,aes(TIME,value,colour=variable))+
     labs(x="Hours since first dose",y="Concentration (ng/mL)",
          subtitle="Simulation of one new subject.",
          colour="")
-plot1
+
 ```
-</details>
+</div>
 
 ```{r,simple-sim-showplot,echo=FALSE,fig.cap='`PRED`, `IPRED`, and `Y` (if defined in control stream) are easily obtained with NMsim.'}
 plot1
 ```
+
  
 Notice that no information about the model is needed except for the
 control stream file path. The simulation is based on evaluation of
@@ -257,6 +287,7 @@ Notice, `NMcreateDoses()` has convenient behaviours. See `?NMcreateDoses` and th
 
 <details>
 <summary>Additional `NMcreateDoses()` examples</summary>
+
 ```{r,gen-data-extra,echo=TRUE,eval=TRUE}
 ## arguments are expanded - makes loading easy
 NMcreateDoses(TIME=c(0,12,24,36),AMT=c(2,1))
@@ -403,7 +434,6 @@ data.sim.ind <- merge(subset(data.sim,select=-ID),
 setorder(data.sim.ind,ID,TIME,EVID)
 simres.ebe <- NMsim(file.mod,
                     data=data.sim.ind,
-                    method.sim=NMsim_EBE,
                     table.vars=c("CL","V2","IPRED","PRED")
 )
 ```
@@ -436,7 +466,7 @@ rbind(
     melt(measure.vars=cc(V2,CL)) |>
     mergeCheck(data.table(variable=c("V2","CL"),var.char=c("V2 (L)","CL (L/h)")),by="variable",quiet=TRUE) |>
     dcast(ID+var.char~label,value.var="value") |>
-    ggplot(aes(Estimated, Simulated,colour="dummy"))+
+    ggplot(aes(Estimated, Simulated,codivlour="dummy"))+
     geom_abline(slope=1)+
     geom_point()+
     facet_wrap(~var.char,scales="free")+
@@ -459,9 +489,9 @@ In the following we use both of these approaches to simulate 1000 new
 subjects. We use `NMsim()`'s `name.sim` argument to distinguish the
 simulation in output data and simulation output files.
 
-<details>
 <summary>Simulate 1000 new subjects using `$SUBPROBLEMS`</summary>
 
+<div class="fold s">
 ```{r,subproblems,include=TRUE,echo=TRUE}
 tablevars=cc(PRED,IPRED,Y)
 simres.subprob <- NMsim(file.mod=file.mod,
@@ -473,10 +503,11 @@ simres.subprob <- NMsim(file.mod=file.mod,
                         reuse.results=reuse.results
                         )
 ```
-</details>
+</div>
 
-<details>
 <summary>Simulate 1000 new subjects with covariate sampling</summary>
+
+<div class="fold s">
 ```{r,datarep,include=TRUE,echo=TRUE}
 ## Replicating input data set allows for manual resampling of covariates.
 
@@ -509,11 +540,9 @@ simres.datarep <- NMsim(file.mod=file.mod,
                         reuse.results=reuse.results
                         )
 ```
-</details>
+</div>
 
 
-
-<details>
 <summary>Derive and plot 90% prediction intervals</summary>
 
 ```{r,pred-inds-calc}
@@ -537,11 +566,11 @@ p.pi <- ggplot(simres.pi,aes(TIME,fill=type))+
     facet_wrap(~name.sim)+
     labs(x="Hours since first dose",y="Concentration (ng/mL)",colour="",linetype="")
 ```
-</details>
 
 ```{r,pred-inds-showplot,fig.cap="Prediction intervals. New subjects can be simulated in multiple ways with NMsim. A simulated population can be reused across simulations.",echo=FALSE}
 p.pi
 ```
+
 
 ## Read previously generated simulations
 There is no need to save simulation results because they are already saved by `NMsim`. Instead, use arguments `dir.sims`, `dir.res` and `name.sim` to make sure to get a meaningful structure for the generated files. Then read the results with `NMreadSim()`. To re-read the first simulation we did in this article, we can do this:
@@ -553,10 +582,10 @@ simres <- NMreadSim("simres-intro/xgxr021_noname_MetaData.rds")
 
 The folder and file names were constructed based on `dir.res="simres-intro"` and because `name.sim` was not provided for that first simulation, in which case "noname" is used as a placeholder. In fact, if we look at the console output from NMsim, it is telling us exactly that (look at the last line).
 
-<details>
 <summary>Click to show R console output from NMsim</summary>
 
 
+<div class="fold o">
 ```
 > simres <- NMsim(file.mod=file.mod,data=data.sim)
 Location(s) of intermediate files and Nonmem execution:
@@ -577,7 +606,4 @@ Simulation results returned. Re-read them without re-simulating using:
   simres <- NMreadSim("simres-intro/xgxr021_noname_MetaData.rds")
 
 ```
-
-</details>
-
-
+</div>

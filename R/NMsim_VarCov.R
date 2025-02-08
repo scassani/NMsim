@@ -24,13 +24,14 @@
 ##'     `readParsWide` and `NMdata::NMreadExt`.
 ##' @param write.ext If supplied, a path to an rds file where the
 ##'     parameter values used for simulation will be saved.
+##' @param ... Additional arguments passed to `NMsim_default()`.
 ##' @import NMdata
 ##' @import data.table
 ##' @importFrom MASS mvrnorm
 ##' @return Character vector of simulation control stream paths
 ##' @export
 
-NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL){
+NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...){
 
 #### Section start: Dummy variables, only not to get NOTE's in package checks ####
 
@@ -53,7 +54,7 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL){
 ### Section end: Dummy variables, only not to get NOTE's in package checks 
     
 
-    files.needed.def <- NMsim_default(file.sim=file.sim,file.mod,data.sim)
+    files.needed.def <- NMsim_default(file.sim=file.sim,file.mod,data.sim,...)
     
     path.lst <- fnExtension(file.mod,"lst")
     path.cov <- fnExtension(path.lst,"cov")

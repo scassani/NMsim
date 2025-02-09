@@ -4,7 +4,7 @@
 \alias{NMsim_NWPRI}
 \title{Simulate with parameter variability using the NONMEM NWPRI subroutine}
 \usage{
-NMsim_NWPRI(file.sim, file.mod, data.sim, PLEV = 0.999)
+NMsim_NWPRI(file.sim, file.mod, data.sim, PLEV = 0.999, ...)
 }
 \arguments{
 \item{file.sim}{The path to the control stream to be edited. This function overwrites the contents of the file pointed to by file.sim.}
@@ -19,6 +19,8 @@ value of THETA will actually be obtained using a truncated
 multivariate normal distribution, i.e. from an ellipsoidal 
 region R1 over which  only  a fraction of mass of the 
 normal occurs. This fraction is given by PLEV.}
+
+\item{...}{Additional arguments passed to `NMsim_default()`.}
 }
 \description{
 Modify control stream for simulation with uncertainty

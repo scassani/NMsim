@@ -4,7 +4,7 @@
 \alias{NMsim_VarCov}
 \title{Simulate with parameter values sampled from a covariance step}
 \usage{
-NMsim_VarCov(file.sim, file.mod, data.sim, nsims, ext, write.ext = NULL)
+NMsim_VarCov(file.sim, file.mod, data.sim, nsims, ext, write.ext = NULL, ...)
 }
 \arguments{
 \item{file.sim}{The path to the control stream to be edited. This
@@ -25,6 +25,8 @@ greater, multiple control streams will be generated.}
 
 \item{write.ext}{If supplied, a path to an rds file where the
 parameter values used for simulation will be saved.}
+
+\item{...}{Additional arguments passed to `NMsim_default()`.}
 }
 \value{
 Character vector of simulation control stream paths

@@ -99,12 +99,12 @@ default is subproblem=0 which means not to use
 they be used? If TRUE and reading the results fail, the
 simulations will still be rerun.}
 
-\item{seed.R}{A value passed to \code{set.seed()}. It may be
-better use \code{seed.R} rather than calling \code{set.seed()}
-manually because the seed can then be captured and stored by
-\code{NMsim()} for reproducibility. See \code{seed.nm} for
-finer control of the seeds that are used in the Nonmem control
-streams.}
+\item{seed.R}{A value passed to \code{set.seed()}. It is
+recommended to use \code{seed.R} rather than calling
+\code{set.seed()} manually because the seed can then be
+captured and stored by \code{NMsim()} for reproducibility. See
+\code{seed.nm} for finer control of the seeds that are used in
+the Nonmem control streams.}
 
 \item{seed.nm}{Control Nonmem seeds. If a numeric, a vector or a
     `data.frame`, these are used as the the seed values (a single
@@ -429,7 +429,7 @@ Loosely speaking, the argument \code{method.sim} defines
     handling seeds are NMsim features that are done in addition to
     the \code{method.sim}. Also the \code{modeify.model} argument
     is handled in addition to the \code{method.sim}. The
-    \code{subproblems} and \code{seed} arguments are available to
+    \code{subproblems} and \code{seed.nm} arguments are available to
     all methods creating a \code{$SIMULATION} section.
 
 Notice, the following functions are internally available to

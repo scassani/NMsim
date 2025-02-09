@@ -264,15 +264,19 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
                 stop("Do not use file.mod in args.NMscanData. NMsim created the simulation control streams so as a user you do not need to help NMsim find them.")
             }
             args.NM$file.mod <- function(file) fnExtension(file,".mod")
+            ## args.NM$file.mod <- fnExtension(path.lst.read,".mod")
+            
             if(! "quiet" %in% names(args.NM)){
                 args.NM$quiet <- TRUE
             }
-
+            
             
             ## put this in try and report better info if broken
-            this.res <- try(do.call(NMscanData,
+            this.res <- try(
+                do.call(NMscanData,
                                     c(list(file=path.lst.read),args.NM)
-                                    ),silent=TRUE)
+                        )
+               ,silent=TRUE)
             if(inherits(this.res,"try-error")){
                 if(!quiet) {
                     message(sprintf("Results could not be read from %s\nPasting the bottom of output control stream:",path.lst.read))

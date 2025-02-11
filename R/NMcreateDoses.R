@@ -76,7 +76,7 @@
 ##' @import NMdata
 ##' @export
 
-NMcreateDoses <- function(TIME, AMT=NULL, EVID=1, CMT=1, ADDL=NULL, II=NULL, RATE=NULL, SS=NULL, addl=NULL, addl.lastonly=TRUE, col.id="ID", as.fun){
+NMcreateDoses <- function(TIME, AMT, EVID=1, CMT=1, ADDL=NULL, II=NULL, RATE=NULL, SS=NULL, addl=NULL, addl.lastonly=TRUE, col.id="ID", as.fun){
     
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
@@ -98,6 +98,9 @@ NMcreateDoses <- function(TIME, AMT=NULL, EVID=1, CMT=1, ADDL=NULL, II=NULL, RAT
 
     if(missing(as.fun)) as.fun <- NULL
     as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
+
+    if(missing(AMT)) AMT <- NULL
+    if(is.null(AMT)) stop("AMT must be provided.")
     
     list.doses <- list(TIME=TIME, EVID=EVID, CMT=CMT, AMT=AMT, RATE=RATE, SS=SS , ADDL=ADDL, II=II
                        )

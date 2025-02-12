@@ -23,8 +23,6 @@ NMwritePreamble <- function(file.mod,lines,description=NULL,based.on=NULL,author
     contents.updated <- NULL
     include <- NULL
 
-##:ess-bp-start::browser@nil:##
-browser(expr=is.null(.ESSBP.[["@33@"]]));##:ess-bp-end:##
     
     
     lines <- getLines(file=file.mod,lines=lines)

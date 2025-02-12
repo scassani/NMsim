@@ -6,7 +6,7 @@
 \usage{
 NMcreateDoses(
   TIME,
-  AMT = NULL,
+  AMT,
   EVID = 1,
   CMT = 1,
   ADDL = NULL,

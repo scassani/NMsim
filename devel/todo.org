@@ -113,6 +113,8 @@ have to supply what dists are needed.
 *** DONE Make sure NMsim uses seed and args.seed meaningfully mean
 
 ** NMsim
+*** TODO [#A] nmrep argument
+*** TODO [#A] clean up meta data
 *** DONE When adding seed and SUBPROBLEMS, only add once
 If $SIMULATION spans more than one line, this is currently pasted repeatedly
 *** DONE Drop NMsim from file names

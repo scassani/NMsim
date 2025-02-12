@@ -122,7 +122,8 @@ have to supply what dists are needed.
 *** TODO [#A] nmrep argument
 *** TODO [#A] clean up meta data
 **** Get rid of ROWMODEL2
-**** name.mod or run.mod. What is the difference? This is called model in output
+**** name.mod or run.mod. What is the difference?
+This is called model in output
 *** TODO [#A] include fast.tables column in meta data
 *** DONE When adding seed and SUBPROBLEMS, only add once
 If $SIMULATION spans more than one line, this is currently pasted repeatedly

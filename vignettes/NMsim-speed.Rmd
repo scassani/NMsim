@@ -34,7 +34,7 @@ run.simuls <- FALSE
 
 The following points show ways to improve calculation speed with `NMsim`. The list is somewhat prioritized, most important first.
 
-* Reduce amount of data written to file
+* Reduce amount of data written to file  
 Almost always use the `table.vars` argument. See the example below too.
 
 * Break the simulation into multiple Nonmem runs
@@ -42,9 +42,10 @@ Almost always use the `table.vars` argument. See the example below too.
 * Use `data.table`
 Depending on the data sets this can make a very large difference. Consider using `NMdataConf(as.fun="data.tabe")`
 
-* Use `method.execute="nmsim"`
+* Use `method.execute="nmsim"`  
+If you provide the path to the Nonmem executable using `path.nonmem`, `NMsim()` will be default use `method.execute="nmsim"`. Trick: configure this once and for all in the top of your script with something like `NMdata::NMdataConf(path.nonmem="/path/to/nmfe75")`.
 
-* Parellilize individual runs
+* Parellilize individual runs  
 NMsim does support parellilization (performing a Nonmem run using multiple cores). However, this is rarely worth it for simulations. Most of the time, input/output (reading/writing to disk) is the bottleneck, and splitting the data set into multiple runs will most often reduce run times more.
 
 
@@ -57,14 +58,12 @@ console. If `NMsim` complains it cannot find the output tables, it is
 likely because Nonmem failed and did not generate them.
 
 There is one thing about the Nonmem model evaluation you have to
-remember. Nonmem cannot run a model if it uses variables that are
-unavailable. It may be a covariate in the model that you did not
-include in your data set. And often the estimation models include
+remember. Any variable that is used in Nonmem must be defined either inside the model or in the data set. There may be a covariate in the estimated model that you did not
+include in your simulation data set - the simulation will break. Sometimes the estimation models include
 variables in output tables that were not used for anything else by
 Nonmem than being read from the input data set and printed in output
-tables. In fact, this was exactly why we included a row identifier
-calle `ROW` when generating the simulation data set. If we do not do
-that, we get this error:
+tables. Imagine you cleverly included a unique row identifier called `ROW` in your estimation data set and listed it in `$TABLE` to reliably combine input and output data. It is not used for anything else in the data.
+If we do not customize the output table in `NMsim()` using the `table.vars` argument and the simulation input data set does not include a numeric `ROW` column, we get this error:
 
 ```
 Starting NMTRAN
@@ -83,7 +82,7 @@ Results could not be read.
 ```
 
 Nonmem gets to writing the `$TABLE` but cannot find a variable called
-`ROW`. Again, we fixed that by including `ROW`. In many cases, the
+`ROW`. But remember, NMsim normally does not need a row identifier to combine the input and output data. In many cases, the
 best way to fix this is to reduce the `$TABLE` section using the
 `table.vars` argument. All we need from the simulation results are
 population and individual predictions anyway. We could have omitted
@@ -96,6 +95,13 @@ simres <- NMsim(file.mod=file.mod,
 ```
 
 `table.vars` can help avoid many of these problems. And if `NMsim` is
-slow, this is a potentially a very large low-hanging fruit. In a
+slow, this is a large low-hanging fruit. In a
 benchmark example, I reduced a (very large) simulation run time from
 ~1.5 hours to ~7 minutes this way.
+
+## Speeding up large simulations
+`NMsim()` offers a powerful way to parallellize mutually independent
+simulations. This will typically be distinct subjects which can be
+simulated without regard to each other. The simple way to do this is
+to split the data set into a list of data sets and pass that list in
+the `NMsim()` `data` argument.

@@ -6,7 +6,7 @@
 ##'     status of the individual models.
 ##' @keywords internal
 
-NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=FALSE,quiet=FALSE,progress,as.fun){
+NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=FALSE,quiet=FALSE,progress,fast.tables=FALSE,recover.input=TRUE,as.fun){
     
     
     ROWTMP <- NULL
@@ -81,7 +81,7 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
 ### one. NMreadSimModTabOne checks that there is only one rds but I'm
 ### sure that requirement is needed anymore. Could try to combine
 ### these and run at once. Would require more testing.
-    res.list <- lapply(split(modtab,by="path.rds.read"),NMreadSimModTabOne,check.time=check.time,dir.sims=dir.sims,wait=wait,skip.missing=skip.missing,quiet=quiet,as.fun=as.fun,progress=progress)
+    res.list <- lapply(split(modtab,by="path.rds.read"),NMreadSimModTabOne,check.time=check.time,dir.sims=dir.sims,wait=wait,skip.missing=skip.missing,quiet=quiet,fast.tables=fast.tables,recover.input=recover.input,as.fun=as.fun,progress=progress)
     
     
     res <- rbindlist(res.list,fill=TRUE)
@@ -100,7 +100,7 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
 ##' @inheritParams NMreadSim
 ##' @keywords internal
 ##' @import utils
-NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,skip.missing=FALSE,progress,as.fun){
+NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,skip.missing=FALSE,progress,fast.tables=FALSE,recover.input,as.fun){
     
     . <- NULL
     ROWMODEL2 <- NULL
@@ -254,7 +254,7 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     res.list <- lapply(1:nsplits,function(count){
         
         dat <- tab.split[[count]]
-        bycols <- intersect(c("ROWMODEL2","model"),colnames(dat))
+        bycols <- intersect(c("ROWMODEL2","model","name.sim","model.sim"),colnames(dat))
         res <- dat[,{
             
             ## the rds table must keep NMscanData arguments
@@ -271,12 +271,18 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
             }
             
             
+            if(fast.tables){
+                
+                this.res <- try(NMreadTabFast(path.lst.read,recover.input=recover.input))
+                ### TODO here or inside NMreadTabFast: this.res[,model.sim:=modelname()]
+            } else {
             ## put this in try and report better info if broken
             this.res <- try(
                 do.call(NMscanData,
                                     c(list(file=path.lst.read),args.NM)
                         )
                ,silent=TRUE)
+            }
             if(inherits(this.res,"try-error")){
                 if(!quiet) {
                     message(sprintf("Results could not be read from %s\nPasting the bottom of output control stream:",path.lst.read))
@@ -292,6 +298,8 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
                 }
             }
 
+            ### TODO have to check that ..name.sim exists 
+            ## this.res[,name.sim:=..name.sim]
 
             this.res
         },by=bycols]

@@ -47,7 +47,7 @@
 
 
 
-NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progress,rm.tmp=FALSE,as.fun){
+NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progress,rm.tmp=FALSE,fast.tables=FALSE,recover.input,as.fun){
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
     
@@ -132,7 +132,8 @@ NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progres
     if(sum(dt.x$is.ModTab)){
         res.modTab <- NMreadSimModTab(x[dt.x$is.ModTab],check.time=check.time,
                                       dir.sims=dir.sims,wait=wait,quiet=quiet,
-                                      progress=progress)
+                                      progress=progress,
+                                      fast.tables=fast.tables,recover.input=recover.input)
         if(is.null(res.all)){
             res.all <- res.modTab
         } else {

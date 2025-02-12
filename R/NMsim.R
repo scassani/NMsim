@@ -521,7 +521,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         if(!is.list(args.NMscanData)) stop("args.NMscanData must be a list.")
         if(any(names(args.NMscanData)=="")) stop("All elements in args.NMscanData must be named.")
     }
-    args.NMscanData.default <- list(merge.by.row=FALSE,col.model="model.sim")
+    args.NMscanData.default <- list(merge.by.row=FALSE,col.model=NULL)
+## moving this from NMscanData to be handled by NMreadSim or a sub-function hereof
+   ##,col.model="model.sim")
     
     if(missing(progress)) progress <- NULL
     
@@ -791,9 +793,13 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             stop("Empty data set provided. If `data` is a list of data sets, make sure all of them are non-empty.")
         }
 
+        ## moving name.sim from input data to simulation meta data
+        if(F){
         col.sim <- tmpcol(names=sapply(data,names),base="name.sim")
         if(col.sim != "name.sim") message(sprintf("column name.sim exists, name.sim written to column %s instead.",col.sim))
         data <- lapply(data,function(x) x[,(col.sim):=..name.sim])
+}
+        dt.models[,name.sim:=..name.sim]
         
         dt.data <- data.table(DATAROW=1:length(data),data.name=names.data)
         if(dt.data[,.N]==1) dt.data[,data.name:=""]
@@ -834,7 +840,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     
     ## spaces not allowed in model names
     dt.models[,fn.sim:=gsub(" ","_",fn.sim)]
+## run.sim should be deprecated. model.sim is what is used in results data.
     dt.models[,run.sim:=modelname(fn.sim)]
+    dt.models[,model.sim:=modelname(fn.sim)]
 
     
     ## dir.sim is the model-individual directory in which the model will be run
@@ -1031,9 +1039,11 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             rewrite.data.section <- FALSE
             order.columns <- FALSE
 
+            if(F){
             col.sim <- tmpcol(data.this,base="name.sim")
             if(col.sim != "name.sim") warning(sprintf("column name.sim exists, name.sim written to column %s instead.",col.sim))
             data.this[,(col.sim):=..name.sim]
+            }
         } else {
             data.this <- data[[DATAROW]]
 

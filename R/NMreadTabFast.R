@@ -6,13 +6,16 @@
 ##' @import data.table
 ##' @import NMdata
 
-NMreadTabFast <- function(file.mod,carry.out,...){
-    
+NMreadTabFast <- function(file,file.mod,carry.out,...){
+
+    if(missing(file.mod)||is.null(file.mod)){
+        file.mod <- file
+    }
     if(missing(carry.out) || is.null(carry.out)){
         carry.out <- TRUE
     }
 
-    meta.output <- NMscanTables(file=file.mod,quiet=TRUE,as.fun="data.table",skip.absent=TRUE,
+    meta.output <- NMscanTables(file=file,quiet=TRUE,as.fun="data.table",skip.absent=TRUE,
                                 modelname=file.mod,col.model="model",meta.only=TRUE)
 
     
@@ -28,7 +31,7 @@ NMreadTabFast <- function(file.mod,carry.out,...){
     ## add input data
     if(!isFALSE(carry.out)){
 
-        inp <- NMscanInput(file.mod,apply.filters=TRUE,translate=TRUE,recover.cols=TRUE,as.fun="data.table")
+        inp <- NMscanInput(file=file,file.mod=file.mod,apply.filters=TRUE,translate=TRUE,recover.cols=TRUE,as.fun="data.table")
         if(isTRUE(carry.out)) carry.out <- setdiff(colnames(inp),colnames(alltabs))
 
         

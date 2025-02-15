@@ -257,13 +257,15 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
         bycols <- intersect(c("ROWMODEL2","name.sim","model","model.sim"),colnames(dat))
         res <- dat[,{
             
-            ## the rds table must keep NMscanData arguments
+## the rds table must keep NMscanData arguments
             args.NM <- args.NMscanData[[1]]
             if( "file.mod" %in% names(args.NM)){
                 
                 stop("Do not use file.mod in args.NMscanData. NMsim created the simulation control streams so as a user you do not need to help NMsim find them.")
             }
-            args.NM$file.mod <- function(file) fnExtension(file,".mod")
+            ## 
+            ## args.NM$file.mod <- function(file) fnExtension(file,".mod")
+            args.NM$file.mod <- .SD$path.sim
             ## args.NM$file.mod <- fnExtension(path.lst.read,".mod")
             
             if(! "quiet" %in% names(args.NM)){
@@ -273,8 +275,10 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
             if(is.null(carry.out)) carry.out <- .SD$carry.out
             carry.out <- unlist(.SD$carry.out)
             if(.SD$fast.tables){
+
+####### TODO: NMreadTabFast must optionally take file and file.mod. We need to not be affected by NMdataConf()$file.mod
                 
-                this.res <- try(NMreadTabFast(path.lst.read,carry.out=carry.out))
+                this.res <- try(NMreadTabFast(path.lst.read,file.mod=path.sim,carry.out=carry.out))
 
             } else {
                 ## put this in try and report better info if broken
@@ -343,5 +347,6 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
         }
     }
     res
+
 
 }

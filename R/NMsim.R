@@ -486,7 +486,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     ROWMODEL <- NULL
     ROWMODEL2 <- NULL
     ## rowtmp <- NULL
-##    run.mod <- NULL
+    ##    run.mod <- NULL
     run.sim <- NULL
     sim <- NULL
     tab.ext <- NULL
@@ -672,7 +672,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             table.vars <-
                 paste(names.table.vars,table.vars,sep="")
         }
-tabv2 <- paste(table.vars,collapse=" ")
+        tabv2 <- paste(table.vars,collapse=" ")
         if(nmrep) tabv2 <- paste(tabv2,"NMREP")
         tabv2 <- gsub(" +"," ",tabv2 )
         table.vars <- strsplit(tabv2," ")[[1]]
@@ -794,7 +794,7 @@ tabv2 <- paste(table.vars,collapse=" ")
 
     ## dt.models[,model:=modelname(fn.sim)]
     dt.models[,model.sim:=modelname(fn.sim)]
-        
+    
 
     
 ### file.ext
@@ -902,7 +902,7 @@ tabv2 <- paste(table.vars,collapse=" ")
     ## fn.data is the data file name, no path
     
     ## dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(name.mod,".csv"),name.sim))]
-dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(model,".csv"),name.sim))]
+    dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(model,".csv"),name.sim))]
     dt.models[,fn.data:=fnAppend(fn.data,data.name),by=.(ROWMODEL)]
     ## dt.models[,fn.data:=gsub(" ","_",fn.data)]
     dt.models[,fn.data:=cleanStrings(fn.data)]

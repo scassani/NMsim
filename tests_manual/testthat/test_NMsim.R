@@ -918,6 +918,7 @@ test_that("basic - ctl",{
                      name.sim="default_ctl_01"
                      )
 
+    simres <- NMreadSim("testOutput/simres/xgxr021_default_ctl_01_MetaData.rds")
 
     fix.time(simres1)
     fix.time(simres2)

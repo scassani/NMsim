@@ -386,13 +386,15 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                   order.columns=TRUE,
                   file.ext=NULL,
                   ## tab.ext=NULL,
-                  script=NULL,subproblems=NULL,
+                  script=NULL,
+                  subproblems=NULL,
                   reuse.results=FALSE,
                   seed.R,
                   seed.nm,
                   args.psn.execute,
                   table.vars,
                   table.options,
+                  carry.out=TRUE,
                   text.sim="",
                   method.sim=NMsim_default,
                   typical=FALSE,
@@ -403,6 +405,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                   method.update.inits,
                   create.dirs=TRUE,dir.psn,
                   modify.model,
+                  nmrep,
                   sizes,
                   sim.dir.from.scratch=TRUE,
                   col.row,
@@ -411,8 +414,6 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                   nmquiet,
                   progress,
                   as.fun,
-                  suffix.sim,
-                  text.table,
                   system.type=NULL,
                   dir.res,
                   file.res,
@@ -421,9 +422,12 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                   clean,
                   quiet=FALSE,
                   check.mod = TRUE,
+                  format.data.complete="rds",
+### deprecated
+                  text.table,
+                  suffix.sim,
                   seed,
                   list.sections,
-                  format.data.complete="rds",
                   ...
                   ){
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
@@ -459,7 +463,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     model <- NULL
     mod <- NULL
     n <- NULL
-    name.mod <- NULL
+    ## name.mod <- NULL
     NEWMODEL <- NULL
     nmsim <- NULL
     NMsimTime <- NULL
@@ -481,8 +485,8 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     ROW <- NULL
     ROWMODEL <- NULL
     ROWMODEL2 <- NULL
-    rowtmp <- NULL
-    run.mod <- NULL
+    ## rowtmp <- NULL
+##    run.mod <- NULL
     run.sim <- NULL
     sim <- NULL
     tab.ext <- NULL
@@ -522,8 +526,8 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         if(any(names(args.NMscanData)=="")) stop("All elements in args.NMscanData must be named.")
     }
     args.NMscanData.default <- list(merge.by.row=FALSE,col.model=NULL)
-## moving this from NMscanData to be handled by NMreadSim or a sub-function hereof
-   ##,col.model="model.sim")
+    ## moving this from NMscanData to be handled by NMreadSim or a sub-function hereof
+    ##,col.model="model.sim")
     
     if(missing(progress)) progress <- NULL
     
@@ -620,31 +624,81 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         message("\'list.sections\' is deprecated. Please use \'modify.model\'.")
     }
 
+    if(missing(subproblems)|| is.null(subproblems)) subproblems <- 0
 
 ###  Section end: Checking aguments
 
-    ## if(!is.null(transform) && !transform!=FALSE) {message("transform is CURRENTLY NOT SUPPORTED. Will be back in the future.")}
+    dt.models <- data.table(file.mod=file.mod)
+    ##dt.models[,run.mod:=fnExtension(basename(file.mod),"")]
+    dt.models[,model:=fnExtension(basename(file.mod),"")]
+    dt.models[,name.sim:=..name.sim]
+    dt.models[,fast.tables:=FALSE]
+    dt.models[,carry.out:=list(..carry.out)]
+    dt.models[,NMsimVersion:=packageVersion("NMsim")]
+    dt.models[,NMsimTime:=Sys.time()]
+
+    
     warn.notransform <- function(transform){
         if(is.null(transform)) return(invisible(NULL))
         warning("`transform` (argument) ignored since NMsim is not reading the simulation results.")
     }
     
-
+    if(missing(nmrep)||is.null(nmrep)) nmrep <- subproblems>0
     if(missing(table.vars)) table.vars <- NULL
     if(missing(table.options)) table.options <- NULL
-### generate text.table as the combination of table.vars and table.options
-    if(missing(text.table) || is.null(text.table)){
-        if(missing(table.options)||is.null(table.options)){
-            table.options <- c("NOPRINT","NOAPPEND")
-        }
-        if(!is.null(table.vars)){
-            text.table <- paste(paste(table.vars,collapse=" "),paste(table.options,collapse=" "))
-        }
-    } else{
+
+    if(missing(text.table)) {
+        text.table <- NULL
+    }
+
+    if(!is.null(text.table)) {
         if(!is.null(table.vars) || !is.null(table.options)){
             stop("argument \'text.table\' is deprecated. Please use \'table.vars\' and/or \'table.options\' instead.")
+        } else {
+            warning("argument \'text.table\' is deprecated and should be avoided. Please use \'table.vars\' and/or \'table.options\' instead.")
         }
-        message("argument \'text.table\' is deprecated. Please use \'table.vars\' and/or \'table.options\' instead.")
+    }
+
+### fast.tables is true if table.vars is provided and table.options are untouched.
+
+    if(subproblems>0 &&
+       !is.null(table.vars)
+       ## this has not been resolved in NMdata
+       ## && packageVersion("NMdata")<"1.1.7"
+       ){
+        names.table.vars <- names(table.vars)
+        if(!is.null(names.table.vars)){
+            names.table.vars <- sub("(.+)","\\1=",names.table.vars)
+            table.vars <-
+                paste(names.table.vars,table.vars,sep="")
+        }
+tabv2 <- paste(table.vars,collapse=" ")
+        if(nmrep) tabv2 <- paste(tabv2,"NMREP")
+        tabv2 <- gsub(" +"," ",tabv2 )
+        table.vars <- strsplit(tabv2," ")[[1]]
+        table.vars <- unique(table.vars)
+        
+        ## TODO: this should only be tested if fast.tables is FALSE
+        if(length(table.vars)<3){
+            message("Using less than three variables in table.vars in combination with subproblems may cause issues. If you get an error, try to add any variable or two to table.vars.")
+        }
+### Create NMREP in $ERROR. Adding 1 to start counting at 1.
+        
+        modify.model <- c(modify.model,
+                          list(ERROR=add("NMREP=IREP")))
+    }
+    
+
+### generate text.table as the combination of table.vars and table.options
+    if(is.null(text.table)){
+        if(!is.null(table.vars)){
+            if(is.null(table.options)){
+### this is prefered. The fast.tables option. But ONEHEADERALL requires NONMEM 7.4 or later
+                table.options <- c("NOPRINT","NOAPPEND","ONEHEADERALL", "NOTITLE")
+                dt.models[,fast.tables:=TRUE]
+            }
+            text.table <- paste(paste(table.vars,collapse=" "),paste(table.options,collapse=" "))
+        }
     }
 
     if(missing(nmquiet)) nmquiet <- NULL
@@ -708,34 +762,18 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     relpathResFromSims <- relative_path(dir.res,dir.sims)
     relpathSimsFromRes <- relative_path(dir.sims,dir.res)
     
-    if(missing(text.table)) text.table <- NULL
-    
-    if(missing(subproblems)|| is.null(subproblems)) subproblems <- 0
 
-    if(subproblems>0 &&
-       !is.null(table.vars)
-       ## this has not been resolved in NMdata
-       ## && packageVersion("NMdata")<"1.1.7"
-       ){
-        tabv2 <- paste(table.vars,collapse=" ")
-        tabv2 <- gsub(" +"," ",tabv2 )
-        if(length(strsplit(tabv2," ")[[1]])<3){
-            message("Using less than three variables in table.vars in combination with subproblems may cause issues. If you get an error, try to add any variable or two to table.vars.")
-        }
-    }
     
-    dt.models <- data.table(file.mod=file.mod)
-    dt.models[,run.mod:=fnExtension(basename(file.mod),"")]
-    dt.models[,name.mod:=run.mod]
+    ## dt.models[,name.mod:=run.mod]
+    ## dt.models[,name.mod:=model]
     dt.models[,pathResFromSims:=relpathResFromSims]
     dt.models[,pathSimsFromRes:=relpathSimsFromRes]
-    dt.models[,NMsimVersion:=packageVersion("NMsim")]
-    dt.models[,NMsimTime:=Sys.time()]
     if(!is.null(names(file.mod))){
         
         names.mod <- names(file.mod)
         names.mod[names.mod==""] <- file.mod[names.mod==""]
-        dt.models[,name.mod:=names.mod]
+        ## dt.models[,name.mod:=names.mod]
+        dt.models[,model:=names.mod]
         rm(names.mod)
     }
     dt.models[,ROWMODEL:=.I]
@@ -746,15 +784,17 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 ### prepending NMsim to model names
     ## dt.models[,fn.sim:=fnExtension(paste0("NMsim_",name.mod),".mod")]
 ### dropping NMsim in front of all model names
-    dt.models[,fn.sim:=fnExtension(name.mod,".mod")]
+    ## dt.models[,fn.sim:=fnExtension(name.mod,".mod")]
+    dt.models[,fn.sim:=fnExtension(model,".mod")]
 
     ## fn.sim should be unique
     dt.models[,n.fn.sim:=.N,by=fn.sim]
     dt.models[n.fn.sim>1,fn.sim:=fnAppend(fn.sim,pad0=floor(log10(n.fn.sim))+1)]
     dt.models[,n.fn.sim:=NULL]
 
-    dt.models[,model:=modelname(fn.sim)]
-    
+    ## dt.models[,model:=modelname(fn.sim)]
+    dt.models[,model.sim:=modelname(fn.sim)]
+        
 
     
 ### file.ext
@@ -795,11 +835,10 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
         ## moving name.sim from input data to simulation meta data
         if(F){
-        col.sim <- tmpcol(names=sapply(data,names),base="name.sim")
-        if(col.sim != "name.sim") message(sprintf("column name.sim exists, name.sim written to column %s instead.",col.sim))
-        data <- lapply(data,function(x) x[,(col.sim):=..name.sim])
-}
-        dt.models[,name.sim:=..name.sim]
+            col.sim <- tmpcol(names=sapply(data,names),base="name.sim")
+            if(col.sim != "name.sim") message(sprintf("column name.sim exists, name.sim written to column %s instead.",col.sim))
+            data <- lapply(data,function(x) x[,(col.sim):=..name.sim])
+        }
         
         dt.data <- data.table(DATAROW=1:length(data),data.name=names.data)
         if(dt.data[,.N]==1) dt.data[,data.name:=""]
@@ -840,14 +879,16 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     
     ## spaces not allowed in model names
     dt.models[,fn.sim:=gsub(" ","_",fn.sim)]
-## run.sim should be deprecated. model.sim is what is used in results data.
-    dt.models[,run.sim:=modelname(fn.sim)]
+    ## run.sim should be deprecated. model.sim is what is used in results data.
+    ## dt.models[,run.sim:=modelname(fn.sim)]
     dt.models[,model.sim:=modelname(fn.sim)]
 
     
     ## dir.sim is the model-individual directory in which the model will be run
+    ## dt.models[,
+    ##           dir.sim:=file.path(dir.sims,paste(name.mod,name.sim.paths,sep="_"))]
     dt.models[,
-              dir.sim:=file.path(dir.sims,paste(name.mod,name.sim.paths,sep="_"))]
+              dir.sim:=file.path(dir.sims,paste(model,name.sim.paths,sep="_"))]
     
     
     ## path.sim.tmp is a temporary path to the sim control stream - it
@@ -860,7 +901,8 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     ## where tosave input data to be read by simulation control stream
     ## fn.data is the data file name, no path
     
-    dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(name.mod,".csv"),name.sim))]
+    ## dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(name.mod,".csv"),name.sim))]
+dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(model,".csv"),name.sim))]
     dt.models[,fn.data:=fnAppend(fn.data,data.name),by=.(ROWMODEL)]
     ## dt.models[,fn.data:=gsub(" ","_",fn.data)]
     dt.models[,fn.data:=cleanStrings(fn.data)]
@@ -1040,9 +1082,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             order.columns <- FALSE
 
             if(F){
-            col.sim <- tmpcol(data.this,base="name.sim")
-            if(col.sim != "name.sim") warning(sprintf("column name.sim exists, name.sim written to column %s instead.",col.sim))
-            data.this[,(col.sim):=..name.sim]
+                col.sim <- tmpcol(data.this,base="name.sim")
+                if(col.sim != "name.sim") warning(sprintf("column name.sim exists, name.sim written to column %s instead.",col.sim))
+                data.this[,(col.sim):=..name.sim]
             }
         } else {
             data.this <- data[[DATAROW]]
@@ -1212,6 +1254,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     ## read by NMscanData. This must be derived after method.sim may
     ## have spawned more runs.
     dt.models[,path.sim.lst:=fnExtension(path.sim,".lst")]
+    dt.models[,model.sim:=modelname(path.sim)]
     
     dt.models[,ROWMODEL2:=.I]
     ## dt.models[,seed:={if(is.function(seed))  seed() else seed},by=.(ROWMODEL2)]

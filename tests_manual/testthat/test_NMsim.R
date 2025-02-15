@@ -66,19 +66,25 @@ test_that("basic - default",{
                     name.sim="default_01"
                     )
     
+
+    simres.nometa <- copy(simres)
+    unNMsimRes(simres.nometa)
+    expect_equal_to_reference(simres.nometa,fnAppend(fileRef,"noMeta"))
+    
     ## attributes(NMreadSim("testOutput/NMsim_xgxr021_default_01_paths.rds"))
     fix.time(simres)
     ## expect_equal_to_reference(simres[,!("sim")],fileRef)
     expect_equal_to_reference(simres,fileRef)
 
+
+    
     if(F){
         ref <- readRDS(fileRef)
+        colnames(ref)
+        colnames(simres)
         compareCols(simres,ref,keep.names=TRUE)
         compareCols(attributes(simres)$NMsimModTab,attributes(readRDS(fileRef))$NMsimModTab,keep.names=FALSE)
-        simres.nometa <- copy(simres)
-        unNMsimRes(simres.nometa)
-        attributes(simres.nometa)
-        expect_equal_to_reference(simres.nometa,fnAppend(fileRef,"noMeta"))
+
     }
 
 })
@@ -449,20 +455,22 @@ test_that("VPC",{
     
     file.mod <- "testData/nonmem/xgxr032.mod"
     nsims <- 10
+    ## nsims <- 2
     
 
     simres.vpc <- NMsim(file.mod,
                         table.vars="PRED IPRED Y",
                         dir.sims="testOutput",
-                        name.sim="vpc_01"
+                        name.sim="vpc01"
                        ,nsims=nsims
                        ,method.execute="nmsim"
                        ,path.nonmem=path.nonmem
                        ,seed.R=43
                         )
 
-    ## library(ggplot2)
-    
+    ## simres.vpc <- NMreadSim("testOutput/simres/xgxr032_vpc01_MetaData.rds")
+
+    simres.vpc[,.N,by=.(model,name.sim,model.sim)]
     expect_equal(length(unique(simres.vpc$model.sim)),nsims)
 
     expect_equal(nrow(simres.vpc),nsims*731)    
@@ -470,6 +478,8 @@ test_that("VPC",{
     ## derive PIs
     expect_equal(round(as.numeric(simres.vpc[EVID==0,quantile(Y,probs=.25)]),3),0.155)
 
+    attributes(simres.vpc)
+    
 })
 
 
@@ -544,6 +554,8 @@ test_that("list of data sets - spaces in data names",{
                              ,path.nonmem=path.nonmem
                               )
 
+    simres.multidata[,.N,by=.(model,model.sim,name.sim)]
+    
     expect_equal(nrow(simres.multidata),nrow(dt.sim.known))
 
 
@@ -796,19 +808,19 @@ test_that("basic - a model that fails on NMTRAN",{
         nrow(NMreadSim(simres)),0
     )
 
-    ### rerunning the exact same sim with reuse.results to test how a failed sim is handled.
+### rerunning the exact same sim with reuse.results to test how a failed sim is handled.
     simres2 <- NMsim(file.mod,
-                    data=dt.sim,
-                    ## table.var="PRED IPRED",
-                    ## dir.sims="testOutput",
-                    name.sim="nmtranfail"
-                   ,sge=F
-                   ,seed.R=12
-                   ,nmquiet=F
-                   ,wait=TRUE,
-                    path.nonmem=path.nonmem
-                   ,reuse.results=TRUE
-                    )
+                     data=dt.sim,
+                     ## table.var="PRED IPRED",
+                     ## dir.sims="testOutput",
+                     name.sim="nmtranfail"
+                    ,sge=F
+                    ,seed.R=12
+                    ,nmquiet=F
+                    ,wait=TRUE,
+                     path.nonmem=path.nonmem
+                    ,reuse.results=TRUE
+                     )
     
     expect_equal(fix.time(simres),fix.time(simres2))
     
@@ -837,6 +849,40 @@ test_that("Two models on one rds",{
 
     ## readRDS("testOutput/twomodels_01_paths.rds")
     res <- NMreadSim("testOutput/twomodels_01_paths.rds")
+
+    fix.time(simres)
+    fix.time(res)
+    
+    expect_equal(simres,res)
+    
+})
+
+
+test_that("Two named models on one rds",{
+
+    files.mod <- c(model1="../../tests/testthat/testData/nonmem/xgxr021.mod",
+                   model2="testData/nonmem/xgxr032.mod")
+
+    dt.dos <- NMcreateDoses(AMT=300,TIME=0)
+    dt.sim <- addEVID2(data=dt.dos,TIME=c(1,6,12),CMT=2)
+
+    set.seed(43)
+    simres <- NMsim(file.mod=files.mod,
+                    data=dt.sim,
+                    ## table.var="PRED IPRED",
+                    dir.sims="testOutput",
+                    name.sim="twomodels_01"
+                   ,file.res="testOutput/twomodels_02_paths.rds"
+                   ,table.vars=cc(PRED,IPRED)
+                   ,sge=F
+                   ,wait=TRUE
+                    )
+
+    simres[,.N,by=.(model,model.sim,name.sim)]
+    attributes(simres)
+    
+    ## readRDS("testOutput/twomodels_01_paths.rds")
+    res <- NMreadSim("testOutput/twomodels_02_paths.rds")
 
     fix.time(simres)
     fix.time(res)
@@ -966,10 +1012,25 @@ test_that("Non-numeric DATE and TIME",{
                         quiet=TRUE
                         )
 
+    ## TIME from input data because its in carry.out
+    simres.inp2 <- NMsim(file.mod,
+                        data=dt.sim.char,
+                        table.var="PRED IPRED",
+                        carry.out="TIME",
+                        name.sim="timeAsChar_03",
+                        path.nonmem=path.nonmem,
+                        method.update.inits="nmsim",
+                        seed.R=43,
+                        quiet=TRUE
+                        )
+
+    
     res <- list(
-        timeout=simres[,lapply(.SD,NMisNumeric),.SDcols=cc(TIME)]
+        timeout=simres[,lapply(.SD,NMisNumeric),.SDcols=cc(TIME)]==TRUE
        ,
-        timein=simres.inp[,lapply(.SD,NMisNumeric),.SDcols=cc(TIME)]
+        timein=simres.inp[,lapply(.SD,NMisNumeric),.SDcols=cc(TIME)]==FALSE
+           ,
+        timein2=simres.inp2[,lapply(.SD,NMisNumeric),.SDcols=cc(TIME)]==FALSE
     )
 
     expect_equal_to_reference(
@@ -1063,7 +1124,6 @@ test_that("basic - nmsim update inits",{
 
 ###### using nmsim2 update inits method and modify parameter
 
-context("NMsim")
 test_that("basic - nmsim update inits",{
     
     ## fileRef <- "testReference/NMsim_15.rds"
@@ -1114,3 +1174,55 @@ test_that("basic - nmsim update inits",{
 
 })
 
+
+test_that("fast tables",{
+    NMdataConf(reset=TRUE)
+    NMdataConf(as.fun="data.table")
+    NMdataConf(dir.sims="testOutput/simtmp")
+    NMdataConf(dir.res="testOutput/simres")
+    
+
+    dt.sim <- NMcreateDoses(TIME=0,ADDL=100,II=24,AMT=40) |>
+        addEVID2(TAPD=seq(0.25,24,by=.25),CMT=2)
+
+    dt.sim[,WTBLI:=75]
+
+    file.mod <- "~/wdirs/NMsim/tests/testthat/testData/nonmem/xgxr032.mod"
+    ## readLines(file.mod)
+
+
+    tabopts <- c("NOPRINT","NOPRINT NOAPPEND","NOPRINT NOAPPEND ONEHEADER")
+    tabopts <- c("NOPRINT",
+                 "NOPRINT NOAPPEND",
+                 "NOPRINT NOAPPEND ONEHEADER",
+                 "NOPRINT NOAPPEND ONEHEADER NOTITLE",
+                 "NOPRINT NOAPPEND ONEHEADERALL NOTITLE"
+                 )
+
+    Iopts <- 5
+    name.sim <- paste0("tabopts",Iopts)
+
+    res1 <- NMsim(file.mod=file.mod,
+                  data=dt.sim,
+                  name.sim=name.sim,
+                  table.vars=cc(PRED,IPRED,Y)
+                  ## ,subproblems=2
+                  ## ,modify.model=list(error=add("NMREP=IREP"))
+                  ## ,table.options=tabopts[Iopts]
+                 ,carry.out="TAPD"
+                  )
+    attributes(res1)
+    
+    res2 <- NMsim(file.mod=file.mod,
+                  data=dt.sim,
+                  name.sim="nmrep_subprob",
+                  table.vars=cc(PRED,IPRED,Y,NMREP)
+                 ,subproblems=2
+                  ## modify.model=list(error=add("NMREP=IREP"))
+                  ## ,table.options=tabopts[Iopts]
+                 ,carry.out=c("TAPD","WTBLI")
+                  )
+
+    
+    
+})

@@ -46,7 +46,6 @@ Path to nonmem, psn, other ways to exec.
 
 ** expandCovs
 ** NMexec
-
 *** DONE Move selection of method.execute from NMsim
 Now that method.execute="nmsim" works for general execution, it should
 be default method on all systems, and there is no reason why NMsim
@@ -60,7 +59,7 @@ this was checked by NMexec as a prerequisite.
 It means if we send to the cluster. There is a slight difference of
 the implication in NMexec and NMsim. In NMexec, if we send to cluster
 the default is to parellellize each job on nc=64 cores or threads. In
-NMsim we restrict to nc=1.
+NMsim we default to nc=1.
 ** NMexecDirectory
 *** DONE Clean up after switching to absolute paths
 ** NMreadExt - Integrated in NMdata
@@ -69,6 +68,7 @@ NMsim we restrict to nc=1.
 *** CANCELED Intro arg return
 Align with NMdata
 ** NMreadSim
+*** TODO [#A] Allow NMreadSim to overrule fast.tables and carry.out
 *** DONE Test reading of ModTab tables with repeated rds files
 *** Structure
 **** description of x argument
@@ -113,8 +113,14 @@ have to supply what dists are needed.
 *** DONE Make sure NMsim uses seed and args.seed meaningfully mean
 
 ** NMsim
-*** TODO [#A] nmrep argument
+
+*** DONE recover.input -> carry.out
+
+*** DONE add NMREP code and TABLE variable if subproblems is used
+*** DONE nmrep argument
 *** TODO [#A] clean up meta data
+*** TODO Only paste lst bottom if lst and tables not found
+If not, it is probably an issue reading the data?
 *** DONE When adding seed and SUBPROBLEMS, only add once
 If $SIMULATION spans more than one line, this is currently pasted repeatedly
 *** DONE Drop NMsim from file names

@@ -74,7 +74,7 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
     ## by=.(ROWMODEL2)
     by=.(ROWTMP)
     ]
-    
+    modtab[,ROWTMP:=NULL]
     
 ### rather than reading one rds at a time, we should read all the
 ### rds's, stack them, and then read the object as

@@ -330,3 +330,40 @@ test_that("No ONLYSIM",{
 
 })
 
+
+test_that("Named table variables",{
+
+    fileRef <- "testReference/NMsim_08.rds"
+
+    file.mod <- "testData/nonmem/xgxr025.mod"
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "tabvars1",
+                  seed.nm=2342,
+                  execute=FALSE,
+                  method.update.inits="nmsim",
+                  table.vars=c("PRED",TIMENEW="TIME")
+                  )
+
+    sim2 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "tabvars2",
+                  seed.nm=2342,
+                  execute=FALSE,
+                  method.update.inits="nmsim",
+                  table.vars=c("PRED TIMENEW=TIME")
+                  )
+
+    expect_equal("TIMENEW"%in%colnames(sim1))
+
+fix.time(sim1)
+fix.time(sim2)
+
+    expect_equal(sim1,sim2)
+
+    
+    ## readLines("testOutput/xgxr025_sd1/xgxr025_sd1.mod")
+    
+})

@@ -1055,13 +1055,19 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         },by=.(ROWMODEL)]
     }
 
-    
+    if(is.null(data)){
+        add.var.table <- col.row
+        args.NMscanData.default$merge.by.row <- TRUE
+        args.NMscanData.default$col.row <- col.row
+        rewrite.data.section <- FALSE
+        order.columns <- FALSE
+    }
+
     dt.models[,{
         
 ### note: insert test for whether run is needed here
         ## if data is NULL, we will re-use data used in file.mod. Adding row counter if not found.
-        rewrite.data.section <- TRUE
-        
+
         if(is.null(data)){
             data.this <- NMscanInput(file.mod,recover.cols=FALSE,translate=FALSE,apply.filters=FALSE,col.id=NULL,as.fun="data.table")
             ## col.row <- tmpcol(data,base="ROW")
@@ -1075,20 +1081,10 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             } else {
                 section.input <- FALSE
             }
-            add.var.table <- col.row
-            args.NMscanData.default$merge.by.row <- TRUE
-            args.NMscanData.default$col.row <- col.row
-            rewrite.data.section <- FALSE
-            order.columns <- FALSE
-
-            if(F){
-                col.sim <- tmpcol(data.this,base="name.sim")
-                if(col.sim != "name.sim") warning(sprintf("column name.sim exists, name.sim written to column %s instead.",col.sim))
-                data.this[,(col.sim):=..name.sim]
-            }
+               
         } else {
             data.this <- data[[DATAROW]]
-
+            rewrite.data.section <- TRUE
         }
 
         
@@ -1124,10 +1120,10 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     
 
 #### Section start: Output tables ####
-
+    
     dt.models[,{
         
-        fn.tab.base <- paste0("FILE=",run.sim,".tab")
+        fn.tab.base <- paste0("FILE=",model.sim,".tab")
         lines.sim <- readLines(path.sim)
         
         lines.tables <- NMreadSection(lines=lines.sim,section="TABLE",as.one=FALSE,simplify=FALSE)
@@ -1332,7 +1328,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 ### Section end: Additional control stream modifications specified by user - modify.model
 
 
-
+    
 
 ######  store NMscanData arguments
     args.NMscanData.list <- c(args.NMscanData,args.NMscanData.default)

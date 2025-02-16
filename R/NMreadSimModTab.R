@@ -278,7 +278,7 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
 
 ####### TODO: NMreadTabFast must optionally take file and file.mod. We need to not be affected by NMdataConf()$file.mod
                 
-                this.res <- try(NMreadTabFast(path.lst.read,file.mod=path.sim,carry.out=carry.out))
+                this.res <- try(NMreadTabFast(path.lst.read,file.mod=path.sim,carry.out=carry.out,col.row=args.NM$col.row))
 
             } else {
                 ## put this in try and report better info if broken

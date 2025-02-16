@@ -487,6 +487,7 @@ test_that("VPC with complicated INPUT",{
 
     
     file.mod <- "testData/nonmem/xgxr033.mod"
+    ## NMreadSection(file.mod,section="DATA")
     nsims <- 2
     ## NMexec(file.mod,sge=FALSE)
     
@@ -504,7 +505,7 @@ test_that("VPC with complicated INPUT",{
     ## dims(simres.vpc)
     expect_equal(length(unique(simres.vpc$model.sim)),nsims)
 
-    expect_equal(nrow(simres.vpc),nsims*731)    
+    expect_equal(nrow(simres.vpc),nsims*731)
 
 
 })

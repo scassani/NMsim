@@ -114,17 +114,24 @@ have to supply what dists are needed.
 
 ** NMsim
 
-*** TODO [#A] Include row counter in input data - merge by it
+*** TODO [#A] table.format argument
+If number of rows is >1M I think the default format may be insufficient
 
-**** TODO put the name of row counter in meta data
+Should col.row be divided by 1000. That would make it start at 0.001
+meaning that up to 1B rows can be handled. But is it robust enough for
+merging?
 
-**** TODO Add it to all output tables
+*** DONE Include row counter in input data - merge by it
 
-**** TODO have NMreadTabFast merge by it
+**** DONE put the name of row counter in meta data
 
-**** TODO have NMscanData merge by it
+**** DONE Add it to all output tables
 
-**** TODO Remove it from results
+**** DONE have NMreadTabFast merge by it
+
+**** DONE have NMscanData merge by it
+
+**** DONE Remove it from results
 
 *** DONE recover.input -> carry.out
 

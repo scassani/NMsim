@@ -815,7 +815,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         data <- lapply(data,as.data.table)
 
     }
-    if(!is.null(data) && is.list(data) && !is.data.frame(data)) {
+    if(!is.null(data)) {
         ## if the list contains data.tables, we don't want to edit the data directly (by ref)
         if(any(sapply(data,is.data.table))){
             data <- copy(data)
@@ -841,15 +841,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             data <- lapply(data,function(x) x[,(col.sim):=..name.sim])
         }
         
-        dt.data <- data.table(DATAROW=1:length(data),data.name=names.data)
-        if(dt.data[,.N]==1) dt.data[,data.name:=""]
-        dt.models <- egdt(dt.models,dt.data,quiet=TRUE)
-        
-        dt.models[,ROWMODEL:=.I]
-    }
-    if(is.null(data)){
-        dt.models[,data.name:=""]
-    } else {
+
         if(auto.dv){
             
             data <- lapply(data,function(x){
@@ -865,11 +857,20 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         }
         all.names <- unique(unlist(lapply(data,colnames)))
         col.row <- tmpcol(names=all.names,base="NMROW")
-        data <- lapply(data,function(d)d[,(col.row):=1:.N])
+        data <- lapply(data,function(d)d[,(col.row):=(1:.N)/1000])
         if(order.columns) data <- lapply(data,NMorderColumns,col.row=col.row)
         dt.models[,col.row:=..col.row]
-    }
 
+        dt.data <- data.table(DATAROW=1:length(data),data.name=names.data)
+        if(dt.data[,.N]==1) dt.data[,data.name:=""]
+        dt.models <- egdt(dt.models,dt.data,quiet=TRUE)
+        
+        dt.models[,ROWMODEL:=.I]
+
+    }
+    if(is.null(data)){
+        dt.models[,data.name:=""]
+    } 
 
     
 
@@ -1078,7 +1079,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             col.row <- tmpcol(data,base="NMROW")
             dt.models[,col.row:=..col.row]
             if(!col.row %in% colnames(data.this)){
-                data.this[,(col.row):=.I]
+                data.this[,(col.row):=(1:.N)/1000]
                 ## setcolorder(data.this,col.row)
 
                 ## message(paste0("Row counter was added in column ",col.row,". Use this to merge output and input data."))
@@ -1103,7 +1104,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             } else {
                 section.input <- FALSE
             }
-               
+            
         } else {
             data.this <- data[[DATAROW]]
             rewrite.data.section <- TRUE
@@ -1274,18 +1275,19 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     dt.models[,path.sim.lst:=fnExtension(path.sim,".lst")]
     dt.models[,model.sim:=modelname(path.sim)]
     
-    dt.models[,ROWMODEL2:=.I]
+    ## dt.models[,ROWMODEL2:=.I]
+    dt.models[,ROWMODEL:=.I]
     ## dt.models[,seed:={if(is.function(seed))  seed() else seed},by=.(ROWMODEL2)]
     ## if(is.numeric(dt.models[,seed])) dt.model[,seed:=sprintf("(%s)",seed)]
 
 
 ### if typical
     if(typical){
-        dt.mods.sim <- dt.models[,.(mod=typicalize(file.sim=path.sim,file.mod=file.mod,return.text=TRUE,file.ext=file.ext)),by=.(ROWMODEL2,path.sim)]
+        dt.mods.sim <- dt.models[,.(mod=typicalize(file.sim=path.sim,file.mod=file.mod,return.text=TRUE,file.ext=file.ext)),by=.(ROWMODEL,path.sim)]
         ## write results
         
         ## dt.models[,writeTextFile(dt.mods.sim[ROWMODEL2==ROWMODEL,mod],file=path.sim),by=ROWMODEL2]
-        dt.mods.sim[,writeTextFile(lines=mod,file=unique(path.sim)),by=ROWMODEL2]
+        dt.mods.sim[,writeTextFile(lines=mod,file=unique(path.sim)),by=ROWMODEL]
     }
 
     
@@ -1328,7 +1330,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                 lines.sim <- NMdata:::NMwriteSectionOne(lines=lines.sim,section="simulation",newlines=section.sim,quiet=TRUE,backup=FALSE)
                 writeTextFile(lines.sim,path.sim)
             }
-        },by=.(ROWMODEL2)]
+        },by=.(ROWMODEL)]
     }
     
     
@@ -1340,7 +1342,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         dt.models[,{
             args.sizes <- append(list(file.mod=path.sim,newfile=path.sim,write=TRUE),sizes)
             do.call(NMupdateSizes,args.sizes)
-        },by=.(ROWMODEL2)]
+        },by=.(ROWMODEL)]
     }
 
     if( !is.null(modify.model) ){
@@ -1462,7 +1464,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             }
             
             path.sim.lst
-        },by=.(ROWMODEL2)]
+        },by=.(ROWMODEL)]
         if(do.pb){
             close(pb)
         }

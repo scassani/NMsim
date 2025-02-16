@@ -103,7 +103,7 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
 NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,skip.missing=FALSE,progress,fast.tables=NULL,carry.out=NULL,as.fun){
     
     . <- NULL
-    ROWMODEL2 <- NULL
+    ## ROWMODEL2 <- NULL
     args.NMscanData <- NULL
     file.res.data <- NULL
     funs.transform <- NULL
@@ -232,8 +232,8 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
 
     ## if(!quiet) message("Reading Nonmem results")
     
-
-    tab.split <- split(modtab,by="ROWMODEL2")
+    if("ROWMODEL2" %in%colnames(modtab)) modtab[,ROWMODEL:=.GRP,by=.(ROWMODEL,ROWMODEL2)]
+    tab.split <- split(modtab,by="ROWMODEL")
     nsplits <- length(tab.split)
 
     if(!quiet) message("* Collecting Nonmem results")
@@ -254,10 +254,10 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     res.list <- lapply(1:nsplits,function(count){
         
         dat <- tab.split[[count]]
-        bycols <- intersect(c("ROWMODEL2","name.sim","model","model.sim"),colnames(dat))
+        bycols <- intersect(c("ROWMODEL","name.sim","model","model.sim"),colnames(dat))
         res <- dat[,{
             
-## the rds table must keep NMscanData arguments
+            ## the rds table must keep NMscanData arguments
             args.NM <- args.NMscanData[[1]]
             if( "file.mod" %in% names(args.NM)){
                 
@@ -326,10 +326,16 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     }
     
     res <- rbindlist(res.list,fill=TRUE)
-    res[,ROWMODEL2:=NULL]
+    if("ROWMODEL"%in%colnames(res)){
+        res[,ROWMODEL:=NULL]
+    }
+    if("ROWMODEL2"%in%colnames(res)){
+        res[,ROWMODEL2:=NULL]
+    }
+    
     res <- NMorderColumns(res,first=cc(PRED,IPRED),as.fun="data.table")
     setcolorder(res,c(setdiff(colnames(res),intersect(colnames(res),c("model.sim","model","name.sim"))),c("name.sim","model","model.sim")
-                ))
+                      ))
 
     res <- as.fun(res)
     setattr(res,"NMsimModTab",modtab)

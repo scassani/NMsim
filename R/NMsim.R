@@ -1073,11 +1073,27 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             ## col.row <- tmpcol(data,base="ROW")
             if(!col.row %in% colnames(data.this)){
                 data.this[,(col.row):=.I]
-                setcolorder(data.this,col.row)
-                message(paste0("Row counter was added in column ",col.row,". Use this to merge output and input data."))
+                ## setcolorder(data.this,col.row)
+
+                ## message(paste0("Row counter was added in column ",col.row,". Use this to merge output and input data."))
+                
+                setcolorder(data.this,c(colnames(data.this)[1],col.row))
+                
                 section.input <- NMreadSection(file.mod,section="input",keep.name=FALSE)
                 
-                section.input <- pasteBegin(x=section.input,paste("$INPUT",col.row),collapse=" ")
+                section.input <- paste(section.input,collapse=" ")
+
+                section.input <- gsub(","," ",section.input)
+                section.input <- gsub("[ \\s]+"," ",section.input)
+                section.input <- NMdata:::cleanSpaces(section.input)
+                section.input <- gsub(" *= *","=",section.input)
+                
+                elems.input <- strsplit(section.input,split=" ")[[1]]
+                elems.input <- c(elems.input[1],col.row,elems.input[-1])
+                
+                section.input <- paste("$INPUT",paste(elems.input,collapse=" "))
+
+                ## section.input <- pasteBegin(x=section.input,paste("$INPUT",col.row),collapse=" ")
             } else {
                 section.input <- FALSE
             }
@@ -1096,7 +1112,8 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         nmtext <- NMwriteData(data.this,file=path.data,
                               args.NMgenText=list(dir.data=".")
                              ,formats.write=c("csv",format.data.complete)
-                             ,csv.trunc.as.nm=TRUE
+                              ## if NMsim is not controlling $DATA, we don't know what can be dropped.
+                             ,csv.trunc.as.nm=rewrite.data.section
                              ,script=script
                              ,quiet=TRUE)
         

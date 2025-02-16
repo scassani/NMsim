@@ -114,6 +114,18 @@ have to supply what dists are needed.
 
 ** NMsim
 
+*** TODO [#A] Include row counter in input data - merge by it
+
+**** TODO put the name of row counter in meta data
+
+**** TODO Add it to all output tables
+
+**** TODO have NMreadTabFast merge by it
+
+**** TODO have NMscanData merge by it
+
+**** TODO Remove it from results
+
 *** DONE recover.input -> carry.out
 
 *** DONE add NMREP code and TABLE variable if subproblems is used

@@ -271,6 +271,9 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
             if(! "quiet" %in% names(args.NM)){
                 args.NM$quiet <- TRUE
             }
+            if( !is.null(.SD$col.row)){
+                args.NM$col.row <- .SD$col.row
+            }
             
             if(is.null(carry.out)) carry.out <- .SD$carry.out
             carry.out <- unlist(.SD$carry.out)
@@ -278,7 +281,7 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
 
 ####### TODO: NMreadTabFast must optionally take file and file.mod. We need to not be affected by NMdataConf()$file.mod
                 
-                this.res <- try(NMreadTabFast(path.lst.read,file.mod=path.sim,carry.out=carry.out,col.row=args.NM$col.row))
+                this.res <- try(NMreadTabFast(path.lst.read,file.mod=path.sim,carry.out=carry.out,col.row=col.row))
 
             } else {
                 ## put this in try and report better info if broken
@@ -303,9 +306,9 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
                 }
             }
 
-### TODO have to check that ..name.sim exists 
-            ## this.res[,name.sim:=..name.sim]
-
+            ## we are not keeping col.row. Just used it to make sure to combine right.
+            if(!is.null(col.row)) this.res[,(col.row):=NULL]
+            
             this.res
         },by=bycols]
 

@@ -610,8 +610,8 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
     modelname <- NULL
     
-    if(missing(col.row)) col.row <- NULL
-    col.row <- NMdata:::NMdataDecideOption("col.row",col.row)
+    ## if(missing(col.row)) col.row <- NULL
+    ## col.row <- NMdata:::NMdataDecideOption("col.row",col.row)
 
     
     input.archive <- inputArchiveDefault
@@ -673,6 +673,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                 paste(names.table.vars,table.vars,sep="")
         }
         tabv2 <- paste(table.vars,collapse=" ")
+        tabv2 <- paste(col.row,tabv2)
         if(nmrep) tabv2 <- paste(tabv2,"NMREP")
         tabv2 <- gsub(" +"," ",tabv2 )
         table.vars <- strsplit(tabv2," ")[[1]]
@@ -862,7 +863,11 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                     x
                 }})
         }
-        if(order.columns) data <- lapply(data,NMorderColumns)
+        all.names <- unique(unlist(lapply(data,colnames)))
+        col.row <- tmpcol(names=all.names,base="NMROW")
+        data <- lapply(data,function(d)d[,(col.row):=1:.N])
+        if(order.columns) data <- lapply(data,NMorderColumns,col.row=col.row)
+        dt.models[,col.row:=..col.row]
     }
 
 
@@ -1056,9 +1061,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     }
 
     if(is.null(data)){
-        add.var.table <- col.row
+        ##add.var.table <- col.row
         args.NMscanData.default$merge.by.row <- TRUE
-        args.NMscanData.default$col.row <- col.row
+        ##args.NMscanData.default$col.row <- col.row
         rewrite.data.section <- FALSE
         order.columns <- FALSE
     }
@@ -1070,7 +1075,8 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
         if(is.null(data)){
             data.this <- NMscanInput(file.mod,recover.cols=FALSE,translate=FALSE,apply.filters=FALSE,col.id=NULL,as.fun="data.table")
-            ## col.row <- tmpcol(data,base="ROW")
+            col.row <- tmpcol(data,base="NMROW")
+            dt.models[,col.row:=..col.row]
             if(!col.row %in% colnames(data.this)){
                 data.this[,(col.row):=.I]
                 ## setcolorder(data.this,col.row)
@@ -1164,11 +1170,10 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             lines.tables.new <- list(paste("$TABLE",text.table,fn.tab.base))
         }
         lines.tables.new <- paste(unlist(lines.tables.new),collapse="\n")
-        if(exists("add.var.table")){
-            
-            lines.tables.new <- gsub("\\$TABLE",paste("$TABLE",add.var.table),lines.tables.new)
-        }
-
+        ## if(exists("add.var.table")){
+        ##     lines.tables.new <- gsub("\\$TABLE",paste("$TABLE",add.var.table),lines.tables.new)
+        ## }
+        lines.tables.new <- gsub("\\$TABLE",paste("$TABLE",col.row),lines.tables.new)
         ## if no $TABLE found already, just put it last
         if(length(lines.tables)){
             location <- "replace"

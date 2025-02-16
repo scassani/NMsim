@@ -144,7 +144,7 @@ difference in execution time. See \code{table.options} too.}
 space-separated options. Only used if \code{table.vars} is
 provided. If constructing a new output table with
 \code{table.vars} the default is to add two options,
-\code{NOAPPEND} and \code{NOPRINT}. You can modeify that with
+\code{NOAPPEND} and \code{NOPRINT}. You can modify that with
 \code{table.options}. Do not try to modify output filename -
 \code{NMsim} takes care of that.}
 

@@ -824,13 +824,14 @@ test_that("Two models on one rds",{
     dt.sim <- addEVID2(doses=dt.dos,time.sim=c(1,6,12),CMT=2)
 
     set.seed(43)
-    simres <- NMsim(c(file.mod.1,file.mod.2),
+    simres <- NMsim(c("m1"=file.mod.1,"m2"=file.mod.2),
                     data=dt.sim,
                     ## table.var="PRED IPRED",
                     dir.sims="testOutput",
                     name.sim="twomodels_01"
                    ,file.res="testOutput/twomodels_01_paths.rds"
                    ,table.vars=cc(PRED,IPRED)
+,path.nonmem=path.nonmem
                    ,sge=F
                    ,wait=TRUE
                     )

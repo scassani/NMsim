@@ -1,3 +1,8 @@
+# Since NMsim 0.1.6
+
+## Other changes
+* `NMcreateDoses()` requires AMT to be provided.
+
 # NMsim 0.1.6
 
 * A major improvement is implemented on `NMSim_NWPRI()`, the

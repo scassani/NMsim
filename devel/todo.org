@@ -69,6 +69,12 @@ NMsim we restrict to nc=1.
 *** CANCELED Intro arg return
 Align with NMdata
 ** NMreadSim
+*** TODO [#A] byvars must exist
+when reading tables from inside the meta data table, what meta data
+variables are depends on the NMsim version that created the
+metadata. Instead, they may be available in the results in older
+versions. Therefore, if they are not avaialble in meta data, just
+don't include them in byvars.
 *** DONE Test reading of ModTab tables with repeated rds files
 *** Structure
 **** description of x argument
@@ -113,6 +119,12 @@ have to supply what dists are needed.
 *** DONE Make sure NMsim uses seed and args.seed meaningfully mean
 
 ** NMsim
+*** TODO [#A] nmrep argument
+*** TODO [#A] clean up meta data
+**** Get rid of ROWMODEL2
+**** name.mod or run.mod. What is the difference?
+This is called model in output
+*** TODO [#A] include fast.tables column in meta data
 *** DONE When adding seed and SUBPROBLEMS, only add once
 If $SIMULATION spans more than one line, this is currently pasted repeatedly
 *** DONE Drop NMsim from file names

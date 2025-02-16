@@ -11,7 +11,7 @@ output:
     toc_depth: 4
     toc_float: true
     number_sections: false
-    df_print: paged
+    df_print: kable
     editor_options:
       chunk_output_type: inline
       code_folding: show
@@ -83,7 +83,7 @@ simulate daily dosing of 30 mg.
 
 ```{r}
 doses <- NMcreateDoses(TIME=0,AMT=30,ADDL=100,II=24,col.id=NA)
-kable(doses)
+doses
 ```
 
 `NMsim::expandCovs()` can be used to construct a set of simulations needed to derive a forest plot. It varies one covariate at a time, keeping all other covariates at their reference value. It can derive references and quantiles from a data set.
@@ -105,8 +105,7 @@ covs <- expandCovs(
 )
 ## adding distinct ID's for each combination of covariates
 covs[,ID:=.GRP,by=.(type,covvar,covval)]
-
-kable(covs)
+covs
 ```
 
 We now have all combinations of covariates in the object called `covs`. Notice the `type` column which distinguishes the reference combination in contrast to the other simulations where one covariate is being varied at a time. 
@@ -114,7 +113,7 @@ We now have all combinations of covariates in the object called `covs`. Notice t
 ```{r}
 ## repeating the doses for all combinations of covariates
 dt.dos <- covs[,doses[],by=covs]
-dims(covs,doses,dt.dos) |> kable()
+dims(covs,doses,dt.dos)
 
 ```
 
@@ -127,7 +126,7 @@ time.sim <- rbind(
     data.table(TIME=seq(0,24,.25)+30*24,period="Steady-State")
 )
 dt.sim <- addEVID2(dt.dos,TIME=time.sim,CMT=2)
-dims(dt.dos,time.sim,dt.sim) |> kable()
+dims(dt.dos,time.sim,dt.sim) 
 ```
 
 There is only one analyte in this data set. If for instance, you have a parent and a metabolite, adding sampling times could look like this:
@@ -180,11 +179,11 @@ If you encounter issues with samples that do not run, consider whether any of yo
 A quick way to look for this is by combining parameter estimates (from the `.ext` file) and the automatic labeling of the parameters using `NMdata::NMrelate()`.
 ```{r,echo=TRUE}
 NMdata::NMreadExt(file.mod,as.fun="data.table")[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
-    NMdata::mergeCheck(NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],by="par.name",quiet=TRUE) |>
-    kable()
+    NMdata::mergeCheck(NMdata::NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],by="par.name",quiet=TRUE) 
 ```
 </div>
 
+A large RSE is a potential issue for strictly positive parameters (RSE=0.25 for a parameter with a positive estimate corresponds to roughly 1/10,000 chance that a sample is negative). In this case, `THETA`s are estimated on log scale, and the covariate effects could be negative, so this model does not seem to have such issues.
 
 ## Post processing 
 
@@ -198,28 +197,6 @@ simres <- NMreadSim("simres-forest/xgxr134_forest_mvrnorm_MetaData.rds",wait=TRU
 ## Check how many models returned simulation results
 as.data.table(simres)[,uniqueN(model.sim)]
 ```
-
-If you encounter issues with samples that do not run, please consider
-whether any of your uncertainty estimates on $THETA$'s could lead to
-sampled THETA's that could make the model be undefined. This would
-often be absorption parameters, clearences, volumes or any other
-strictly positive parameter which is estimated with poor precision. If
-this happens, you may want to go back and estimate that THETA on the
-log scale to make sure all sampled values will be positive. A quick
-way to look into this is to look at the relative standard error for
-each `THETA`. In the following we merge in the first line in the model
-using each `THETA` so we can refresh our memory on the interpretation
-of each parameter without relying on a well formatted parameter table.
-
-
-```{r}
-NMdata::NMreadExt(file.mod,as.fun="data.table")[
-            par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
-    NMdata::mergeCheck(
-                NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],
-                by="par.name",quiet=TRUE)
-```
-
 
 The step required by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
 
@@ -242,7 +219,7 @@ sum.uncertain <- summarizeCovs(simres,
 
 We will use the R package `coveffectsplot` for plotting. `coveffectsplot::forest_plot()` requires certain column names so we adjust those first.
 
-```{r,fig.width=10}
+```{r,fig.width=10,warning=FALSE}
 setDT(sum.uncertain)
 setnames(sum.uncertain,
          cc(covvalf,predmm,predml,predmu,metric.var),

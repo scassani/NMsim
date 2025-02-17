@@ -35,30 +35,37 @@ run.simuls <- FALSE
 The following points show ways to improve calculation speed with `NMsim`. The list is somewhat prioritized, most important first.
 
 * Reduce amount of data written to file  
-Almost always use the `table.vars` argument. See the example below too.
+  - Almost always use the `table.vars` argument. Only include the variables you need out of Nonmem. There is no reason to list variables in input data since `NMsim` can merge those back on. NMsim versions after 0.1.6 have a `carry.out` argument to control which input data variables will be recovered. The default is `carry.out=TRUE` which means that all input data variables will be added back on the results. If your data set is very large, and your input data set has many columns, you can reduce this. You could do something as little as `table.vars=c(PRED, IPRED)` and `carry.out=c("ID", "TIME","TRT")`. 
 
-* Break the simulation into multiple Nonmem runs
+* If running multiple simulations, run them in parallel
+  - Use `sge=TRUE` to submit all simulation runs to the cluster
+
+* Break the simulation into multiple Nonmem runs  
+  - For example, instead of running `subproblems=1000`, you could do
+    `subproblems=50, nsims=20, sge=TRUE`. In the first case, one
+    Nonmem model is going through 1000 subproblems. In the second
+    case, 20 Nonmem runs are going through 50 subproblems each, and
+    the Nonmem runs are executed in parellel. See example under
+    "Speeding up large simulations" too.
 
 * Use `data.table`
-Depending on the data sets this can make a very large difference. Consider using `NMdataConf(as.fun="data.tabe")`
+  - Depending on the data sets this can make a very large difference. Consider using `NMdataConf(as.fun="data.tabe")`
 
 * Use `method.execute="nmsim"`  
-If you provide the path to the Nonmem executable using `path.nonmem`, `NMsim()` will be default use `method.execute="nmsim"`. Trick: configure this once and for all in the top of your script with something like `NMdata::NMdataConf(path.nonmem="/path/to/nmfe75")`.
+  - If you provide the path to the Nonmem executable using `path.nonmem`, `NMsim()` will be default use `method.execute="nmsim"`. Trick: configure this once and for all in the top of your script with something like `NMdata::NMdataConf(path.nonmem="/path/to/nmfe75")`.
 
 * Parellilize individual runs  
-NMsim does support parellilization (performing a Nonmem run using multiple cores). However, this is rarely worth it for simulations. Most of the time, input/output (reading/writing to disk) is the bottleneck, and splitting the data set into multiple runs will most often reduce run times more.
+  - NMsim does support parellilization (performing a Nonmem run using multiple cores). For instance, use 16 cores for each Nonmem run by adding `nc=16` 
+  - However, this is rarely worth it for simulations. Most of the time, input/output (reading/writing to disk) is the bottleneck, and splitting the data set into multiple runs will most often reduce run times more.
 
 
 ## Most common reasons for `NMsim` to fail or be slow
-If `NMsim` can find the Nonmem executable and/or PSN, it should work
-on basically any models where where it makes sense to replace the
-`$ESTIMATION` by a `$SIMULATION`. If `NMsim` fails or behaves
+If `NMsim` fails or behaves
 unexpectedly, make sure to read the output from Nonmem in the R
 console. If `NMsim` complains it cannot find the output tables, it is
 likely because Nonmem failed and did not generate them.
 
-There is one thing about the Nonmem model evaluation you have to
-remember. Any variable that is used in Nonmem must be defined either inside the model or in the data set. There may be a covariate in the estimated model that you did not
+Any variable that is used in Nonmem must be defined either inside the model or in the data set. There may be a covariate in the estimated model that you did not
 include in your simulation data set - the simulation will break. Sometimes the estimation models include
 variables in output tables that were not used for anything else by
 Nonmem than being read from the input data set and printed in output
@@ -105,3 +112,31 @@ simulations. This will typically be distinct subjects which can be
 simulated without regard to each other. The simple way to do this is
 to split the data set into a list of data sets and pass that list in
 the `NMsim()` `data` argument.
+
+```{r}
+dose1 <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),
+                       addl=list(ADDL=c(0,5),II=c(0,24)),CMT=1,col.id=NA,
+                       as.fun=data.table)
+doses <- dose1[,.(ID=1:1000),by=dose1]
+dat.sim <- addEVID2(doses,TIME=0:(24*7),CMT=2)
+
+
+## say dt.sim is a large data set with 1000 subjects. We want 10 data
+## sets with 100 subjects in each.
+dat.sim$IDGRP <- (dat.sim$ID-1)%/%100+1
+## Now IDGRP is the grouping of the ID's
+as.data.table(dat.sim)[,.(minID=min(ID),maxID=max(ID)),by=IDGRP]
+
+### with data.table, we easily split the data in a list of data.tables based on that grouping variable
+data.multiple <- split(dt.sim,by="IDGRP")
+
+## using sge=TRUE we are now sending the run to the cluster as 10 parellel Nonmem runs.
+path.multidata <- NMsim(file.mod,
+                          data=data.multiple
+                         ,table.vars=c("PRED","IPRED","Y"),
+                         ,name.sim="datalist_01"
+                         ,sge=TRUE
+                          )
+### If we want to wait and read the results when they are ready, use wait=TRUE. NMsim will automatically combine them into one data set as if they were from just one Nonmem run.
+simres <- NMreadSim(path.multidata,wait=TRUE)
+```

@@ -679,10 +679,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         table.vars <- strsplit(tabv2," ")[[1]]
         table.vars <- unique(table.vars)
         
-        ## TODO: this should only be tested if fast.tables is FALSE
-        if(length(table.vars)<3){
-            message("Using less than three variables in table.vars in combination with subproblems may cause issues. If you get an error, try to add any variable or two to table.vars.")
-        }
+
 ### Create NMREP in $ERROR. Adding 1 to start counting at 1.
         
         modify.model <- c(modify.model,
@@ -702,6 +699,11 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         }
     }
 
+    ## this should only be tested if fast.tables is FALSE
+    if(any(!dt.tables$fast.tables)&&length(table.vars)<3){
+        message("Using less than three variables in table.vars in combination with subproblems may cause issues. If you get an error, try to add any variable or two to table.vars.")
+    }
+    
     if(missing(nmquiet)) nmquiet <- NULL
 
     ##if(missing(modelname)) modelname <- NULL

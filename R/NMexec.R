@@ -36,7 +36,7 @@
 ##'     to be available for further processing.
 ##' @param input.archive A function of the model file path to generate
 ##'     the path in which to archive the input data as RDS. Set to
-##'     NULL not to archive the data.
+##'     FALSE not to archive the data.
 ##' @param args.psn.execute A character string with arguments passed
 ##'     to execute. Default is
 ##'     "-model_dir_name -nm_output=coi,cor,cov,ext,phi,shk,xml".

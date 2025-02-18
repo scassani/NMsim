@@ -612,8 +612,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     
     ## if(missing(col.row)) col.row <- NULL
     ## col.row <- NMdata:::NMdataDecideOption("col.row",col.row)
-        
-    input.archive <- inputArchiveDefault
+    
+    ## input.archive <- inputArchiveDefault
+input.archive <- FALSE
 
     if(missing(modify.model)) modify.model <- NULL
     if(!missing(list.sections)){
@@ -1042,18 +1043,19 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     }
 
 ###### write unique data sets
-    ## dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
-    ## dt.data.tmp[,tmprow:=.I]
-    ## this.row[,NMwriteData(data$data[[DATAROW]],
-    ##                                 file=path.data,
-    ##                                 genText=F,
-    ##                                ,formats.write=c("csv",format.data.complete)
-    ##                                 ## if NMsim is not controlling $DATA, we don't know what can be dropped.
-    ##                                ,csv.trunc.as.nm=TRUE
-    ##                                ,script=script
-    ##                                ,quiet=TRUE),
-    ##                    by=tmprow]
-    
+if(!is.null(data)){
+    dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
+    dt.data.tmp[,tmprow:=.I]
+     dt.data.tmp[,NMwriteData(data$data[[DATAROW]],
+                                    file=path.data,
+                             ##genText=F,
+                                   ,formats.write=c("csv",format.data.complete)
+                                    ## if NMsim is not controlling $DATA, we don't know what can be dropped.
+                            ,csv.trunc.as.nm=TRUE
+                                   ,script=script
+                                   ,quiet=TRUE),
+                       by=tmprow]
+    }
     
     
     dt.models[,{
@@ -1081,10 +1083,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                 elems.input <- c(elems.input[1],col.row,elems.input[-1])
                 section.input <- paste("$INPUT",paste(elems.input,collapse=" "))
             
-        } else {
-            data.this <- data$data[[DATAROW]]
-            rewrite.data.section <- TRUE
-        }
+        
 ### save data and replace $input and $data
 #### multiple todo: save only for each unique path.data
         
@@ -1096,6 +1095,12 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                              ,csv.trunc.as.nm=rewrite.data.section
                              ,script=script
                              ,quiet=TRUE)
+
+        } else {
+            data.this <- data$data[[DATAROW]]
+            rewrite.data.section <- TRUE
+            nmtext <- NMgenText(data.this,file=relative_path(path.data,dirname(path.sim)))
+        }
         
         ## input
         if(exists("section.input")){

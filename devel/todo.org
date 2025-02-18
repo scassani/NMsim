@@ -285,11 +285,13 @@ the new one, it will be a difference.
 
 ** VPC sims - no new method needed
 
-*** TODO [#A] If adding ROW, dont add column names
+*** CANCELED If adding ROW, dont add column names
 issue is if people use ignore=C then after adding ROW to the column
 names, the column names will be read as data.
 
-*** TODO [#A] character columns with =DROP seem to break it
+*** DONE character columns with =DROP seem to break it
+I believe this is fixed. In VPC model we now use trunc.csv.as.nm=FALSE
+
 list(na=".",quote=FALSE,row.names=FALSE,scipen=0,col.names=TRUE)
 *** DONE By default, reuse $INPUT and $DATA sections, with updated data path
 Normally, one would simply reuse the estimation input data set for this

@@ -114,6 +114,7 @@ have to supply what dists are needed.
 
 ** NMsim
 
+*** WAITING [#A] Dpends on NMdata 0.1.9: Make inits(method="nmsim") default 
 *** TODO [#A] table.format argument
 If number of rows is >1M I think the default format may be insufficient
 

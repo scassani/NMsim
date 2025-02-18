@@ -700,7 +700,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     }
 
     ## this should only be tested if fast.tables is FALSE
-    if(any(!dt.tables$fast.tables)&&length(table.vars)<3){
+    if(any(!dt.models$fast.tables)&&length(table.vars)<3){
         message("Using less than three variables in table.vars in combination with subproblems may cause issues. If you get an error, try to add any variable or two to table.vars.")
     }
     

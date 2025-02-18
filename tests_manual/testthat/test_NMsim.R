@@ -1228,3 +1228,42 @@ test_that("fast tables",{
     
     
 })
+
+
+test_that("subproblems and nsims",{
+    
+    fileRef <- "testReference/NMsim_16.rds"
+
+    file.mod <- "testData/nonmem/xgxr022.mod"
+
+    simres <- NMsim(file.mod,
+                    data=dt.sim,
+                    table.vars="PRED IPRED Y",
+                    name.sim="subprob_nsims_01",
+                    subproblems=5,
+                    nsims=2,
+                    path.nonmem=path.nonmem,
+                    method.update.inits="nmsim",
+                    seed.R=43
+                    )
+
+    simres[,ID:=.GRP,.(ID,NMREP)]
+
+    NMreadExt(file.mod)[par.type=="OMEGA" & i%in%c(2,3)&j%in%c(2,3)]
+    omega.sim <- NMreadSection("testOutput/simtmp/xgxr022_covetas_01/xgxr022_covetas_01.mod",section="OMEGA")
+    
+### a check that nonmem uses te right dist is unnecessary
+    ## cor(findCovs(simres,by="ID")[,.(ETA1,ETA2,ETA3,ETA4,ETA5)])
+    ## cov2cor(dt2mat(NMreadExt(file.mod)[par.type=="OMEGA"]))
+    
+
+    expect_equal_to_reference(omega.sim,fileRef)
+
+    if(F){
+        ref <- readRDS(fileRef)
+        ref
+        omega.sim
+    }
+    
+
+})

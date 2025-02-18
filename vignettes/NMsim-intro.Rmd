@@ -248,7 +248,6 @@ plot1 <- ggplot(datl,aes(TIME,value,colour=variable))+
     labs(x="Hours since first dose",y="Concentration (ng/mL)",
          subtitle="Simulation of one new subject.",
          colour="")
-
 ```
 </div>
 
@@ -256,7 +255,6 @@ plot1 <- ggplot(datl,aes(TIME,value,colour=variable))+
 plot1
 ```
 
- 
 Notice that no information about the model is needed except for the
 control stream file path. The simulation is based on evaluation of
 `PRED`, `IPRED`, and optionally `Y`. Options exist for building more

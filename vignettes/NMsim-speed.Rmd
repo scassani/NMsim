@@ -113,10 +113,13 @@ simulated without regard to each other. The simple way to do this is
 to split the data set into a list of data sets and pass that list in
 the `NMsim()` `data` argument.
 
-```{r}
+```{r,eval=FALSE}
+library(NMsim)
+library(data.table)
+
 dose1 <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),
                        addl=list(ADDL=c(0,5),II=c(0,24)),CMT=1,col.id=NA,
-                       as.fun=data.table)
+                       as.fun="data.table")
 doses <- dose1[,.(ID=1:1000),by=dose1]
 dat.sim <- addEVID2(doses,TIME=0:(24*7),CMT=2)
 

@@ -869,6 +869,16 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         
         dt.models[,ROWMODEL:=.I]
 
+####### TODO
+        ## construct model-specific paths to data sets on file. say parent dir of fn.sim, then data/name_data.csv. They must be a column in dt.models
+        
+        ## save the unique data:datapath combinations
+
+        ## indicate for those that data should not be re-saved. The caveat is the VPC style probably has te be different.
+
+        ## rewrite where NMwriteData is done to only generate text. Or even do that here?
+        
+
     }
     if(is.null(data)){
         dt.models[,data.name:=""]

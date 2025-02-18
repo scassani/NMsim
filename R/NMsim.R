@@ -612,8 +612,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     
     ## if(missing(col.row)) col.row <- NULL
     ## col.row <- NMdata:::NMdataDecideOption("col.row",col.row)
-
-    
+        
     input.archive <- inputArchiveDefault
 
     if(missing(modify.model)) modify.model <- NULL
@@ -673,7 +672,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                 paste(names.table.vars,table.vars,sep="")
         }
         tabv2 <- paste(table.vars,collapse=" ")
-        tabv2 <- paste(col.row,tabv2)
+        ### don't add col.row here. It is model dependent and will be added when writing $TABLE
+        ##tabv2 <- paste(col.row,tabv2)
+        ### NMREP can be added here because it is not used if $TABLE isn't overwritten
         if(nmrep) tabv2 <- paste(tabv2,"NMREP")
         tabv2 <- gsub(" +"," ",tabv2 )
         table.vars <- strsplit(tabv2," ")[[1]]
@@ -811,63 +812,22 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     
 
 ### prepare data sets
-    if(!is.null(data) && is.data.frame(data)) {
-        ##data <- list(copy(data))
-        data <- list(data)
-        data <- lapply(data,as.data.table)
+    data <- NMsimDataPrepare(data,auto.dv=auto.dv,order.columns=order.columns)
 
-    }
-    if(!is.null(data)) {
-        ## if the list contains data.tables, we don't want to edit the data directly (by ref)
-        if(any(sapply(data,is.data.table))){
-            data <- copy(data)
-        }
-        names.data <- names(data)
-        if(is.null(names.data)) {
-            names.data <- as.character(1:length(data))
-        } else if(""%in%names.data) {
-            names.data <- gsub(" ","_",names.data)
-            if(any(duplicated(names.data))) stop("If data is a list of data sets, the list elements must be uniquely named.")
-            names.data[names.data==""] <- as.character(which(names.data==""))
-        }
+    
 
-        ## data sets must not be empty
-        if(any(sapply(data,function(x)x[,.N==0]))){
-            stop("Empty data set provided. If `data` is a list of data sets, make sure all of them are non-empty.")
-        }
+    dt.models[,col.row:=data$col.row]
 
-        ## moving name.sim from input data to simulation meta data
-        if(F){
-            col.sim <- tmpcol(names=sapply(data,names),base="name.sim")
-            if(col.sim != "name.sim") message(sprintf("column name.sim exists, name.sim written to column %s instead.",col.sim))
-            data <- lapply(data,function(x) x[,(col.sim):=..name.sim])
-        }
-        
+        ## dt.data.tmp <- data.table(DATAROW=1:length(data$data),data.name=names.data)
+        ## if(dt.data.tmp[,.N]==1) dt.data.tmp[,data.name:=""]
 
-        if(auto.dv){
-            
-            data <- lapply(data,function(x){
-                if("DV"%in%colnames(x)){
-                    x
-                } else {
-                    x[,DV:=NA_real_]
-                    if(!"MDV"%in%colnames(x)){
-                        x[,MDV:=1]
-                    }
-                    x
-                }})
-        }
-        all.names <- unique(unlist(lapply(data,colnames)))
-        col.row <- tmpcol(names=all.names,base="NMROW")
-        data <- lapply(data,function(d)d[,(col.row):=(1:.N)/1000])
-        if(order.columns) data <- lapply(data,NMorderColumns,col.row=col.row)
-        dt.models[,col.row:=..col.row]
+    ### doesn't work when dt.models contains columns of type list 
+    ## dt.models <- dt.models[,data$dt.data,by=dt.models]
+    dt.models <- egdt(dt.models,data$dt.data,quiet=TRUE)
+    
 
-        dt.data <- data.table(DATAROW=1:length(data),data.name=names.data)
-        if(dt.data[,.N]==1) dt.data[,data.name:=""]
-        dt.models <- egdt(dt.models,dt.data,quiet=TRUE)
-        
-        dt.models[,ROWMODEL:=.I]
+    
+    dt.models[,ROWMODEL:=.I]
 
 ####### TODO
         ## construct model-specific paths to data sets on file. say parent dir of fn.sim, then data/name_data.csv. They must be a column in dt.models
@@ -879,7 +839,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         ## rewrite where NMwriteData is done to only generate text. Or even do that here?
         
 
-    }
+    
     if(is.null(data)){
         dt.models[,data.name:=""]
     } 
@@ -1081,27 +1041,37 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         order.columns <- FALSE
     }
 
+###### write unique data sets
+    ## dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
+    ## dt.data.tmp[,tmprow:=.I]
+    ## this.row[,NMwriteData(data$data[[DATAROW]],
+    ##                                 file=path.data,
+    ##                                 genText=F,
+    ##                                ,formats.write=c("csv",format.data.complete)
+    ##                                 ## if NMsim is not controlling $DATA, we don't know what can be dropped.
+    ##                                ,csv.trunc.as.nm=TRUE
+    ##                                ,script=script
+    ##                                ,quiet=TRUE),
+    ##                    by=tmprow]
+    
+    
+    
     dt.models[,{
-        
 ### note: insert test for whether run is needed here
         ## if data is NULL, we will re-use data used in file.mod. Adding row counter if not found.
 
+        ######## VPC mode
         if(is.null(data)){
             data.this <- NMscanInput(file.mod,recover.cols=FALSE,translate=FALSE,apply.filters=FALSE,col.id=NULL,as.fun="data.table")
-            col.row <- tmpcol(data,base="NMROW")
-            dt.models[,col.row:=..col.row]
-            if(!col.row %in% colnames(data.this)){
+            col.row.this <- tmpcol(data.this,base="NMROW")
+            dt.models[,col.row:=col.row.this]
+            
+            ## if(!col.row %in% colnames(data.this)){
                 data.this[,(col.row):=(1:.N)/1000]
-                ## setcolorder(data.this,col.row)
-
-                ## message(paste0("Row counter was added in column ",col.row,". Use this to merge output and input data."))
-                
                 setcolorder(data.this,c(colnames(data.this)[1],col.row))
                 
                 section.input <- NMreadSection(file.mod,section="input",keep.name=FALSE)
-                
                 section.input <- paste(section.input,collapse=" ")
-
                 section.input <- gsub(","," ",section.input)
                 section.input <- gsub("[ \\s]+"," ",section.input)
                 section.input <- NMdata:::cleanSpaces(section.input)
@@ -1109,23 +1079,14 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                 
                 elems.input <- strsplit(section.input,split=" ")[[1]]
                 elems.input <- c(elems.input[1],col.row,elems.input[-1])
-                
                 section.input <- paste("$INPUT",paste(elems.input,collapse=" "))
-
-                ## section.input <- pasteBegin(x=section.input,paste("$INPUT",col.row),collapse=" ")
-            } else {
-                section.input <- FALSE
-            }
             
         } else {
-            data.this <- data[[DATAROW]]
+            data.this <- data$data[[DATAROW]]
             rewrite.data.section <- TRUE
         }
-
-        
 ### save data and replace $input and $data
 #### multiple todo: save only for each unique path.data
-        
         
         ## format.data.complete <- "fst"
         nmtext <- NMwriteData(data.this,file=path.data,
@@ -1207,7 +1168,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
     ## fun simulation method
     dt.models.gen <- dt.models[,
-                               method.sim(file.sim=path.sim,file.mod=file.mod,data.sim=data[[DATAROW]],...)
+                               method.sim(file.sim=path.sim,file.mod=file.mod,data.sim=data$data[[DATAROW]],...)
                               ,by=.(ROWMODEL)]
     
     

@@ -45,8 +45,10 @@ NMreadTabFast <- function(file,file.mod,carry.out,col.row=NULL,...){
                                .SDcols=setdiff(colnames(alltabs),c(carry.out,col.by))]
             setkey(alltabs,NULL)
         } else {
-            
+            alltabs[,.tmpcol:=.I]
             alltabs <- merge(alltabs,inp[,unique(c(col.row,carry.out)),with=FALSE],by=col.row,all.x=TRUE)
+            setorder(alltabs,.tmpcol)
+            alltabs[,.tmpcol:=NULL]
 
         }
     }

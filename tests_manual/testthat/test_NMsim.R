@@ -22,14 +22,21 @@ setorder(dt.sim.known,ID,TIME,EVID,CMT)
 
 
 ## NMdataConf(dir.psn="/opt/psn")
-if(F){
     ## a manual linux setup
-    path.nonmem <- "/opt/nonmem/nm751/run/nmfe75"
-    NMdataConf(dir.psn= "/opt/psn")
-}
-## NMdataConf(dir.psn=dir.psn)
-##
+path.nonmem.custom <- "/opt/nonmem/nm751/run/nmfe75"
+dir.psn.custom= "/opt/psn"
+
+
+## 
 path.nonmem <- "/opt/NONMEM/nm75/run/nmfe75"
+
+if(file.exists(path.nonmem.custom)) {
+    path.nonmem <- path.nonmem.custom
+    NMdataConf(dir.psn=dir.psn.custom)
+}
+
+path.nonmem
+
 file.exists(path.nonmem)
 
 #### need a function to drop NMsimVersion and NMsimTime from table
@@ -834,7 +841,7 @@ test_that("Two models on one rds",{
     file.mod.2 <- "testData/nonmem/xgxr032.mod"
 
     dt.dos <- NMcreateDoses(AMT=300,TIME=0)
-    dt.sim <- addEVID2(doses=dt.dos,time.sim=c(1,6,12),CMT=2)
+    dt.sim <- addEVID2(data=dt.dos,TIME=c(1,6,12),CMT=2)
 
     set.seed(43)
     simres <- NMsim(c(file.mod.1,file.mod.2),
@@ -846,6 +853,7 @@ test_that("Two models on one rds",{
                    ,table.vars=cc(PRED,IPRED)
                    ,sge=F
                    ,wait=TRUE
+                   ,path.nonmem=path.nonmem
                     )
 
     ## readRDS("testOutput/twomodels_01_paths.rds")

@@ -290,7 +290,9 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
         NMdata:::NMwriteSectionOne(lines=lines.old,
                                    section=section,
                                    newlines=newsection,
-                                   location="replace")
+                                   location="replace",
+                                   quiet=TRUE,
+                                   backup=FALSE)
     }
 
     lines.new <- fun.update.ctl(lines.new,section="THETA",dt.lines=lines.all.3)

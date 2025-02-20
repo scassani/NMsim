@@ -50,6 +50,9 @@ NMreplaceInits <- function(inits,...){
     if(!"quiet"%in%names(dots)) {
         dots$quiet <- TRUE
     }
+    if(!"backup"%in%names(dots)) {
+        dots$backup <- TRUE
+    }
     dots$list.sections <- list.sections
     ## res <- NMwriteSection(list.sections=list.sections
     ##                      ,quiet=TRUE

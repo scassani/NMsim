@@ -118,7 +118,7 @@ NMsim_default <- function(file.sim,file.mod,data.sim,nsims=1,onlysim=TRUE,replac
     sec.0 <- NMreadSection(file=path.sim.0,section="TABLE")
     dt.sims[,{
         sec.new <- gsub(run.sim.0,run.sim,x=sec.0)
-        NMwriteSection(files=path.sim,section="TABLE",newlines=sec.new,quiet=TRUE)
+        NMwriteSection(files=path.sim,section="TABLE",newlines=sec.new,quiet=TRUE,backup=FALSE)
     },by=.(SUBMODEL)]
 
     

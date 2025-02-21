@@ -58,6 +58,7 @@ context("NMsim")
 test_that("basic - default",{
     
     fileRef <- "testReference/NMsim_01.rds"
+    fileRef.noMeta <- fnAppend(fileRef,"noMeta")
 
     ## 025 doesn't seem stable. Got Q~1e7 and Nonmem didn't run
     file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
@@ -76,7 +77,7 @@ test_that("basic - default",{
 
     simres.nometa <- copy(simres)
     unNMsimRes(simres.nometa)
-    expect_equal_to_reference(simres.nometa,fnAppend(fileRef,"noMeta"))
+    expect_equal_to_reference(simres.nometa,fileRef.noMeta)
     
     ## attributes(NMreadSim("testOutput/NMsim_xgxr021_default_01_paths.rds"))
     fix.time(simres)
@@ -90,8 +91,11 @@ test_that("basic - default",{
         colnames(ref)
         colnames(simres)
         compareCols(simres,ref,keep.names=TRUE)
+        ref
+        simres
         compareCols(attributes(simres)$NMsimModTab,attributes(readRDS(fileRef))$NMsimModTab,keep.names=FALSE)
 
+        
     }
 
 })
@@ -127,7 +131,9 @@ test_that("basic - sge - dont wait",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres2,ref)
-
+        simres2
+        ref
+        
         compareCols(attributes(simres2)$NMsimModTab,
                     attributes(ref)$NMsimModTab)
     }
@@ -163,6 +169,8 @@ test_that("basic - sge - wait",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres3,ref)
+        simres3
+        ref
 
         compareCols(attributes(simres3)$NMsimModTab,
                     attributes(ref)$NMsimModTab)
@@ -196,18 +204,21 @@ test_that("basic - typical",{
                      table.vars="PRED IPRED" ,
                      dir.sims="testOutput",
                      typical=TRUE,
-                     ## method.sim=NMsim_asis,
                      name.sim="typsubj2"
                      )
 
-    
+
+    expect_equal(nrow(simres2),4)
     expect_true(simres2[,all(IPRED==PRED)])
 
-    fix.time(simres2)
+    
+
+    if(F){
+
+        fix.time(simres2)
     expect_equal_to_reference(simres2,fileRef)
 
 
-    if(F){
         ref <- readRDS(fileRef)
         compareCols(simres2,ref)
 

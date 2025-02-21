@@ -114,6 +114,11 @@ have to supply what dists are needed.
 
 ** NMsim
 
+*** TODO [#A] Likely bug
+I don't understand why this line is here. NMseed seems to have taken care of this already:
+
+section.sim <- sub("(SIM(ULATION)*( +ONLYSIM(ULATION)*)*) *",paste("\\1",seed),section.sim)
+
 *** WAITING [#A] Dpends on NMdata 0.1.9: Make inits(method="nmsim") default 
 *** TODO [#A] table.format argument
 If number of rows is >1M I think the default format may be insufficient
@@ -139,7 +144,7 @@ merging?
 *** DONE add NMREP code and TABLE variable if subproblems is used
 *** DONE nmrep argument
 *** TODO [#A] clean up meta data
-*** TODO Only paste lst bottom if lst and tables not found
+*** TODO Only paste lst bottom if tables not found
 If not, it is probably an issue reading the data?
 *** DONE When adding seed and SUBPROBLEMS, only add once
 If $SIMULATION spans more than one line, this is currently pasted repeatedly
@@ -161,7 +166,10 @@ can't return results it should be an error.
 That has to be dropped from $ERROR sections by default
 
 Currently, the user is warned about the existence
-*** TODO [#B] avoid PRED_IGNORE_DATA_TEST==1
+*** CANCELED avoid PRED_IGNORE_DATA_TEST==1
+This is cancelled because we merge by a row identifier. PRED_IGNORE_DATA_TEST should be supported.
+
+
 In $PK. Example
 ; include study 4 even though ANP3AC=0
 IF(PRED_IGNORE_DATA_TEST==1) THEN
@@ -202,7 +210,7 @@ It has no effect in model
 *** DONE If PSN is not available, make method.update.inits="nmsim"
 *** DONE Limit seed function to what Nonmem can use
 0:2147483647
-*** TODO [#B] save data fewer times
+*** DONE save data fewer times
 Save only for each unique path.data. Merge in the nmtext somehow? It's
 a list so it's not that simple.
 *** DONE Delete existing results prior to running
@@ -226,7 +234,7 @@ For now, ellipses used
 *** DONE Go through selection of execution method
 **** DONE all columns which names start by file.needed used
 *** CANCELED Use dt list elements for multiple files.needed
-*** TODO [#B] Use meaningful by in execute part
+*** DONE Use meaningful by in execute part
 *** DONE Modularize simulation methods
 **** DONE Handle seed and subproblems outside modules
 **** DONE How to handle replace.sim?
@@ -255,7 +263,9 @@ If not, throw error if dir.sim does not exist
 *** DONE Support non-data.table workflows
 **** DONE use NMdata's as.fun
 *** DONE Rename type.input to type.mod
-*** TODO [#B] Revise input data paths
+*** CANCELED Revise input data paths
+This is for now resolved with dir.sims and dir.res
+
 Currently, NMsimData... goes together with NMsim....  It would be
 better for svn if the first part of the filenames were aligned. Also,
 do we need to archive input data as _input as well in this case?

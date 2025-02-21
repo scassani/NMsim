@@ -787,8 +787,6 @@ input.archive <- FALSE
     ## fn.sim <- sub("^run","NMsim",basename(file.mod))
     dt.models[,fn.mod:=basename(file.mod)]
 ### prepending NMsim to model names
-    ## dt.models[,fn.sim:=fnExtension(paste0("NMsim_",name.mod),".mod")]
-### dropping NMsim in front of all model names
     ## dt.models[,fn.sim:=fnExtension(name.mod,".mod")]
     dt.models[,fn.sim:=fnExtension(model,".mod")]
 
@@ -816,8 +814,6 @@ input.archive <- FALSE
     data <- NMsimDataPrepare(data,auto.dv=auto.dv,order.columns=order.columns)
 
     
-
-    dt.models[,col.row:=data$col.row]
 
         ## dt.data.tmp <- data.table(DATAROW=1:length(data$data),data.name=names.data)
         ## if(dt.data.tmp[,.N]==1) dt.data.tmp[,data.name:=""]
@@ -859,8 +855,9 @@ input.archive <- FALSE
     ## spaces not allowed in model names
     dt.models[,fn.sim:=gsub(" ","_",fn.sim)]
     ## run.sim should be deprecated. model.sim is what is used in results data.
-    ## dt.models[,run.sim:=modelname(fn.sim)]
-    dt.models[,model.sim:=modelname(fn.sim)]
+
+    dt.models[,run.sim:=modelname(fn.sim)]
+    ## dt.models[,model.sim:=modelname(fn.sim.predata)]
 
     
     ## dir.sim is the model-individual directory in which the model will be run
@@ -1046,7 +1043,7 @@ input.archive <- FALSE
 if(!is.null(data)){
     dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
     dt.data.tmp[,tmprow:=.I]
-     dt.data.tmp[,NMwriteData(data$data[[DATAROW]],
+    dt.data.tmp[,NMwriteData(data$data[[DATAROW]],
                                     file=path.data,
                              ##genText=F,
                                    ,formats.write=c("csv",format.data.complete)
@@ -1058,19 +1055,21 @@ if(!is.null(data)){
     }
     
     
-    dt.models[,{
-### note: insert test for whether run is needed here
-        ## if data is NULL, we will re-use data used in file.mod. Adding row counter if not found.
 
-        ######## VPC mode
-        if(is.null(data)){
+
+
+
+    if(is.null(data)){
+        dt.models[,{
+            
+                    ######## VPC mode
             data.this <- NMscanInput(file.mod,recover.cols=FALSE,translate=FALSE,apply.filters=FALSE,col.id=NULL,as.fun="data.table")
             col.row.this <- tmpcol(data.this,base="NMROW")
             dt.models[,col.row:=col.row.this]
             
             ## if(!col.row %in% colnames(data.this)){
-                data.this[,(col.row):=(1:.N)/1000]
-                setcolorder(data.this,c(colnames(data.this)[1],col.row))
+                data.this[,(col.row.this):=(1:.N)/1000]
+                setcolorder(data.this,c(colnames(data.this)[1],col.row.this))
                 
                 section.input <- NMreadSection(file.mod,section="input",keep.name=FALSE)
                 section.input <- paste(section.input,collapse=" ")
@@ -1080,7 +1079,7 @@ if(!is.null(data)){
                 section.input <- gsub(" *= *","=",section.input)
                 
                 elems.input <- strsplit(section.input,split=" ")[[1]]
-                elems.input <- c(elems.input[1],col.row,elems.input[-1])
+                elems.input <- c(elems.input[1],col.row.this,elems.input[-1])
                 section.input <- paste("$INPUT",paste(elems.input,collapse=" "))
             
         
@@ -1096,29 +1095,27 @@ if(!is.null(data)){
                              ,script=script
                              ,quiet=TRUE)
 
-        } else {
-            data.this <- data$data[[DATAROW]]
-            rewrite.data.section <- TRUE
-            nmtext <- NMgenText(data.this,file=relative_path(path.data,dirname(path.sim)))
-        }
-        
-        ## input
-        if(exists("section.input")){
-            if(!isFALSE(section.input)){
+
                 NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = list(input=section.input),backup=FALSE,quiet=TRUE)
-            }
+                
+## replace data file only
+                NMreplaceDataFile(files=path.sim,path.data=basename(path.data),quiet=TRUE)
+         
+
+        },by=.(ROWMODEL)]
+
         } else {
-            NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = nmtext["INPUT"],backup=FALSE,quiet=TRUE)
-        }
-        if(rewrite.data.section){
-            ## data
-            NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = nmtext["DATA"],backup=FALSE,quiet=TRUE)    
-        } else {
-            ## replace data file only
-            NMreplaceDataFile(files=path.sim,path.data=basename(path.data),quiet=TRUE)
-        }
-    },by=.(ROWMODEL)]
-    
+            dt.models[,col.row:=data$col.row]
+            
+            dt.models[,{
+                data.this <- data$data[[DATAROW]]
+                rewrite.data.section <- TRUE
+                nmtext <- NMgenText(data.this,file=relative_path(path.data,dirname(path.sim)),quiet=TRUE)
+                NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = nmtext["INPUT"],backup=FALSE,quiet=TRUE)
+       NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = nmtext["DATA"],backup=FALSE,quiet=TRUE)    
+                        
+            },by=.(ROWMODEL)]
+        }    
     
 
 #### Section start: Output tables ####
@@ -1169,7 +1166,7 @@ if(!is.null(data)){
     
 ###  Section end: Output tables
 #### DEBUG Does the sim control stream have TABLES at this point?    
-
+    
 
     ## fun simulation method
     dt.models.gen <- dt.models[,
@@ -1246,6 +1243,8 @@ if(!is.null(data)){
         dt.models,
         by="ROWMODEL"
        ,quiet=TRUE)
+
+
     
     ## path.sim.lst is full path to final output control stream to be
     ## read by NMscanData. This must be derived after method.sim may

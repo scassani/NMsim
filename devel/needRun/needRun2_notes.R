@@ -1,8 +1,5 @@
 
-** capture environment
-Use getArgs() or something from NMdata?
 
-    ** needRun2
 needRun2 <- function(obj,env,path.res,funs.unwrap=NULL){
 
     if(force.run || !file.exists(file.digest)){
@@ -32,6 +29,7 @@ needRun2 <- function(obj,env,path.res,funs.unwrap=NULL){
 ## the big q is how we handle functions from within packages
 
 myfun3 <- function(x,path.res){
+    ## not sure this is quite enough. I just put in getArgs() because I think we can use that somehow.
     obj <- getArgs()
     ### fnExtension doesn't matter as long as we use readRDS to read results. 
     path.digs <- fnExtension(fnAppend(path.res,"digests"),".rds")

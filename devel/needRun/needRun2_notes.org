@@ -1,0 +1,87 @@
+* needRun - check whether rerun is needed
+Changed approach a bit in Feb 2025 after environment issues with the
+old one. Also , I think the design can be better than the old one.
+
+** ideal design
+##' @param fun The function to run, if necessary
+##' @param funs.unwrap functions to convert arguments before checking
+for changes. Example: `funs.unwrap=list(file.mod=readLines`)
+
+needRun3 <- function(fun,args,env,path.res,funs.unwrap)
+
+However, for NMsim itself we dont want the user to have to do
+simres <- needRun(NMsim,....)
+we want
+simres <- NMsim(...,reuse=TRUE)
+
+That means we also must suppport it built into a function that is
+intended to use it, and then inside myfun it is directly
+implemented.
+
+But maybe that is easily supported by the ideal design. On could do
+omething like this following. However, it's hard because needrun will
+not know how to read results on file.
+
+
+  calc.digests(args,env) is a needed function
+  file.digests(file.res) is a needed function
+  Both are to be used inside `reuse()` and by the user to match `reuse()`
+
+  
+#+begin_src R
+	myfun <- function(...,reuse,funs.reuse,file.res){
+    fun.readres <- function(file) NMreadSim(file)
+      file.digests <- file.res |> fnAppend("_digests") |> fnExtension(".rds")
+	  if(reuse){
+	    args <- getArgs()
+	    args$reuse <- NULL
+	    env <- this.environment()????
+	      return(reuse(myfun,args=args,env=env,funs.unwrap=funs.reuse,fun.readres,file.res))
+	  } else {
+	    recalc digests, save digests
+	  }
+
+	}
+
+#+end_src
+
+** Where we are at
+needRun.R is the version that was pulled out of the first NMsim releases because of issues
+
+needRun2_notes.R is a note-style new approach - it is nowhere near ready functions. It is still calling
+functions - like digestAll() - `from needRun.R`. 
+
+The interface so far implemented in needRun2_notes.R does not provide
+the ideal interface. It is more like it's built into a function that is intended to use it, say
+myfun <- function(...,reuse=TRUE)
+and then inside myfun it is directly implemented. That is an interface that must also be supported.
+
+** Notes on how major challenges can be handled
+
+*** capture environment
+Use getArgs() or something from NMdata?
+
+** needRun2
+
+*** handle functions
+This seems to provide excactly the simple comparison we need. It is from
+https://stackoverflow.com/questions/9638372/how-to-compare-functions
+
+You can convert the functions to strings, and compare those strings.
+
+equal_functions <- function(f,g)
+all( 
+capture.output(print(f)) ==
+capture.output(print(g))
+)
+equal_functions(function(x) x, function(x) x) # TRUE
+
+But functions that differ for non-essential reasons will be seen as different.
+
+equal_functions(function(x) x, function(u) u) # FALSE
+equal_functions(
+function(x) x, 
+function(x) 
+x
+) # FALSE
+

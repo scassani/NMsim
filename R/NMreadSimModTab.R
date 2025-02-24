@@ -81,6 +81,7 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
 ### one. NMreadSimModTabOne checks that there is only one rds but I'm
 ### sure that requirement is needed anymore. Could try to combine
 ### these and run at once. Would require more testing.
+    
     res.list <- lapply(split(modtab,by="path.rds.read"),NMreadSimModTabOne,check.time=check.time,dir.sims=dir.sims,wait=wait,skip.missing=skip.missing,quiet=quiet,fast.tables=fast.tables,carry.out=carry.out,as.fun=as.fun,progress=progress)
     
     
@@ -266,6 +267,7 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
             ## 
             ## args.NM$file.mod <- function(file) fnExtension(file,".mod")
             args.NM$file.mod <- .SD$path.sim
+            args.NM$as.fun <- "data.table"
             ## args.NM$file.mod <- fnExtension(path.lst.read,".mod")
             
             if(! "quiet" %in% names(args.NM)){
@@ -305,9 +307,10 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
                     this.res <- do.call(wrap.trans,c(list(dt=this.res),this.funs))
                 }
             }
-
+            
             ## we are not keeping col.row. Just used it to make sure to combine right.
-            if(!is.null(col.row)) this.res[,(col.row):=NULL]
+            
+            if(col.row%in%colnames(this.res)) this.res[,(col.row):=NULL]
             
             this.res
         },by=bycols]

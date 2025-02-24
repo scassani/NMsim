@@ -446,7 +446,6 @@ test_that("VPC",{
     ## derive PIs
     expect_equal(round(as.numeric(simres.vpc[EVID==0,quantile(Y,probs=.25)]),3),0.155)
 
-    attributes(simres.vpc)
     
 })
 
@@ -642,7 +641,7 @@ test_that("default with renaming",{
                     name.sim="default_01"
                     )
 
-    expect_equal(unique(simres$model.sim),"ref_default_01")
+    expect_equal(unique(simres$model.sim),"ref_default_01_1")
     
     fix.time(simres)
     expect_equal_to_reference(simres,fileRef)
@@ -1076,7 +1075,9 @@ test_that("Non-numeric DATE and TIME",{
 
     expect_equal_to_reference(
         res
-       ,fileRef)
+       ,
+        fileRef
+    )
 
 
 
@@ -1278,21 +1279,23 @@ test_that("subproblems and nsims",{
     simres <- NMsim(file.mod,
                     data=dt.sim,
                     table.vars="PRED IPRED Y",
-                    name.sim="subprob_nsims_01",
+                    name.sim="subprob_nsims",
                     subproblems=5,
                     nsims=2,
                     path.nonmem=path.nonmem
                    ,
                     method.update.inits="nmsim",
                     seed.R=43
-                    )
+                    ,as.fun="data.table")
 
     simres[,ID:=.GRP,.(ID,NMREP)]
-
-    simres
+    fix.time(simres)
+    
+    expect_equal_to_reference(simres,fileRef)
 
     if(F){
         ref <- readRDS(fileRef)
+        simres
         ref
         omega.sim
     }

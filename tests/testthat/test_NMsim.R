@@ -107,6 +107,12 @@ NMreadSection(file.mod,section="ERROR")
 
         mod$SIGMA
         ref$SIGMA
+        
+        mod$INPUT
+        ref$INPUT
+        
+        mod$DATA
+        ref$DATA
     }
 })
 

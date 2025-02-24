@@ -789,6 +789,7 @@ input.archive <- FALSE
 ### prepending NMsim to model names
     ## dt.models[,fn.sim:=fnExtension(name.mod,".mod")]
     dt.models[,fn.sim:=fnExtension(model,".mod")]
+    dt.models[,fn.sim:=cleanStrings(fn.sim)]
 
     ## fn.sim should be unique
     dt.models[,n.fn.sim:=.N,by=fn.sim]
@@ -796,7 +797,8 @@ input.archive <- FALSE
     dt.models[,n.fn.sim:=NULL]
 
     ## dt.models[,model:=modelname(fn.sim)]
-    dt.models[,model.sim:=modelname(fn.sim)]
+    
+
     
 
     
@@ -852,11 +854,13 @@ input.archive <- FALSE
     dt.models[,fn.sim.predata:=fnAppend(fn.sim,name.sim.paths)]
     dt.models[,fn.sim:=fnAppend(fn.sim.predata,as.character(data.name)),by=.(ROWMODEL)]
     
-    ## spaces not allowed in model names
-    dt.models[,fn.sim:=gsub(" ","_",fn.sim)]
-    ## run.sim should be deprecated. model.sim is what is used in results data.
+    ## spaces not allowed in model file names
+    ## dt.models[,fn.sim:=gsub(" ","_",fn.sim)]
+    dt.models[,fn.sim:=cleanStrings(fn.sim)]
+    ## run.sim should be deprecated. model.sim is what is used in results data. No model is used in results data. But model.sim is the necesary clean name
 
-    dt.models[,run.sim:=modelname(fn.sim)]
+    ## dt.models[,run.sim:=modelname(fn.sim)]
+    dt.models[,model.sim:=modelname(fn.sim)]
     ## dt.models[,model.sim:=modelname(fn.sim.predata)]
 
     
@@ -864,7 +868,7 @@ input.archive <- FALSE
     ## dt.models[,
     ##           dir.sim:=file.path(dir.sims,paste(name.mod,name.sim.paths,sep="_"))]
     dt.models[,
-              dir.sim:=file.path(dir.sims,paste(model,name.sim.paths,sep="_"))]
+              dir.sim:=file.path(dir.sims,cleanStrings(paste(model,name.sim.paths,sep="_")))]
     
     
     ## path.sim.tmp is a temporary path to the sim control stream - it
@@ -1040,7 +1044,8 @@ input.archive <- FALSE
     }
 
 ###### write unique data sets
-if(!is.null(data)){
+    if(!is.null(data)){
+        
     dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
     dt.data.tmp[,tmprow:=.I]
     dt.data.tmp[,NMwriteData(data$data[[DATAROW]],
@@ -1409,10 +1414,8 @@ if(!is.null(data)){
             ## files.unwanted <- list.files(
             if(file.exists(path.sim.lst)){
                 ## message("Existing output control stream found. Removing.")
-                
                 dt.outtabs <- try(NMscanTables(path.sim.lst,meta.only=TRUE,as.fun="data.table",quiet=TRUE),silent=TRUE)
                 if(!inherits(dt.outtabs,"try-error") && is.data.table(dt.outtabs) && nrow(dt.outtabs)>0){
-                    
                     file.remove(
                         dt.outtabs[file.exists(file),file]
                     )
@@ -1420,7 +1423,6 @@ if(!is.null(data)){
                 unlink(path.sim.lst)
 
             }
-
             
             NMexec(files=path.sim,sge=sge,nc=nc,wait=wait.exec,
                    args.psn.execute=args.psn.execute,nmquiet=nmquiet,quiet=TRUE,

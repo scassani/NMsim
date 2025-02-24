@@ -12,8 +12,8 @@ NMreadSim(
   quiet = FALSE,
   progress,
   rm.tmp = FALSE,
-  fast.tables = FALSE,
-  recover.input,
+  fast.tables = NULL,
+  carry.out = NULL,
   as.fun
 )
 }

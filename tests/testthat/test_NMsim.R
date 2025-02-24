@@ -96,8 +96,9 @@ test_that("modify.model",{
     if(F){
         ref <- readRDS(fileRef)
         ref$PK
+
         ref$ERROR
-NMreadSection(file.mod,section="ERROR")
+        mod$ERROR
         
         mod$THETA
         ref$THETA
@@ -113,6 +114,9 @@ NMreadSection(file.mod,section="ERROR")
         
         mod$DATA
         ref$DATA
+
+        mod$TABLE
+        ref$TABLE
     }
 })
 
@@ -156,6 +160,15 @@ test_that("modify.model with list",{
 
         mod$SIGMA
         ref$SIGMA
+
+        mod$INPUT
+        ref$INPUT
+        
+        mod$DATA
+        ref$DATA
+
+        mod$TABLE
+        ref$TABLE
     }
 })
 
@@ -188,13 +201,24 @@ test_that("NMsim_EBE",{
 
     if(F){
         ref <- readRDS(fileRef)
+        mod$PK
+
         ref$OMEGA
         mod$OMEGA 
         ref$SIGMA
         mod$SIGMA
         ref$SIMULATION
         mod$SIMULATION
-    }
+    
+        mod$INPUT
+        ref$INPUT
+        
+        mod$DATA
+        ref$DATA
+
+        mod$TABLE
+        ref$TABLE
+}
 
 
 })
@@ -362,12 +386,16 @@ test_that("Named table variables",{
                   table.vars=c("PRED TIMENEW=TIME")
                   )
 
-    expect_equal("TIMENEW"%in%colnames(sim1))
+    res1 <- NMreadSection("testOutput/xgxr025_tabvars1/xgxr025_tabvars1.mod",section="TABLE")
+    res2 <- NMreadSection("testOutput/xgxr025_tabvars2/xgxr025_tabvars2.mod",section="TABLE")
+    res1
+    res2
 
-fix.time(sim1)
-fix.time(sim2)
+    expect_true(grepl("TIMENEW",res1))
 
-    expect_equal(sim1,sim2)
+    expect_equal(sub("tabvars[0-9]","",res1),
+                 sub("tabvars[0-9]","",res2)
+                 )
 
     
     ## readLines("testOutput/xgxr025_sd1/xgxr025_sd1.mod")

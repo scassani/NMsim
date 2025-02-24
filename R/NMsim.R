@@ -671,12 +671,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
        ## this has not been resolved in NMdata
        ## && packageVersion("NMdata")<"1.1.7"
        ){
-        names.table.vars <- names(table.vars)
-        if(!is.null(names.table.vars)){
-            names.table.vars <- sub("(.+)","\\1=",names.table.vars)
-            table.vars <-
-                paste(names.table.vars,table.vars,sep="")
-        }
+        
         tabv2 <- paste(table.vars,collapse=" ")
 ### don't add col.row here. It is model dependent and will be added when writing $TABLE
         ##tabv2 <- paste(col.row,tabv2)
@@ -693,7 +688,16 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                           list(ERROR=add("NMREP=IREP")))
     }
     
-
+    if(!is.null(table.vars)){
+    names.table.vars <- names(table.vars)
+        if(!is.null(names.table.vars)){
+            
+            names.table.vars <- sub("(.+)","\\1=",names.table.vars)
+            table.vars <-
+                paste(names.table.vars,table.vars,sep="")
+        }
+    }
+    
 ### generate text.table as the combination of table.vars and table.options
     if(is.null(text.table)){
         if(!is.null(table.vars)){

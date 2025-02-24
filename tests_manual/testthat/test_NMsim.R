@@ -77,7 +77,13 @@ test_that("basic - default",{
 
     simres.nometa <- copy(simres)
     unNMsimRes(simres.nometa)
+
     expect_equal_to_reference(simres.nometa,fileRef.noMeta)
+    if(F){
+        ref.nometa <- readRDS(fileRef.noMeta)
+simres.nometa
+ref.nometa        
+}
     
     ## attributes(NMreadSim("testOutput/NMsim_xgxr021_default_01_paths.rds"))
     fix.time(simres)
@@ -186,17 +192,7 @@ test_that("basic - typical",{
     file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
     
     set.seed(43)
-    if(F){
-        simres <- NMsim(file.mod,
-                        data=dt.sim,
-                        table.vars="PRED IPRED" ,
-                        dir.sims="testOutput",
-                        method.sim=NMsim_typical,
-                        ## method.sim=NMsim_asis,
-                        name.sim="typsubj"
-                        )
-    }
-
+    
     ## file.mod2 <- c(file.mod,  "testData/nonmem/xgxr032.mod")
     file.mod2 <- c(file.mod)
     simres2 <- NMsim(file.mod2,
@@ -563,7 +559,10 @@ test_that("space in file name",{
         )  
     
     expect_equal_to_reference(tab.covs,fileRef)
-
+    if(F){
+        readRDS(fileRef)
+        }
+    
     expect_equal(unique(
         nrow(simres1)
        ,
@@ -575,6 +574,9 @@ test_that("space in file name",{
     
 
 })
+
+
+
 
 test_that("list of data sets - spaces in data names",{
 
@@ -1286,7 +1288,7 @@ test_that("subproblems and nsims",{
                    ,
                     method.update.inits="nmsim",
                     seed.R=43
-                    ,as.fun="data.table")
+                   ,as.fun="data.table")
 
     simres[,ID:=.GRP,.(ID,NMREP)]
     fix.time(simres)
@@ -1302,3 +1304,4 @@ test_that("subproblems and nsims",{
     
 
 })
+

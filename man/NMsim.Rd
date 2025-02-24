@@ -19,6 +19,8 @@ NMsim(
   args.psn.execute,
   table.vars,
   table.options,
+  table.format,
+  carry.out = TRUE,
   text.sim = "",
   method.sim = NMsim_default,
   typical = FALSE,
@@ -32,6 +34,7 @@ NMsim(
   create.dirs = TRUE,
   dir.psn,
   modify.model,
+  nmrep,
   sizes,
   sim.dir.from.scratch = TRUE,
   col.row,
@@ -40,8 +43,6 @@ NMsim(
   nmquiet,
   progress,
   as.fun,
-  suffix.sim,
-  text.table,
   system.type = NULL,
   dir.res,
   file.res,
@@ -50,9 +51,11 @@ NMsim(
   clean,
   quiet = FALSE,
   check.mod = TRUE,
+  format.data.complete = "rds",
+  text.table,
+  suffix.sim,
   seed,
   list.sections,
-  format.data.complete = "rds",
   ...
 )
 }
@@ -147,6 +150,9 @@ provided. If constructing a new output table with
 \code{NOAPPEND} and \code{NOPRINT}. You can modify that with
 \code{table.options}. Do not try to modify output filename -
 \code{NMsim} takes care of that.}
+
+\item{table.format}{A format for `$TABLE`. Only used if
+`table.vars` is provided.}
 
 \item{text.sim}{A character string to be pasted into
 $SIMULATION. This must not contain seed or SUBPROBLEM which
@@ -324,12 +330,6 @@ something else. If data.tables are wanted, use
 as.fun="data.table". The default can be configured using
 NMdataConf.}
 
-\item{suffix.sim}{Deprecated. Use name.sim instead.}
-
-\item{text.table}{A character string including the variables to
-export from Nonmem. Deprecated. Use `table.vars` and
-`table.options` instead.}
-
 \item{system.type}{A charachter string, either \"windows\" or
 \"linux\" - case insensitive. Windows is only experimentally
 supported. Default is to use \code{Sys.info()[["sysname"]]}.}
@@ -393,10 +393,6 @@ it is only recommended to disable this if you are fully aware
 of such a feature of your control stream, you know how it
 impacts simulation, and you want to get rid of warnings.}
 
-\item{seed}{Deprecated. See \code{seed.R} and \code{seed.nm}.}
-
-\item{list.sections}{Deprecated. Use modify.model instead.}
-
 \item{format.data.complete}{For development purposes - users do
 not need this argument. Controls what format the complete
 input data set is saved in.  Possible values are `rds`
@@ -404,6 +400,15 @@ input data set is saved in.  Possible values are `rds`
 and use less disk space but factor levels may be lost from
 input data to output data. `csv` will also lead to loss of
 additional information such as factor levels.}
+
+\item{text.table}{Deprecated. Use `table.vars` and
+`table.options` instead.}
+
+\item{suffix.sim}{Deprecated. Use name.sim instead.}
+
+\item{seed}{Deprecated. See \code{seed.R} and \code{seed.nm}.}
+
+\item{list.sections}{Deprecated. Use modify.model instead.}
 
 \item{...}{Additional arguments passed to \code{method.sim}.}
 }

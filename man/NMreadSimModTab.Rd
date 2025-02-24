@@ -12,8 +12,8 @@ NMreadSimModTab(
   skip.missing = FALSE,
   quiet = FALSE,
   progress,
-  fast.tables = FALSE,
-  recover.input = TRUE,
+  fast.tables = NULL,
+  carry.out = NULL,
   as.fun
 )
 }

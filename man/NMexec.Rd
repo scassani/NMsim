@@ -45,7 +45,7 @@ quick models not to wait for the queue to run the job.}
 
 \item{input.archive}{A function of the model file path to generate
 the path in which to archive the input data as RDS. Set to
-NULL not to archive the data.}
+FALSE not to archive the data.}
 
 \item{nc}{Number of cores to use if sending to the cluster. This
 will only be used if \code{method.execute="psn"}, and

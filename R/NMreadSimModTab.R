@@ -104,15 +104,20 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
 NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,skip.missing=FALSE,progress,fast.tables=NULL,carry.out=NULL,as.fun){
     
     . <- NULL
-    ## ROWMODEL2 <- NULL
     args.NMscanData <- NULL
+    col.row <- NULL
     file.res.data <- NULL
     funs.transform <- NULL
     NMsimVersion <- NULL
     path.rds.read <- NULL
+    path.sim <- NULL
     path.results <- NULL
     path.results.read <- NULL
     path.lst.read <- NULL
+    IPRED <- NULL
+    PRED <- NULL
+    ROWMODEL <- NULL
+    ROWMODEL2 <- NULL
     ROWTMP <- NULL
     simres <- NULL
     variable <- NULL

@@ -1,13 +1,16 @@
-### read using fread, then merge with input data. Assume NMREP exists.
-
-## file.mod <- "~/tmp/sims/xgxr032_tabopts5/xgxr032_tabopts5.lst"
-## NMreadTabFast(file.mod=file.mod)
 
 ##' @import data.table
 ##' @import NMdata
+##' @keywords internal
+### read using fread, then merge with input data. Assume NMREP exists.
+## file.mod <- "~/tmp/sims/xgxr032_tabopts5/xgxr032_tabopts5.lst"
+## NMreadTabFast(file.mod=file.mod)
+
 
 NMreadTabFast <- function(file,file.mod,carry.out,col.row=NULL,...){
 
+.tmpcol <- NULL
+    
     if(missing(file.mod)||is.null(file.mod)){
         file.mod <- file
     }

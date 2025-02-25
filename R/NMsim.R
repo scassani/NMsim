@@ -689,7 +689,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     }
     
     if(!is.null(table.vars)){
-    names.table.vars <- names(table.vars)
+        names.table.vars <- names(table.vars)
         if(!is.null(names.table.vars)){
             
             names.table.vars <- sub("(.+)","\\1=",names.table.vars)

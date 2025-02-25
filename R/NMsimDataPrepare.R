@@ -27,7 +27,13 @@ NMsimDataPrepare <- function(data,auto.dv,order.columns){
     }
     names.data <- names(data)
     if(is.null(names.data)) {
-        names.data <- as.character(1:length(data))
+### only add data counter/name if more than one data set or name is provided.
+        
+        if(length(data)>1){
+            names.data <- as.character(1:length(data))
+        } else {
+            names.data <- ""
+        }
     } else if(""%in%names.data) {
         names.data <- gsub(" ","_",names.data)
         if(any(duplicated(names.data))) stop("If data is a list of data sets, the list elements must be uniquely named.")

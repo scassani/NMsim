@@ -55,7 +55,7 @@ handles this differently than NMexec.
 Currently, we get an error from NMscanInput. It would be clearer if
 this was checked by NMexec as a prerequisite.
 *** DONE Move existing results files to backup before running nonmem
-*** TODO Rename sge to parallel/cluster?
+*** CANCELED Rename sge to parallel/cluster?
 It means if we send to the cluster. There is a slight difference of
 the implication in NMexec and NMsim. In NMexec, if we send to cluster
 the default is to parellellize each job on nc=64 cores or threads. In

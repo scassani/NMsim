@@ -88,7 +88,14 @@ test_that("NMsim_NWPRI",{
 
             ref$INPUT
             mod$INPUT
-        }
+        
+        mod$DATA
+        ref$DATA
+
+        mod$TABLE
+        ref$TABLE
+
+}
 
     }
 })
@@ -147,6 +154,14 @@ if(packageVersion("NMdata") >= "0.1.8.904") {
 
             ref$INPUT
             mod$INPUT
+
+            ref$DATA
+            mod$DATA
+
+            ref$TABLE
+            mod$TABLE
+
+
         }
         
         

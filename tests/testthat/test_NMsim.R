@@ -13,7 +13,6 @@ NMdataConf(
 
 dt.amt <- data.table(DOSE=c(100,400))
 dt.amt[,AMT:=DOSE*1000]
-dt.amt
 doses.sd <- NMcreateDoses(TIME=0,AMT=dt.amt,as.fun="data.table")
 doses.sd[,dose:=paste(DOSE,"mg")]
 doses.sd[,regimen:="SD"]
@@ -26,7 +25,7 @@ dat.sim <- copy(dat.sim.sd)
 
 dat.sim[,ROW:=.I]
 
-head(dat.sim)
+##head(dat.sim)
 
 dat.sim[,BBW:=75]
 
@@ -54,7 +53,7 @@ test_that("Basic",{
     ## readLines("testOutput/xgxr025_sd1/xgxr025_sd1.mod")
     
 })
-## }
+
 
 
 if(FALSE){
@@ -209,7 +208,7 @@ test_that("NMsim_EBE",{
         mod$SIGMA
         ref$SIMULATION
         mod$SIMULATION
-    
+        
         mod$INPUT
         ref$INPUT
         
@@ -218,7 +217,7 @@ test_that("NMsim_EBE",{
 
         mod$TABLE
         ref$TABLE
-}
+    }
 
 
 })
@@ -329,9 +328,9 @@ test_that("inits - modify parameter",{
             ref <- readRDS(fileRef)
             mod
             ref
-            }
+        }
 
-}
+    }
     
 })
 
@@ -399,5 +398,54 @@ test_that("Named table variables",{
 
     
     ## readLines("testOutput/xgxr025_sd1/xgxr025_sd1.mod")
+    
+})
+
+
+test_that("seed, seed.R, seed.nm",{
+
+    fileRef <- "testReference/NMsim_09.rds"
+
+    file.mod <- "testData/nonmem/xgxr025.mod"
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "seed1nm",
+                  seed.nm=2,
+                  execute=FALSE
+                  )
+
+    res.nm <- NMreadSection("testOutput/xgxr025_seed1nm/xgxr025_seed1nm.mod",section="sim")
+    res.nm
+
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "seed1r",
+                  seed.R=2,
+                  execute=FALSE
+                  )
+
+    res.r <- NMreadSection("testOutput/xgxr025_seed1r/xgxr025_seed1r.mod",section="sim")
+    res.r
+    
+    res.depr <- NMreadSection("testOutput/xgxr025_seed1depr/xgxr025_seed1depr.mod",section="sim")
+    res.depr
+
+    res.all <- list(res.nm,res.nm,res.depr)
+
+    expect_equal_to_reference(res.all,fileRef)
+
+
+### dont use seed.nm and seed simultaneously
+    expect_error(NMsim(file.mod=file.mod,
+                       data=dat.sim,
+                       dir.sim="testOutput",
+                       name.sim = "seed1depr",
+                       seed.nm=3,
+                       seed=2,
+                       execute=FALSE
+                       ))
+
     
 })

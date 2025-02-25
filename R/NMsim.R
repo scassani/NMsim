@@ -1335,7 +1335,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                 
                 section.sim <- gsub("\\([0-9]+\\)","",section.sim)
                 
-### pasting the seed after SIM(ULATION) and after ONLYSIM(ULATION) if the latter exists
+### pasting the seed after SIM(ULATION) and after ONLYSIM(ULATION) if the latter exists. seed refers to dt.models[,seed], not the argument called seed
                 section.sim <- sub("(SIM(ULATION)*( +ONLYSIM(ULATION)*)*) *",paste("\\1",seed),section.sim)
 
                 if(subproblems>0){

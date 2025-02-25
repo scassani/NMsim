@@ -120,7 +120,10 @@ have to supply what dists are needed.
 
 ** NMsim
 
-*** TODO [#A] Likely bug
+*** DONE Likely bug (was not)
+
+The reason for the following is that  seed refers to dt.models[,seed], not the argument called seed
+
 I don't understand why this line is here. NMseed seems to have taken care of this already:
 
 section.sim <- sub("(SIM(ULATION)*( +ONLYSIM(ULATION)*)*) *",paste("\\1",seed),section.sim)

@@ -2,6 +2,10 @@
 
 NMsimDataPrepare <- function(data,auto.dv,order.columns){
 
+    DATAROW <- NULL
+    DV <- NULL
+    MDV <- NULL
+    
     if(is.null(data)) return(data)
     
     if(!is.null(data) && is.data.frame(data)) {

@@ -43,7 +43,7 @@ NMreadTabFast <- function(file,file.mod,carry.out,col.row=NULL,...){
             
             col.by <- NULL
             if("NMREP"%in%colnames(alltabs)) col.by <- "NMREP"
-            ## alltabs <- alltabs[,cbind(inp[,carry.out,with=FALSE],.SD),keyby=col.by,.SDcols=setdiff(colnames(alltabs),c(colnames(inp),col.by))]
+
             alltabs <- alltabs[,cbind(inp[,carry.out,with=FALSE],.SD),keyby=col.by,
                                .SDcols=setdiff(colnames(alltabs),c(carry.out,col.by))]
             setkey(alltabs,NULL)

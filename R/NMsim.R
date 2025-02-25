@@ -57,6 +57,11 @@
 ##'     \code{NMsim} takes care of that.
 ##' @param table.format A format for `$TABLE`. Only used if
 ##'     `table.vars` is provided.
+##' @param carry.out Variables from input data that should be included
+##'     in results. Default is to include everything. If working with
+##'     large data sets, it may be wanted to provide a subset of the
+##'     columns here. If doing very large simulations, this may also
+##'     be a way to save memory.
 ##' @param reuse.results If simulation results found on file, should
 ##'     they be used? If TRUE and reading the results fail, the
 ##'     simulations will still be rerun.
@@ -209,6 +214,11 @@
 ##'     to run most simulations. It is however powerful for some types
 ##'     of analyses, like modifying parameter values. See vignettes
 ##'     for further information.
+##' @param nmrep Include `NMREP` as counter of subproblems? The
+##'     default is to do so if `subproblems>0`. This will insert a
+##'     counter called `NMREP` in the `$ERROR` section and include
+##'     that in the output table(s). At this point, nothing is done to
+##'     avoid overwriting existing variables.
 ##' @param sizes If needed, adjust the `$SIZES` section by providing a
 ##'     list of arguments to `NMupdateSizes()`. Example:
 ##'     `sizes=list(PD=80)`. See `?NMupdateSizes` for details. Don't
@@ -236,7 +246,7 @@
 ##'     normally not needed since `NMsim` will by default use the ext
 ##'     file stored next to the input control stream (replacing the
 ##'     file name extension with `.ext`). If using
-##'     method.update.inits="psn", this argument cannot be used. 
+##'     method.update.inits="psn", this argument cannot be used.
 ##' @param auto.dv Add a column called `DV` to input data sets if a
 ##'     column of that name is not found? Nonmem is generally
 ##'     dependent on a `DV` column in input data but this is typically
@@ -309,8 +319,8 @@
 ##' @param ... Additional arguments passed to \code{method.sim}.
 ##' @param list.sections Deprecated. Use modify.model instead.
 ##' @param suffix.sim Deprecated. Use name.sim instead.
-##' @param text.table Deprecated. Use `table.vars` and
-##'     `table.options` instead.
+##' @param text.table Deprecated. Use `table.vars` and `table.options`
+##'     instead.
 ##' @param seed Deprecated. See \code{seed.R} and \code{seed.nm}.
 ##' @return A data.frame with simulation results (same number of rows
 ##'     as input data). If `sge=TRUE` a character vector with paths to
@@ -323,8 +333,8 @@
 ##'     handling seeds are NMsim features that are done in addition to
 ##'     the \code{method.sim}. Also the \code{modeify.model} argument
 ##'     is handled in addition to the \code{method.sim}. The
-##'     \code{subproblems} and \code{seed.nm} arguments are available to
-##'     all methods creating a \code{$SIMULATION} section.
+##'     \code{subproblems} and \code{seed.nm} arguments are available
+##'     to all methods creating a \code{$SIMULATION} section.
 ##'
 ##' Notice, the following functions are internally available to
 ##' `NMsim` so you can run them by say \code{method.sim=NMsim_EBE}
@@ -435,8 +445,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
     
     . <- NULL
-    ..name.sim <- NULL
+    ..carry.out <- NULL
     ..dir.res <- NULL
+    ..name.sim <- NULL
     DATAROW <- NULL
     data.name <- NULL
     default <- NULL
@@ -446,6 +457,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     dir.sim <- NULL
     DV <- NULL
     est <- NULL
+    fast.tables <- NULL
     fn.data <- NULL
     f.exists <- NULL
     fn.sim.predata <- NULL
@@ -463,6 +475,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     lst <- NULL
     MDV <- NULL
     model <- NULL
+    model.sim <- NULL
     mod <- NULL
     n <- NULL
     ## name.mod <- NULL
@@ -492,6 +505,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     ## run.sim <- NULL
     sim <- NULL
     tab.ext <- NULL
+    tmprow <- NULL
     text <- NULL
     textmod <- NULL
     value <- NULL

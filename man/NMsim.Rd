@@ -154,6 +154,12 @@ provided. If constructing a new output table with
 \item{table.format}{A format for `$TABLE`. Only used if
 `table.vars` is provided.}
 
+\item{carry.out}{Variables from input data that should be included
+in results. Default is to include everything. If working with
+large data sets, it may be wanted to provide a subset of the
+columns here. If doing very large simulations, this may also
+be a way to save memory.}
+
 \item{text.sim}{A character string to be pasted into
 $SIMULATION. This must not contain seed or SUBPROBLEM which
 are handled separately. Default is to include "ONLYSIM". You
@@ -271,6 +277,12 @@ edit sections. This is an advanced feature which is not needed
 to run most simulations. It is however powerful for some types
 of analyses, like modifying parameter values. See vignettes
 for further information.}
+
+\item{nmrep}{Include `NMREP` as counter of subproblems? The
+default is to do so if `subproblems>0`. This will insert a
+counter called `NMREP` in the `$ERROR` section and include
+that in the output table(s). At this point, nothing is done to
+avoid overwriting existing variables.}
 
 \item{sizes}{If needed, adjust the `$SIZES` section by providing a
 list of arguments to `NMupdateSizes()`. Example:
@@ -401,8 +413,8 @@ and use less disk space but factor levels may be lost from
 input data to output data. `csv` will also lead to loss of
 additional information such as factor levels.}
 
-\item{text.table}{Deprecated. Use `table.vars` and
-`table.options` instead.}
+\item{text.table}{Deprecated. Use `table.vars` and `table.options`
+instead.}
 
 \item{suffix.sim}{Deprecated. Use name.sim instead.}
 
@@ -434,8 +446,8 @@ Loosely speaking, the argument \code{method.sim} defines
     handling seeds are NMsim features that are done in addition to
     the \code{method.sim}. Also the \code{modeify.model} argument
     is handled in addition to the \code{method.sim}. The
-    \code{subproblems} and \code{seed.nm} arguments are available to
-    all methods creating a \code{$SIMULATION} section.
+    \code{subproblems} and \code{seed.nm} arguments are available
+    to all methods creating a \code{$SIMULATION} section.
 
 Notice, the following functions are internally available to
 `NMsim` so you can run them by say \code{method.sim=NMsim_EBE}

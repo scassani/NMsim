@@ -6,7 +6,7 @@
 ##'     status of the individual models.
 ##' @keywords internal
 
-NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=FALSE,quiet=FALSE,progress,fast.tables=NULL,carry.out=NULL,as.fun){
+NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=FALSE,quiet=FALSE,progress,read.fst=NULL,fast.tables=NULL,carry.out=NULL,as.fun){
     
     
     ROWTMP <- NULL
@@ -82,7 +82,7 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
 ### sure that requirement is needed anymore. Could try to combine
 ### these and run at once. Would require more testing.
     
-    res.list <- lapply(split(modtab,by="path.rds.read"),NMreadSimModTabOne,check.time=check.time,dir.sims=dir.sims,wait=wait,skip.missing=skip.missing,quiet=quiet,fast.tables=fast.tables,carry.out=carry.out,as.fun=as.fun,progress=progress)
+    res.list <- lapply(split(modtab,by="path.rds.read"),NMreadSimModTabOne,check.time=check.time,dir.sims=dir.sims,wait=wait,skip.missing=skip.missing,quiet=quiet,fast.tables=fast.tables,read.fst=read.fst,carry.out=carry.out,as.fun=as.fun,progress=progress)
     
     
     res <- rbindlist(res.list,fill=TRUE)
@@ -101,7 +101,7 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
 ##' @inheritParams NMreadSim
 ##' @keywords internal
 ##' @import utils
-NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,skip.missing=FALSE,progress,fast.tables=NULL,carry.out=NULL,as.fun){
+NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,skip.missing=FALSE,progress,read.fst=NULL,fast.tables=NULL,carry.out=NULL,as.fun){
     
     . <- NULL
     args.NMscanData <- NULL
@@ -125,7 +125,11 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     if(missing(progress)) progress <- NULL
     if(is.null(progress)) progress <- TRUE
     ## Previous versions did not save path.results, so 
+
+    arg.fast.tables <- fast.tables
+    arg.carry.out <- carry.out
     
+
     
     if(!"path.results"%in%colnames(modtab)){
         if(! "NMsimVersion"%in%colnames(modtab) || !"file.res.data" %in% colnames(modtab)){
@@ -162,20 +166,21 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     
     
 ### if we have an fst, read it and return results
+if(is.null(read.fst)){
     if(check.time){
-        from.fst <- rdstab[,!is.null(path.results.read) &&
+        read.fst <- rdstab[,!is.null(path.results.read) &&
                             file.exists(path.results.read) &&
                             file.mtime(path.results.read)>file.mtime(path.rds.read)
                            ]
     } else {
-        from.fst <- rdstab[,!is.null(path.results.read) &&
+        read.fst <- rdstab[,!is.null(path.results.read) &&
                             file.exists(path.results.read)]
     }
-
+}
 
     
     ## fsts
-    if(from.fst){
+    if(read.fst){
 ### reads unique fsts
         res.list <- lapply(modtab[,unique(path.results.read)],read_fst,as.data.table=TRUE)
         res <- rbindlist(res.list,fill=TRUE)
@@ -257,6 +262,9 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     
 ### this is needed for nc>1
     ## Sys.sleep(5)
+
+    
+    if(is.null(arg.fast.tables)) arg.fast.tables <- FALSE
     res.list <- lapply(1:nsplits,function(count){
         
         dat <- tab.split[[count]]
@@ -281,14 +289,14 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
             if( !is.null(.SD$col.row)){
                 args.NM$col.row <- .SD$col.row
             }
-            
-            if(is.null(carry.out)) carry.out <- .SD$carry.out
-            carry.out <- unlist(.SD$carry.out)
-            if(.SD$fast.tables){
+            use.carry.out <- .SD$carry.out
+            if(!is.null(arg.carry.out)) use.carry.out <- arg.carry.out
+            use.carry.out <- unlist(use.carry.out)
+            if(arg.fast.tables || .SD$fast.tables){
 
 ####### TODO: NMreadTabFast must optionally take file and file.mod. We need to not be affected by NMdataConf()$file.mod
                 
-                this.res <- try(NMreadTabFast(path.lst.read,file.mod=path.sim,carry.out=carry.out,col.row=col.row))
+                this.res <- try(NMreadTabFast(path.lst.read,file.mod=path.sim,carry.out=use.carry.out,col.row=col.row))
 
             } else {
                 ## put this in try and report better info if broken

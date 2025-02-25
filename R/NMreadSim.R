@@ -90,7 +90,12 @@ NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progres
     
 ### determining file type to select processing method    
     dt.x <- data.table(is.rds=unlist(lapply(x,function(x)is.character(x)&&fnExtension(x)=="rds")))
-    dt.x[,is.fst:=unlist(lapply(x,function(x)is.character(x)&&fnExtension(x)=="fst"))]
+
+    ## if(!read.fst){
+    ##    dt.x[,is.fst:=FALSE]
+    ## } else {
+        dt.x[,is.fst:=unlist(lapply(x,function(x)is.character(x)&&fnExtension(x)=="fst"))]
+    ## }
 ### is.simRes if if it has already been read and collected by NMreadSim
     dt.x[,is.simRes:=unlist(lapply(x,is.NMsimRes))]
     dt.x[,is.simModTab:=unlist(lapply(x,is.NMsimModTab))]
@@ -99,6 +104,7 @@ NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progres
     dt.x[,is.res:=is.fst|is.simRes]
     dt.x[,is.ModTab:=is.rds|is.simModTab]
 
+    
     if(dt.x[is.res==TRUE&is.ModTab==TRUE,.N]>0) {
         stop("confused, an object seems to be both a NMsimModTab and an NMsimRes. This is most likely an NMsim bug.")
     }
@@ -132,7 +138,9 @@ NMreadSim <- function(x,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,progres
     if(sum(dt.x$is.ModTab)){
         res.modTab <- NMreadSimModTab(x[dt.x$is.ModTab],check.time=check.time,
                                       dir.sims=dir.sims,wait=wait,quiet=quiet,
-                                      progress=progress)
+                                      progress=progress,
+                                      ## fast.tables=fast.tables,carry.out=carry.out
+                                      )
         if(is.null(res.all)){
             res.all <- res.modTab
         } else {

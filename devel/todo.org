@@ -46,7 +46,6 @@ Path to nonmem, psn, other ways to exec.
 
 ** expandCovs
 ** NMexec
-
 *** DONE Move selection of method.execute from NMsim
 Now that method.execute="nmsim" works for general execution, it should
 be default method on all systems, and there is no reason why NMsim
@@ -56,11 +55,11 @@ handles this differently than NMexec.
 Currently, we get an error from NMscanInput. It would be clearer if
 this was checked by NMexec as a prerequisite.
 *** DONE Move existing results files to backup before running nonmem
-*** TODO Rename sge to parallel/cluster?
+*** CANCELED Rename sge to parallel/cluster?
 It means if we send to the cluster. There is a slight difference of
 the implication in NMexec and NMsim. In NMexec, if we send to cluster
 the default is to parellellize each job on nc=64 cores or threads. In
-NMsim we restrict to nc=1.
+NMsim we default to nc=1.
 ** NMexecDirectory
 *** DONE Clean up after switching to absolute paths
 ** NMreadExt - Integrated in NMdata
@@ -75,6 +74,7 @@ variables are depends on the NMsim version that created the
 metadata. Instead, they may be available in the results in older
 versions. Therefore, if they are not avaialble in meta data, just
 don't include them in byvars.
+*** TODO [#A] Allow NMreadSim to overrule fast.tables and carry.out
 *** DONE Test reading of ModTab tables with repeated rds files
 *** Structure
 **** description of x argument
@@ -119,12 +119,43 @@ have to supply what dists are needed.
 *** DONE Make sure NMsim uses seed and args.seed meaningfully mean
 
 ** NMsim
-*** TODO [#A] nmrep argument
+
+*** TODO [#A] Likely bug
+I don't understand why this line is here. NMseed seems to have taken care of this already:
+
+section.sim <- sub("(SIM(ULATION)*( +ONLYSIM(ULATION)*)*) *",paste("\\1",seed),section.sim)
+
+*** WAITING [#A] Dpends on NMdata 0.1.9: Make inits(method="nmsim") default 
+*** TODO [#A] table.format argument
+If number of rows is >1M I think the default format may be insufficient
+
+Should col.row be divided by 1000. That would make it start at 0.001
+meaning that up to 1B rows can be handled. But is it robust enough for
+merging?
+
+*** DONE Include row counter in input data - merge by it
+
+**** DONE put the name of row counter in meta data
+
+**** DONE Add it to all output tables
+
+**** DONE have NMreadTabFast merge by it
+
+**** DONE have NMscanData merge by it
+
+**** DONE Remove it from results
+
+*** DONE recover.input -> carry.out
+
+*** DONE add NMREP code and TABLE variable if subproblems is used
+*** DONE nmrep argument
 *** TODO [#A] clean up meta data
 **** Get rid of ROWMODEL2
 **** name.mod or run.mod. What is the difference?
 This is called model in output
 *** TODO [#A] include fast.tables column in meta data
+*** TODO Only paste lst bottom if tables not found
+If not, it is probably an issue reading the data?
 *** DONE When adding seed and SUBPROBLEMS, only add once
 If $SIMULATION spans more than one line, this is currently pasted repeatedly
 *** DONE Drop NMsim from file names
@@ -145,7 +176,10 @@ can't return results it should be an error.
 That has to be dropped from $ERROR sections by default
 
 Currently, the user is warned about the existence
-*** TODO [#B] avoid PRED_IGNORE_DATA_TEST==1
+*** CANCELED avoid PRED_IGNORE_DATA_TEST==1
+This is cancelled because we merge by a row identifier. PRED_IGNORE_DATA_TEST should be supported.
+
+
 In $PK. Example
 ; include study 4 even though ANP3AC=0
 IF(PRED_IGNORE_DATA_TEST==1) THEN
@@ -186,7 +220,7 @@ It has no effect in model
 *** DONE If PSN is not available, make method.update.inits="nmsim"
 *** DONE Limit seed function to what Nonmem can use
 0:2147483647
-*** TODO [#B] save data fewer times
+*** DONE save data fewer times
 Save only for each unique path.data. Merge in the nmtext somehow? It's
 a list so it's not that simple.
 *** DONE Delete existing results prior to running
@@ -210,7 +244,7 @@ For now, ellipses used
 *** DONE Go through selection of execution method
 **** DONE all columns which names start by file.needed used
 *** CANCELED Use dt list elements for multiple files.needed
-*** TODO [#B] Use meaningful by in execute part
+*** DONE Use meaningful by in execute part
 *** DONE Modularize simulation methods
 **** DONE Handle seed and subproblems outside modules
 **** DONE How to handle replace.sim?
@@ -239,7 +273,9 @@ If not, throw error if dir.sim does not exist
 *** DONE Support non-data.table workflows
 **** DONE use NMdata's as.fun
 *** DONE Rename type.input to type.mod
-*** TODO [#B] Revise input data paths
+*** CANCELED Revise input data paths
+This is for now resolved with dir.sims and dir.res
+
 Currently, NMsimData... goes together with NMsim....  It would be
 better for svn if the first part of the filenames were aligned. Also,
 do we need to archive input data as _input as well in this case?
@@ -270,11 +306,13 @@ the new one, it will be a difference.
 
 ** VPC sims - no new method needed
 
-*** TODO [#A] If adding ROW, dont add column names
+*** CANCELED If adding ROW, dont add column names
 issue is if people use ignore=C then after adding ROW to the column
 names, the column names will be read as data.
 
-*** TODO [#A] character columns with =DROP seem to break it
+*** DONE character columns with =DROP seem to break it
+I believe this is fixed. In VPC model we now use trunc.csv.as.nm=FALSE
+
 list(na=".",quote=FALSE,row.names=FALSE,scipen=0,col.names=TRUE)
 *** DONE By default, reuse $INPUT and $DATA sections, with updated data path
 Normally, one would simply reuse the estimation input data set for this

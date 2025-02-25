@@ -67,7 +67,10 @@ test_that("Basic",{
 
     if(F){
         ref <- readRDS(fileRef)
-        compareCols(res1,ref)
+                compareCols(res1,ref)
+
+        head(ref)
+        head(res1)
 
         compareCols(
             attributes(res1)$NMsimModTab
@@ -129,6 +132,9 @@ test_that("From different wd",{
         ref <- readRDS(fileRef)
         compareCols(res1,ref)
 
+        head(res1)
+        head(ref)
+        
         compareCols(
             attributes(res1)$NMsimModTab
            ,
@@ -139,3 +145,5 @@ test_that("From different wd",{
 
 })
 ## }
+
+

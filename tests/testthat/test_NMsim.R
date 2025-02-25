@@ -96,8 +96,9 @@ test_that("modify.model",{
     if(F){
         ref <- readRDS(fileRef)
         ref$PK
+
         ref$ERROR
-NMreadSection(file.mod,section="ERROR")
+        mod$ERROR
         
         mod$THETA
         ref$THETA
@@ -107,6 +108,15 @@ NMreadSection(file.mod,section="ERROR")
 
         mod$SIGMA
         ref$SIGMA
+        
+        mod$INPUT
+        ref$INPUT
+        
+        mod$DATA
+        ref$DATA
+
+        mod$TABLE
+        ref$TABLE
     }
 })
 
@@ -150,6 +160,15 @@ test_that("modify.model with list",{
 
         mod$SIGMA
         ref$SIGMA
+
+        mod$INPUT
+        ref$INPUT
+        
+        mod$DATA
+        ref$DATA
+
+        mod$TABLE
+        ref$TABLE
     }
 })
 
@@ -182,13 +201,24 @@ test_that("NMsim_EBE",{
 
     if(F){
         ref <- readRDS(fileRef)
+        mod$PK
+
         ref$OMEGA
         mod$OMEGA 
         ref$SIGMA
         mod$SIGMA
         ref$SIMULATION
         mod$SIMULATION
-    }
+    
+        mod$INPUT
+        ref$INPUT
+        
+        mod$DATA
+        ref$DATA
+
+        mod$TABLE
+        ref$TABLE
+}
 
 
 })
@@ -330,3 +360,44 @@ test_that("No ONLYSIM",{
 
 })
 
+
+test_that("Named table variables",{
+
+    fileRef <- "testReference/NMsim_08.rds"
+
+    file.mod <- "testData/nonmem/xgxr025.mod"
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "tabvars1",
+                  seed.nm=2342,
+                  execute=FALSE,
+                  method.update.inits="nmsim",
+                  table.vars=c("PRED",TIMENEW="TIME")
+                  )
+
+    sim2 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "tabvars2",
+                  seed.nm=2342,
+                  execute=FALSE,
+                  method.update.inits="nmsim",
+                  table.vars=c("PRED TIMENEW=TIME")
+                  )
+
+    res1 <- NMreadSection("testOutput/xgxr025_tabvars1/xgxr025_tabvars1.mod",section="TABLE")
+    res2 <- NMreadSection("testOutput/xgxr025_tabvars2/xgxr025_tabvars2.mod",section="TABLE")
+    res1
+    res2
+
+    expect_true(grepl("TIMENEW",res1))
+
+    expect_equal(sub("tabvars[0-9]","",res1),
+                 sub("tabvars[0-9]","",res2)
+                 )
+
+    
+    ## readLines("testOutput/xgxr025_sd1/xgxr025_sd1.mod")
+    
+})

@@ -6,7 +6,7 @@
 ##'     status of the individual models.
 ##' @keywords internal
 
-NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=FALSE,quiet=FALSE,progress,as.fun){
+NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=FALSE,quiet=FALSE,progress,read.fst=NULL,fast.tables=NULL,carry.out=NULL,as.fun){
     
     
     ROWTMP <- NULL
@@ -74,14 +74,15 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
     ## by=.(ROWMODEL2)
     by=.(ROWTMP)
     ]
-    
+    modtab[,ROWTMP:=NULL]
     
 ### rather than reading one rds at a time, we should read all the
 ### rds's, stack them, and then read the object as
 ### one. NMreadSimModTabOne checks that there is only one rds but I'm
 ### sure that requirement is needed anymore. Could try to combine
 ### these and run at once. Would require more testing.
-    res.list <- lapply(split(modtab,by="path.rds.read"),NMreadSimModTabOne,check.time=check.time,dir.sims=dir.sims,wait=wait,skip.missing=skip.missing,quiet=quiet,as.fun=as.fun,progress=progress)
+    
+    res.list <- lapply(split(modtab,by="path.rds.read"),NMreadSimModTabOne,check.time=check.time,dir.sims=dir.sims,wait=wait,skip.missing=skip.missing,quiet=quiet,fast.tables=fast.tables,read.fst=read.fst,carry.out=carry.out,as.fun=as.fun,progress=progress)
     
     
     res <- rbindlist(res.list,fill=TRUE)
@@ -100,18 +101,23 @@ NMreadSimModTab <- function(x,check.time=FALSE,dir.sims,wait=FALSE,skip.missing=
 ##' @inheritParams NMreadSim
 ##' @keywords internal
 ##' @import utils
-NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,skip.missing=FALSE,progress,as.fun){
+NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet=FALSE,skip.missing=FALSE,progress,read.fst=NULL,fast.tables=NULL,carry.out=NULL,as.fun){
     
     . <- NULL
-    ROWMODEL2 <- NULL
     args.NMscanData <- NULL
+    col.row <- NULL
     file.res.data <- NULL
     funs.transform <- NULL
     NMsimVersion <- NULL
     path.rds.read <- NULL
+    path.sim <- NULL
     path.results <- NULL
     path.results.read <- NULL
     path.lst.read <- NULL
+    IPRED <- NULL
+    PRED <- NULL
+    ROWMODEL <- NULL
+    ROWMODEL2 <- NULL
     ROWTMP <- NULL
     simres <- NULL
     variable <- NULL
@@ -119,7 +125,11 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     if(missing(progress)) progress <- NULL
     if(is.null(progress)) progress <- TRUE
     ## Previous versions did not save path.results, so 
+
+    arg.fast.tables <- fast.tables
+    arg.carry.out <- carry.out
     
+
     
     if(!"path.results"%in%colnames(modtab)){
         if(! "NMsimVersion"%in%colnames(modtab) || !"file.res.data" %in% colnames(modtab)){
@@ -156,20 +166,21 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     
     
 ### if we have an fst, read it and return results
+if(is.null(read.fst)){
     if(check.time){
-        from.fst <- rdstab[,!is.null(path.results.read) &&
+        read.fst <- rdstab[,!is.null(path.results.read) &&
                             file.exists(path.results.read) &&
                             file.mtime(path.results.read)>file.mtime(path.rds.read)
                            ]
     } else {
-        from.fst <- rdstab[,!is.null(path.results.read) &&
+        read.fst <- rdstab[,!is.null(path.results.read) &&
                             file.exists(path.results.read)]
     }
-
+}
 
     
     ## fsts
-    if(from.fst){
+    if(read.fst){
 ### reads unique fsts
         res.list <- lapply(modtab[,unique(path.results.read)],read_fst,as.data.table=TRUE)
         res <- rbindlist(res.list,fill=TRUE)
@@ -232,8 +243,8 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
 
     ## if(!quiet) message("Reading Nonmem results")
     
-
-    tab.split <- split(modtab,by="ROWMODEL2")
+    if("ROWMODEL2" %in%colnames(modtab)) modtab[,ROWMODEL:=.GRP,by=.(ROWMODEL,ROWMODEL2)]
+    tab.split <- split(modtab,by="ROWMODEL")
     nsplits <- length(tab.split)
 
     if(!quiet) message("* Collecting Nonmem results")
@@ -251,10 +262,13 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     
 ### this is needed for nc>1
     ## Sys.sleep(5)
+
+    
+    if(is.null(arg.fast.tables)) arg.fast.tables <- FALSE
     res.list <- lapply(1:nsplits,function(count){
         
         dat <- tab.split[[count]]
-        bycols <- intersect(c("ROWMODEL2","model"),colnames(dat))
+        bycols <- intersect(c("ROWMODEL","name.sim","model","model.sim"),colnames(dat))
         res <- dat[,{
             
             ## the rds table must keep NMscanData arguments
@@ -263,20 +277,35 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
                 
                 stop("Do not use file.mod in args.NMscanData. NMsim created the simulation control streams so as a user you do not need to help NMsim find them.")
             }
-            args.NM$file.mod <- function(file) fnExtension(file,".mod")
+            ## 
+            ## args.NM$file.mod <- function(file) fnExtension(file,".mod")
+            args.NM$file.mod <- .SD$path.sim
+            args.NM$as.fun <- "data.table"
             ## args.NM$file.mod <- fnExtension(path.lst.read,".mod")
             
             if(! "quiet" %in% names(args.NM)){
                 args.NM$quiet <- TRUE
             }
-            
-            
-            ## put this in try and report better info if broken
-            this.res <- try(
-                do.call(NMscanData,
-                                    c(list(file=path.lst.read),args.NM)
-                        )
-               ,silent=TRUE)
+            if( !is.null(.SD$col.row)){
+                args.NM$col.row <- .SD$col.row
+            }
+            use.carry.out <- .SD$carry.out
+            if(!is.null(arg.carry.out)) use.carry.out <- arg.carry.out
+            use.carry.out <- unlist(use.carry.out)
+            if(arg.fast.tables || .SD$fast.tables){
+
+####### TODO: NMreadTabFast must optionally take file and file.mod. We need to not be affected by NMdataConf()$file.mod
+                
+                this.res <- try(NMreadTabFast(path.lst.read,file.mod=path.sim,carry.out=use.carry.out,col.row=col.row))
+
+            } else {
+                ## put this in try and report better info if broken
+                this.res <- try(
+                    do.call(NMscanData,
+                            c(list(file=path.lst.read),args.NM)
+                            )
+                   ,silent=TRUE)
+            }
             if(inherits(this.res,"try-error")){
                 if(!quiet) {
                     message(sprintf("Results could not be read from %s\nPasting the bottom of output control stream:",path.lst.read))
@@ -291,12 +320,13 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
                     this.res <- do.call(wrap.trans,c(list(dt=this.res),this.funs))
                 }
             }
-
-
+            
+            ## we are not keeping col.row. Just used it to make sure to combine right.
+            
+            if(col.row%in%colnames(this.res)) this.res[,(col.row):=NULL]
+            
             this.res
         },by=bycols]
-        
-        setcolorder(res,setdiff(colnames(res),intersect(colnames(res),c("model.sim","model"))))
 
         if(do.pb){
             setTxtProgressBar(pb, count)
@@ -312,8 +342,16 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
     }
     
     res <- rbindlist(res.list,fill=TRUE)
-    res[,ROWMODEL2:=NULL]
-
+    if("ROWMODEL"%in%colnames(res)){
+        res[,ROWMODEL:=NULL]
+    }
+    if("ROWMODEL2"%in%colnames(res)){
+        res[,ROWMODEL2:=NULL]
+    }
+    
+    res <- NMorderColumns(res,first=cc(PRED,IPRED),as.fun="data.table")
+    setcolorder(res,c(setdiff(colnames(res),intersect(colnames(res),c("model.sim","model","name.sim"))),c("name.sim","model","model.sim")
+                      ))
 
     res <- as.fun(res)
     setattr(res,"NMsimModTab",modtab)
@@ -322,17 +360,18 @@ NMreadSimModTabOne <- function(modtab,check.time=FALSE,dir.sims,wait=FALSE,quiet
 ### if no models ran successfully, res will be a zero-row data table. Should that be saved?
     if(!is.null(rdstab$path.results.read) ){
         if(nrow(res)>0){
-        NMwriteData(res,
-                    file=rdstab$path.results.read,
-                    formats.write="fst",
-                    genText=F,
-                    quiet=TRUE)
-        ## this message may confuse because the user may think this has not happened if they don't see the message. And the message will only appear the first time data is being read.
-        ## message("Results have been efficiently stored in results folder.")
+            NMwriteData(res,
+                        file=rdstab$path.results.read,
+                        formats.write="fst",
+                        genText=F,
+                        quiet=TRUE)
+            ## this message may confuse because the user may think this has not happened if they don't see the message. And the message will only appear the first time data is being read.
+            ## message("Results have been efficiently stored in results folder.")
         } else {
             message("Results empty.")
         }
-}
+    }
     res
+
 
 }

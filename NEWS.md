@@ -1,7 +1,14 @@
 # Since NMsim 0.1.6
 
+New handling of data files has been implemented
+
 ## Other changes
 * `NMcreateDoses()` requires AMT to be provided.
+
+* `addEVID2()` only requires `CMT` argument when the column of the
+  same name is present in `data`. Not all models require `CMT` and
+  this change allows for building such data sets with
+  `NMcreateDoses()` and `addEVID2()`.
 
 # NMsim 0.1.6
 

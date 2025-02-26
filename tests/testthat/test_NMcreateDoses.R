@@ -109,10 +109,16 @@ test_that("NA columns",{
 
     ## options(warn=2)
     fileRef <- "testReference/NMcreateDoses_04e.rds"
+
     res <- NMcreateDoses(TIME=c(0,12),AMT=data.table(dos=1:2,AMT=c(10,20)),CMT=NA)
 
     expect_equal_to_reference(res,fileRef)
 
+    ## NULL works too
+    res.null <- NMcreateDoses(TIME=c(0,12),AMT=data.table(dos=1:2,AMT=c(10,20)),CMT=NULL)
+
+    expect_equal(res,res.null)
+    
 })
 
 

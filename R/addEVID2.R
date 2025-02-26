@@ -16,9 +16,9 @@
 ##'     data.frame in which case it must contain a `TAPD` column and
 ##'     is merged with `data`.
 ##' @param CMT The compartment in which to insert the EVID=2
-##'     records. If longer than one, the records will be repeated in
-##'     all the specified compartments. If a data.frame, covariates
-##'     can be specified.
+##'     records. Required if `CMT` is a column in `data`. If longer
+##'     than one, the records will be repeated in all the specified
+##'     compartments. If a data.frame, covariates can be specified.
 ##' @param EVID The value to put in the EVID column for the created
 ##'     rows. Default is 2 but 0 may be prefered even for simulation.
 ##' @param col.id The name of the column in `data` that holds the
@@ -112,6 +112,12 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,col.id="ID",args.NMexpandDoses,un
     if(missing(TIME)) TIME <- NULL
     if(missing(TAPD)) TAPD <- NULL
     if(missing(args.NMexpandDoses)) args.NMexpandDoses <- NULL
+
+    if(missing(CMT)) CMT <- NULL
+    
+    if("CMT"%in%colnames(data) && is.null(CMT)) {
+        stop("`CMT` column is present in `data`. In this case, the `CMT` argument must be provided.")
+    }
 
     col.evid <- "EVID"
     col.time <- "TIME"
@@ -226,16 +232,17 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,col.id="ID",args.NMexpandDoses,un
 
     
 ### add CMT
-    if (!is.data.frame(CMT)){
-        CMT <- data.table(CMT=CMT)
+    if(!is.null(CMT)){
+        dt.obs <- dt.obs[,setdiff(colnames(dt.obs),colnames(CMT)),with=FALSE]
+        if (!is.data.frame(CMT)){
+            CMT <- data.table(CMT=CMT)
+            
+        } else if (!is.data.table(CMT)){
+            CMT <- as.data.table(CMT)
+        }
         
-    } else if (!is.data.table(CMT)){
-        CMT <- as.data.table(CMT)
+        dt.obs <- egdt(dt.obs,CMT,quiet=TRUE)
     }
-    
-    dt.obs <- dt.obs[,setdiff(colnames(dt.obs),colnames(CMT)),with=FALSE]
-    dt.obs <- egdt(dt.obs,CMT,quiet=TRUE)
-
     
     dat.sim <- rbind(data,dt.obs,fill=T)
 

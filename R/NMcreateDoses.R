@@ -9,7 +9,7 @@
 ##' @param EVID The event ID to use for doses. Default is to use
 ##'     EVID=1, but EVID might also be wanted.
 ##' @param CMT Compartment number. Default is to dose into CMT=1. Use
-##'     `CMT=NA` to omit in result.
+##'     `CMT=NA` or `CMT=NULL` to omit in result.
 ##' @param ADDL Number of additional dose events. Must be in
 ##'     combination with and consistent with II. Notice if of length
 ##'     1, only applied to last event in each regimen.
@@ -156,7 +156,6 @@ NMcreateDoses <- function(TIME, AMT, EVID=1, CMT=1, ADDL=NULL, II=NULL, RATE=NUL
     ##  dt.doses1 <- rbindlist(list.doses,fill=T)
 
     ## identify covs
-    ##     covs <- setdiff(colnames(dt.doses1),c(names.doses,"II","ADDL"))
     covs <- setdiff(colnames(dt.doses1),c(names.doses))
     if("ID" %in% covs) stop("ID is currently not allowed as a covariate. Please use a different name and adjust the result accordingly.")
     combs <- unique(dt.doses1[,covs,with=F])
@@ -171,8 +170,6 @@ NMcreateDoses <- function(TIME, AMT, EVID=1, CMT=1, ADDL=NULL, II=NULL, RATE=NUL
     if(nrows.na){
         warning("NA values among covariates. This may give unintended results.")
     }
-    ## combs <- combs[Nna==0]
-    ## combs <- combs[Nna<length(covs)]
 
     combs[,(col.row):=NULL]
     combs[,Nna:=NULL]
@@ -183,7 +180,6 @@ NMcreateDoses <- function(TIME, AMT, EVID=1, CMT=1, ADDL=NULL, II=NULL, RATE=NUL
 ###### egdt with the unique combs of those we dont have already.
         ## name <- names.doses[1]
         elem <- list.doses[[name]]
-        ## egdt(transform(elem,elem=name),combs[,setdiff(names(combs),names(elem)),with=FALSE] ,quiet=T)
         if("variable"%in%colnames(elem)) stop("a column called variable is not allowed in provided data.")
         if(!name%in%colnames(elem)) stop("If data is given as a data.table, the argument name has to be a column in data too.")
         egdt(

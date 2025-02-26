@@ -28,7 +28,7 @@ NMcreateDoses(
 EVID=1, but EVID might also be wanted.}
 
 \item{CMT}{Compartment number. Default is to dose into CMT=1. Use
-`CMT=NA` to omit in result.}
+`CMT=NA` or `CMT=NULL` to omit in result.}
 
 \item{ADDL}{Number of additional dose events. Must be in
 combination with and consistent with II. Notice if of length

@@ -33,9 +33,9 @@ data.frame in which case it must contain a `TAPD` column and
 is merged with `data`.}
 
 \item{CMT}{The compartment in which to insert the EVID=2
-records. If longer than one, the records will be repeated in
-all the specified compartments. If a data.frame, covariates
-can be specified.}
+records. Required if `CMT` is a column in `data`. If longer
+than one, the records will be repeated in all the specified
+compartments. If a data.frame, covariates can be specified.}
 
 \item{EVID}{The value to put in the EVID column for the created
 rows. Default is 2 but 0 may be prefered even for simulation.}

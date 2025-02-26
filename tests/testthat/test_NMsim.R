@@ -428,6 +428,14 @@ test_that("seed, seed.R, seed.nm",{
 
     res.r <- NMreadSection("testOutput/xgxr025_seed1r/xgxr025_seed1r.mod",section="sim")
     res.r
+
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "seed1depr",
+                  seed=2,
+                  execute=FALSE
+                  )
     
     res.depr <- NMreadSection("testOutput/xgxr025_seed1depr/xgxr025_seed1depr.mod",section="sim")
     res.depr
@@ -441,7 +449,6 @@ test_that("seed, seed.R, seed.nm",{
     expect_error(NMsim(file.mod=file.mod,
                        data=dat.sim,
                        dir.sim="testOutput",
-                       name.sim = "seed1depr",
                        seed.nm=3,
                        seed=2,
                        execute=FALSE

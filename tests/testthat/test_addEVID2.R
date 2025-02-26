@@ -272,3 +272,15 @@ test_that("sampling times not unique",{
     expect_equal_to_reference(res,fileRef)
 })
 
+test_that("No CMT column",{
+
+    dt.dos <- NMcreateDoses(TIME=c(0,12), AMT=data.table(AMT=1:2,grp=letters[1:2]),CMT=NA) 
+    res <- addEVID2(dt.dos,TAPD=c(1,1))
+
+    expect_false("CMT"%in%colnames(res))
+
+    dt.dos <- NMcreateDoses(TIME=c(0,12), AMT=data.table(AMT=1:2,grp=letters[1:2]))
+    expect_error(addEVID2(dt.dos,TAPD=c(1,1)))
+    
+})
+

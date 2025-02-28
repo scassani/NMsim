@@ -501,6 +501,7 @@ simulation in output data and simulation output files.
 - Simulate 1000 new subjects using `$SUBPROBLEMS`
 
 <div class="fold s">
+Notice the following reuses the input data set 1000 times, and a column called `NMREP` will count the subproblem number in the output. 
 ```{r,subproblems,include=TRUE,echo=TRUE}
 tablevars=cc(PRED,IPRED,Y)
 simres.subprob <- NMsim(file.mod=file.mod,
@@ -512,6 +513,17 @@ simres.subprob <- NMsim(file.mod=file.mod,
                         reuse.results=reuse.results
                         )
 ```
+To generate a prediction interval, this format is sufficient. If you want to distinguish the subjects, you can update the `ID` column to reflect unique combinations of `ID` and `NMREP`. With `data.table`, this can be done this way:
+```{r,eval=FALSE}
+## data.table:
+as.data.table(simres.subprob)[,ID:=.GRP,by=.(NMREP,ID)]
+## dplyr:
+simres.subprob |>
+    group_by(NMREP,ID) |>
+    mutate(ID = cur_group_id()) |>
+    ungroup()
+```
+By the way, if you would like `NMsim()` to return `data.table` objects, just run `NMdataConf(as.fun="data.table")`. If you want tibbles, run `NMdataConf(as.fun=tibble::as_tibble)`.
 </div>
 
 - Simulate 1000 new subjects with covariate sampling

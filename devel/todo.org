@@ -306,7 +306,9 @@ The implementation compares all explicitly given arguments. E.g. if
 a=1 by default and it was explicitly given in previous run but not in
 the new one, it will be a difference.
 *** DONE Support multiple $TABLE blocks
-
+*** TODO [#A] Dont allow / in name.sim
+or at least drop them when generating file names from it
+*** TODO [#A] auto set PD if many input variables
 ** VPC sims - no new method needed
 
 *** CANCELED If adding ROW, dont add column names

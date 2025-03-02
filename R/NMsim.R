@@ -993,7 +993,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     ## }
 
     ##if(is.null(inits)) inits <- list(method="nmsim",update=TRUE)
-
+    
     
     
     
@@ -1079,14 +1079,17 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
         
         dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
         dt.data.tmp[,tmprow:=.I]
-        dt.data.tmp[,NMwriteData(data$data[[DATAROW]],
-                                 file=path.data,
-                                 ##genText=F,
+        dt.data.tmp[,{NMwriteData(data$data[[DATAROW]]
+                                 ,file=path.data
+                                  ,genText=F
                                 ,formats.write=c("csv",format.data.complete)
-                                 ## if NMsim is not controlling $DATA, we don't know what can be dropped.
-                                ,csv.trunc.as.nm=TRUE
+                                  ## if NMsim is not controlling $DATA, we don't know what can be dropped.
+                                 ## ,csv.trunc.as.nm=TRUE
                                 ,script=script
-                                ,quiet=TRUE),
+                                 ,quiet=TRUE)
+                                 ### returning a sctring because NMwriteData wit genText may return incompatible results
+                                 ##"OK"
+        },
                     by=tmprow]
     }
     

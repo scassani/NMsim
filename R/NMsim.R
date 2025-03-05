@@ -219,6 +219,15 @@
 ##'     counter called `NMREP` in the `$ERROR` section and include
 ##'     that in the output table(s). At this point, nothing is done to
 ##'     avoid overwriting existing variables.
+##' @param filters Edit data filters (`IGNORE`/`ACCEPT` statements)
+##'     before running model. This should normally only be used if no
+##'     data set is provided. It can be useful if simulating for a VPC
+##'     but a different subset of data needs to be simulated than the
+##'     one used for estimation. A common example on this is inclusion
+##'     of BLQ's in the VPC even if they were excluded in the
+##'     estimation. See `?NMreadFilters` which returns a table you can
+##'     edit and pass to `filters`. You can also just pass a string
+##'     representing the full set of filters to be used.
 ##' @param sizes If needed, adjust the `$SIZES` section by providing a
 ##'     list of arguments to `NMupdateSizes()`. Example:
 ##'     `sizes=list(PD=80)`. See `?NMupdateSizes` for details. Don't
@@ -287,12 +296,6 @@
 ##'     it is only recommended to disable this if you are fully aware
 ##'     of such a feature of your control stream, you know how it
 ##'     impacts simulation, and you want to get rid of warnings.
-##' @param col.row Only used if data is not supplied (which is most
-##'     likely for simulations for VPCs) A column name to use for a
-##'     row identifier. If none is supplied,
-##'     \code{NMdataConf()[['col.row']]} will be used. If the column
-##'     already exists in the data set, it will be used as is, if not
-##'     it will be added.
 ##' @param as.fun The default is to return data as a data.frame. Pass
 ##'     a function (say `tibble::as_tibble`) in as.fun to convert to
 ##'     something else. If data.tables are wanted, use
@@ -418,9 +421,10 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
                   create.dirs=TRUE,dir.psn,
                   modify.model,
                   nmrep,
+                  filters,
                   sizes,
                   sim.dir.from.scratch=TRUE,
-                  col.row,
+                  col.flagn=FALSE,
                   args.NMscanData,
                   path.nonmem=NULL,
                   nmquiet,
@@ -1076,7 +1080,16 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 
 ###### write unique data sets
     if(!is.null(data)){
-        
+
+        if(is.character(carry.out)){
+            not.found <- lapply(data,function(dat)carry.out[!carry.out%in% colnames(dat)]) |>
+                unlist() |>
+                unique()
+            if(length(not.found)){
+                warning(paste0("Not all variables in `carry.out` found in (all) data set(s):\n",paste(not.found,collapse=" ")))
+            }
+        }
+
         dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
         dt.data.tmp[,tmprow:=.I]
         dt.data.tmp[,{NMwriteData(data$data[[DATAROW]]
@@ -1104,7 +1117,11 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             file.mod <- unique(dt$file.mod)
             
 ###### VPC mode
-            data.this <- NMscanInput(file.mod,recover.cols=FALSE,translate=FALSE,apply.filters=FALSE,col.id=NULL,as.fun="data.table")
+            ## reading with recover.cols. This does not affect what
+            ## will be written to the $INPUT section which is still
+            ## copied from the control stream, then edited to include
+            ## the row identifier.
+            data.this <- NMscanInput(file.mod,recover.cols=TRUE,translate=FALSE,apply.filters=FALSE,col.id=NULL,as.fun="data.table")
             col.row.this <- tmpcol(data.this,base="NMROW")
 
             dt[,col.row:=col.row.this]
@@ -1129,8 +1146,9 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
 #### multiple todo: save only for each unique path.data
             
             ## format.data.complete <- "fst"
+            
             nmtext <- NMwriteData(data.this,file=unique(dt$path.data),
-                                  args.NMgenText=list(dir.data=".")
+                                  args.NMgenText=list(dir.data=".",col.flagn=col.flagn)
                                  ,formats.write=c("csv",format.data.complete)
                                   ## if NMsim is not controlling $DATA, we don't know what can be dropped.
                                  ,csv.trunc.as.nm=rewrite.data.section
@@ -1364,6 +1382,16 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
             do.call(NMupdateSizes,args.sizes)
         },by=.(ROWMODEL)]
     }
+
+    
+    if(missing(filters)) filters <- NULL
+    if(!is.null(filters)){
+        dt.models[,{
+            args.filters <- list(file=path.sim,filters=filters,write=TRUE)
+            do.call(NMwriteFilters,args.filters)
+        },by=.(ROWMODEL)]
+    }
+
 
     if( !is.null(modify.model) ){
         modifyModel(modify.model,dt.models)

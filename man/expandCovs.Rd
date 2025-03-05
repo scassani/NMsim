@@ -53,7 +53,7 @@ forest-plot type simulations.
 \dontrun{
 file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMdata")
 res <- NMdata::NMscanData(file.mod)
-expandCovLists(
+expandCovs(
     WEIGHTB=list(ref=70,values=c(40,60,80,100),label="Bodyweight (kg)"),
 ## notice, values OR quantiles can be provided
     AGE=list(ref=median, quantiles=c(10,25,75,90)/100, label="Age (years)"

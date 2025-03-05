@@ -67,3 +67,4 @@ LINK.LNK
 ^tests/testthat/simulations
 ^tests/testthat/testOutput
 ^tests/testthat/testOutput/.*fst
+^tests/testthat/testData/nonmem/NMsim/xgxr032_tabopts5

@@ -35,6 +35,7 @@ NMsim(
   dir.psn,
   modify.model,
   nmrep,
+  filters,
   sizes,
   sim.dir.from.scratch = TRUE,
   col.row,
@@ -283,6 +284,16 @@ default is to do so if `subproblems>0`. This will insert a
 counter called `NMREP` in the `$ERROR` section and include
 that in the output table(s). At this point, nothing is done to
 avoid overwriting existing variables.}
+
+\item{filters}{Edit data filters (`IGNORE`/`ACCEPT` statements)
+before running model. This should normally only be used if no
+data set is provided. It can be useful if simulating for a VPC
+but a different subset of data needs to be simulated than the
+one used for estimation. A common example on this is inclusion
+of BLQ's in the VPC even if they were excluded in the
+estimation. See `?NMreadFilters` which returns a table you can
+edit and pass to `filters`. You can also just pass a string
+representing the full set of filters to be used.}
 
 \item{sizes}{If needed, adjust the `$SIZES` section by providing a
 list of arguments to `NMupdateSizes()`. Example:

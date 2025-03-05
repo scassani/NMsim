@@ -382,18 +382,37 @@ test_that("Named table variables",{
                   seed.nm=2342,
                   execute=FALSE,
                   method.update.inits="nmsim",
+                  table.vars=cc(PRED,TIMENEW=TIME)
+                  )
+
+
+    sim3 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "tabvars3",
+                  seed.nm=2342,
+                  execute=FALSE,
+                  method.update.inits="nmsim",
                   table.vars=c("PRED TIMENEW=TIME")
                   )
 
+
+    
     res1 <- NMreadSection("testOutput/xgxr025_tabvars1/xgxr025_tabvars1.mod",section="TABLE")
     res2 <- NMreadSection("testOutput/xgxr025_tabvars2/xgxr025_tabvars2.mod",section="TABLE")
+    res3 <- NMreadSection("testOutput/xgxr025_tabvars3/xgxr025_tabvars3.mod",section="TABLE")
     res1
     res2
+    res3
 
     expect_true(grepl("TIMENEW",res1))
 
     expect_equal(sub("tabvars[0-9]","",res1),
                  sub("tabvars[0-9]","",res2)
+                 )
+
+    expect_equal(sub("tabvars[0-9]","",res1),
+                 sub("tabvars[0-9]","",res3)
                  )
 
     

@@ -8,8 +8,8 @@
 
 
 NMreadTabFast <- function(file,file.mod,carry.out,col.row=NULL,...){
-
-.tmpcol <- NULL
+    
+    .tmpcol <- NULL
     
     if(missing(file.mod)||is.null(file.mod)){
         file.mod <- file
@@ -21,7 +21,6 @@ NMreadTabFast <- function(file,file.mod,carry.out,col.row=NULL,...){
     meta.output <- NMscanTables(file=file,quiet=TRUE,as.fun="data.table",skip.absent=TRUE,
                                 modelname=file.mod,col.model="model",meta.only=TRUE)
 
-    
     alltabs <- lapply(meta.output$file,fread,...)
 
     cbind.new <- function(x,y){
@@ -29,16 +28,21 @@ NMreadTabFast <- function(file,file.mod,carry.out,col.row=NULL,...){
     }
 
     alltabs <- Reduce(cbind.new,alltabs)
-    
 
     ## add input data
     if(!isFALSE(carry.out)){
 
         inp <- NMscanInput(file=file,file.mod=file.mod,apply.filters=FALSE,translate=TRUE,recover.cols=TRUE,as.fun="data.table")
-        if(isTRUE(carry.out)) carry.out <- setdiff(colnames(inp),colnames(alltabs))
-
         
-
+        if(isTRUE(carry.out)) {
+            carry.out <- setdiff(colnames(inp),colnames(alltabs))
+        } else {
+            miss.carry.out <- setdiff(carry.out,colnames(inp))
+            if(length(miss.carry.out)) {
+                message("variables in `carry.out` not found in input data ignored:\n",paste(miss.carry.out,collapse=", "))
+                carry.out <- setdiff(carry.out,miss.carry.out)
+            }
+        }
         if(is.null(col.row)){
             
             col.by <- NULL

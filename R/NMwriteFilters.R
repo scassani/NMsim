@@ -1,0 +1,58 @@
+
+##' @keywords internal
+
+NMwriteFilters <- function(file=NULL,lines=NULL,filters,write){
+
+cond <- NULL
+text <- NULL
+type <- NULL
+    
+    if(missing(write) || is.null(write)){
+        write <- !is.null(file)
+    }
+
+    lines <- NMdata:::getLines(file=file,lines=lines)
+    text.no.filters <- NMreadFilters(lines=lines,filters.only=FALSE)$text.nofilters
+
+
+    if(is.data.frame(filters)){
+        if(!is.data.table(filters)){
+            filters <- as.data.table(filters)
+        }
+        filters[,row:=.I]
+        
+        filters[class=="single-char",
+                text:=sprintf("%s=%s",type,cond)
+                ]
+
+        filters[class=="var-compare",
+                text:=sprintf("%s(%s)",type,cond)
+                ]
+    } else if (is.character(filters)){
+        filters <- paste(filters,collapse = " ")
+    }
+    
+    ##newdata <- sprintf("%s\n%s\n",text.no.filters,paste(filters$text,collapse="\n"))
+    newdata <- c(text.no.filters,filters$text)
+    ## newdata <- writeLines(newdata)
+
+
+
+    res <- NMdata:::NMwriteSectionOne(lines=lines,newfile=file,section="data",newlines=newdata,
+                                      backup=FALSE,quiet=TRUE,write=write)
+
+
+    res
+
+}
+
+if(F){
+file.mod <- "/data/prod_vx548_lsr_phase2_analysis/trunk/analysis/PK_review/models/12746.mod"
+
+filters <- NMreadFilters(file=file.mod)
+filters[cond=="EXCLF.NE.0",cond:="EXCLF.GT.10"]
+
+newlines <- NMwriteFilters(file=file.mod,filters=filters,write=FALSE)
+newlines
+
+}

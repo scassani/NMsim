@@ -75,6 +75,7 @@ metadata. Instead, they may be available in the results in older
 versions. Therefore, if they are not avaialble in meta data, just
 don't include them in byvars.
 *** TODO [#A] Allow NMreadSim to overrule fast.tables and carry.out
+Not sure about this one.
 *** DONE Test reading of ModTab tables with repeated rds files
 *** Structure
 **** description of x argument
@@ -120,6 +121,19 @@ have to supply what dists are needed.
 
 ** NMsim
 
+*** TODO Look for not allowed columns in data
+    cols.not.allowed <- cc(
+        CPREDI, CRESI, CWRES, CWRESI,
+        PRED, RES, WRES,
+        NPDE)
+
+    cols.not.allowed <- c(cols.not.allowed,colnames(data.inp)[grepl("ETA*[1-9][0-9]*",colnames(data.inp))])
+
+    cols.rm <- intersect(colnames(data.inp),cols.not.allowed)
+    if(length(cols.rm)){
+        data.inp[,(cols.rm):=NULL]
+    }
+
 *** DONE Likely bug (was not)
 
 The reason for the following is that  seed refers to dt.models[,seed], not the argument called seed
@@ -129,7 +143,7 @@ I don't understand why this line is here. NMseed seems to have taken care of thi
 section.sim <- sub("(SIM(ULATION)*( +ONLYSIM(ULATION)*)*) *",paste("\\1",seed),section.sim)
 
 *** WAITING [#A] Dpends on NMdata 0.1.9: Make inits(method="nmsim") default 
-*** TODO [#A] table.format argument
+*** DONE table.format argument
 If number of rows is >1M I think the default format may be insufficient
 
 Should col.row be divided by 1000. That would make it start at 0.001
@@ -156,7 +170,7 @@ merging?
 **** Get rid of ROWMODEL2
 **** name.mod or run.mod. What is the difference?
 This is called model in output
-*** TODO [#A] include fast.tables column in meta data
+*** DONE include fast.tables column in meta data
 *** TODO Only paste lst bottom if tables not found
 If not, it is probably an issue reading the data?
 *** DONE When adding seed and SUBPROBLEMS, only add once

@@ -7,50 +7,50 @@
 NMsim(
   file.mod,
   data,
-  dir.sims,
-  name.sim,
-  order.columns = TRUE,
-  file.ext = NULL,
-  script = NULL,
   subproblems = NULL,
   reuse.results = FALSE,
   seed.R,
   seed.nm,
-  args.psn.execute,
+  name.sim,
   table.vars,
   table.options,
   table.format,
   carry.out = TRUE,
-  text.sim = "",
   method.sim = NMsim_default,
   typical = FALSE,
-  execute = TRUE,
-  sge = FALSE,
-  nc = 1,
-  transform = NULL,
-  method.execute,
-  inits,
-  method.update.inits,
-  create.dirs = TRUE,
-  dir.psn,
   modify.model,
-  nmrep,
+  inits,
   filters,
   sizes,
-  sim.dir.from.scratch = TRUE,
-  col.row,
-  args.NMscanData,
   path.nonmem = NULL,
-  nmquiet,
-  progress,
+  sge = FALSE,
+  nc = 1,
+  execute = TRUE,
+  file.ext = NULL,
+  script = NULL,
+  transform = NULL,
+  order.columns = TRUE,
+  method.execute,
+  method.update.inits,
+  nmrep,
+  col.flagn = FALSE,
+  sim.dir.from.scratch = TRUE,
+  create.dirs = TRUE,
+  dir.psn,
+  args.psn.execute,
+  args.NMscanData,
   as.fun,
   system.type = NULL,
+  dir.sims,
   dir.res,
   file.res,
   wait,
+  text.sim = "",
   auto.dv = TRUE,
   clean,
   quiet = FALSE,
+  nmquiet,
+  progress,
   check.mod = TRUE,
   format.data.complete = "rds",
   text.table,
@@ -70,29 +70,6 @@ simulating known subjects, the .phi is necessary too.}
 \item{data}{The simulation data as a \code{data.frame} or a list
 of \code{data.frame}s. If a list, the model(s) will be run on
 each of the data sets in the list.}
-
-\item{dir.sims}{The directory in which NMsim will store all
-generated files. Default is to create a folder called `NMsim`
-next to `file.mod`.}
-
-\item{name.sim}{Give all filenames related to the simulation a
-suffix. A short string describing the sim is recommended like
-"ph3_regimens".}
-
-\item{order.columns}{reorder columns by calling
-\code{NMdata::NMorderColumns} before saving dataset and
-running simulations? Default is TRUE.}
-
-\item{file.ext}{Depecated. Use
-`inits=list(file.ext="path/to/file.ext") instead`. Optionally
-provide a parameter estimate file from Nonmem. This is
-normally not needed since `NMsim` will by default use the ext
-file stored next to the input control stream (replacing the
-file name extension with `.ext`). If using
-method.update.inits="psn", this argument cannot be used.}
-
-\item{script}{The path to the script where this is run. For
-stamping of dataset so results can be traced back to code.}
 
 \item{subproblems}{Number of subproblems to use as
 \code{SUBPROBLEMS} in \code{$SIMULATION} block in Nonmem. The
@@ -129,8 +106,9 @@ To avoid changing an exisiting seed in a control stream, use
 
 In case \code{method.sim=NMsim_EBE}, seeds are not used.}
 
-\item{args.psn.execute}{A charachter string that will be passed as
-arguments PSN's `execute`.}
+\item{name.sim}{Give all filenames related to the simulation a
+suffix. A short string describing the sim is recommended like
+"ph3_regimens".}
 
 \item{table.vars}{Variables to be printed in output table as a
 character vector or a space-separated string of variable
@@ -161,13 +139,6 @@ large data sets, it may be wanted to provide a subset of the
 columns here. If doing very large simulations, this may also
 be a way to save memory.}
 
-\item{text.sim}{A character string to be pasted into
-$SIMULATION. This must not contain seed or SUBPROBLEM which
-are handled separately. Default is to include "ONLYSIM". You
-cannot avoid that using `text.sim`. If you need to drop
-`ONLYSIM`, use
-`modify.model=list(simulation=list(overwrite("ONLYSIM","")))`.}
-
 \item{method.sim}{A function (not quoted) that creates the
 simulation control stream and other necessary files for a
 simulation based on the estimation control stream, the data,
@@ -181,33 +152,12 @@ methods.}
 ETAs=0 is obtained by replacing \code{$OMEGA} by a zero
 matrix. Default is FALSE.}
 
-\item{execute}{Execute the simulation or only prepare it?
-`execute=FALSE` can be useful if you want to do additional
-tweaks or simulate using other parameter estimates.}
-
-\item{sge}{Submit to cluster? Default is not to, but this is very
-useful if creating a large number of simulations,
-e.g. simulate with all parameter estimates from a bootstrap
-result.}
-
-\item{nc}{Number of cores used in parallelization. Only used if
-`sge=TRUE`.}
-
-\item{transform}{A list defining transformations to be applied
-after the Nonmem simulations and before plotting. For each
-list element, its name refers to the name of the column to
-transform, the contents must be the function to apply.}
-
-\item{method.execute}{Specify how to call Nonmem. Options are
-"psn" (PSN's execute), "nmsim" (an internal method similar to
-PSN's execute), and "direct" (just run Nonmem directly and
-dump all the temporary files). "nmsim" has advantages over
-"psn" that makes it the only supported method when
-type.sim="NMsim_EBE". "psn" has the simple advantage that the
-path to nonmem does not have to be specified if "execute" is
-in the system search path. So as long as you know where your
-Nonmem executable is, "nmsim" is recommended. The default is
-"nmsim" if path.nonmem is specified, and "psn" if not.}
+\item{modify.model}{Named list of additional control stream
+section edits. Note, these can be functions that define how to
+edit sections. This is an advanced feature which is not needed
+to run most simulations. It is however powerful for some types
+of analyses, like modifying parameter values. See vignettes
+for further information.}
 
 \item{inits}{Control the parameter values. `inits` is a list. The
     `method` element controls which method is used to do this, and
@@ -228,6 +178,73 @@ also `file.ext` which can now be handled by `inits` too. This
 change is done because it collects the update of the "initial"
 parameter values into one interface rather than multiple
 arguments.}
+
+\item{filters}{Edit data filters (`IGNORE`/`ACCEPT` statements)
+before running model. This should normally only be used if no
+data set is provided. It can be useful if simulating for a VPC
+but a different subset of data needs to be simulated than the
+one used for estimation. A common example on this is inclusion
+of BLQ's in the VPC even if they were excluded in the
+estimation. See `?NMreadFilters` which returns a table you can
+edit and pass to `filters`. You can also just pass a string
+representing the full set of filters to be used. If you pass a
+string, consider including "IGN=@" to avoid character rows,
+like the column headers.}
+
+\item{sizes}{If needed, adjust the `$SIZES` section by providing a
+list of arguments to `NMupdateSizes()`. Example:
+`sizes=list(PD=80)`. See `?NMupdateSizes` for details. Don't
+use arguments like `file.mod` and `newfile` which are handled
+internally.}
+
+\item{path.nonmem}{The path to the Nonmem executable to use. The
+could be something like "/usr/local/NONMEM/run/nmfe75" (which
+is a made up example). No default is available. You should be
+able to figure this out through how you normally execute
+Nonmem, or ask a colleague.}
+
+\item{sge}{Submit to cluster? Default is not to, but this is very
+useful if creating a large number of simulations,
+e.g. simulate with all parameter estimates from a bootstrap
+result.}
+
+\item{nc}{Number of cores used in parallelization. Only used if
+`sge=TRUE`.}
+
+\item{execute}{Execute the simulation or only prepare it?
+`execute=FALSE` can be useful if you want to do additional
+tweaks or simulate using other parameter estimates.}
+
+\item{file.ext}{Depecated. Use
+`inits=list(file.ext="path/to/file.ext") instead`. Optionally
+provide a parameter estimate file from Nonmem. This is
+normally not needed since `NMsim` will by default use the ext
+file stored next to the input control stream (replacing the
+file name extension with `.ext`). If using
+method.update.inits="psn", this argument cannot be used.}
+
+\item{script}{The path to the script where this is run. For
+stamping of dataset so results can be traced back to code.}
+
+\item{transform}{A list defining transformations to be applied
+after the Nonmem simulations and before plotting. For each
+list element, its name refers to the name of the column to
+transform, the contents must be the function to apply.}
+
+\item{order.columns}{reorder columns by calling
+\code{NMdata::NMorderColumns} before saving dataset and
+running simulations? Default is TRUE.}
+
+\item{method.execute}{Specify how to call Nonmem. Options are
+"psn" (PSN's execute), "nmsim" (an internal method similar to
+PSN's execute), and "direct" (just run Nonmem directly and
+dump all the temporary files). "nmsim" has advantages over
+"psn" that makes it the only supported method when
+type.sim="NMsim_EBE". "psn" has the simple advantage that the
+path to nonmem does not have to be specified if "execute" is
+in the system search path. So as long as you know where your
+Nonmem executable is, "nmsim" is recommended. The default is
+"nmsim" if path.nonmem is specified, and "psn" if not.}
 
 \item{method.update.inits}{This argument is being deprecated, please migrate to `inits` instead. The initial values of all parameters
     are by updated from the estimated model before running the
@@ -262,44 +279,17 @@ On linux/mac, The default is to use "PSN" if found. On Windows,
 
 }}
 
-\item{create.dirs}{If the directories specified in dir.sims and
-dir.res do not exists, should it be created? Default is TRUE.}
-
-\item{dir.psn}{The directory in which to find PSN's executables
-('execute' and 'update_inits'). The default is to rely on the
-system's search path. So if you can run 'execute' and
-'update_inits' by just typing that in a terminal, you don't
-need to specify this unless you want to explicitly use a
-specific installation of PSN on your system.}
-
-\item{modify.model}{Named list of additional control stream
-section edits. Note, these can be functions that define how to
-edit sections. This is an advanced feature which is not needed
-to run most simulations. It is however powerful for some types
-of analyses, like modifying parameter values. See vignettes
-for further information.}
-
 \item{nmrep}{Include `NMREP` as counter of subproblems? The
 default is to do so if `subproblems>0`. This will insert a
 counter called `NMREP` in the `$ERROR` section and include
 that in the output table(s). At this point, nothing is done to
 avoid overwriting existing variables.}
 
-\item{filters}{Edit data filters (`IGNORE`/`ACCEPT` statements)
-before running model. This should normally only be used if no
-data set is provided. It can be useful if simulating for a VPC
-but a different subset of data needs to be simulated than the
-one used for estimation. A common example on this is inclusion
-of BLQ's in the VPC even if they were excluded in the
-estimation. See `?NMreadFilters` which returns a table you can
-edit and pass to `filters`. You can also just pass a string
-representing the full set of filters to be used.}
-
-\item{sizes}{If needed, adjust the `$SIZES` section by providing a
-list of arguments to `NMupdateSizes()`. Example:
-`sizes=list(PD=80)`. See `?NMupdateSizes` for details. Don't
-use arguments like `file.mod` and `newfile` which are handled
-internally.}
+\item{col.flagn}{Only used if `data` is provided. Use this if you
+are including an exclusion flag column in data. However, what
+NMsim will then do is to require that column to equal `0`
+(zero) for the rows to be simulated. It is often better to
+subset the data before simulation. See `filters` too.}
 
 \item{sim.dir.from.scratch}{If TRUE (default) this will wipe the
 simulation directory before running new simulations. The
@@ -316,12 +306,18 @@ further. An example where it is important is if you first ran
 choose FALSE here, you can end up with the results of 500 new
 and 500 old simulations.}
 
-\item{col.row}{Only used if data is not supplied (which is most
-likely for simulations for VPCs) A column name to use for a
-row identifier. If none is supplied,
-\code{NMdataConf()[['col.row']]} will be used. If the column
-already exists in the data set, it will be used as is, if not
-it will be added.}
+\item{create.dirs}{If the directories specified in dir.sims and
+dir.res do not exists, should it be created? Default is TRUE.}
+
+\item{dir.psn}{The directory in which to find PSN's executables
+('execute' and 'update_inits'). The default is to rely on the
+system's search path. So if you can run 'execute' and
+'update_inits' by just typing that in a terminal, you don't
+need to specify this unless you want to explicitly use a
+specific installation of PSN on your system.}
+
+\item{args.psn.execute}{A charachter string that will be passed as
+arguments PSN's `execute`.}
 
 \item{args.NMscanData}{If \code{execute=TRUE&sge=FALSE}, NMsim
 will normally read the results using \code{NMreadSim}. Use
@@ -332,21 +328,6 @@ you need to merge by a row identifier. You would do
 `args.NMscanData=list(col.row="ROW")` to merge by a column
 called `ROW`. This is only used in rare cases.}
 
-\item{path.nonmem}{The path to the Nonmem executable to use. The
-could be something like "/usr/local/NONMEM/run/nmfe75" (which
-is a made up example). No default is available. You should be
-able to figure this out through how you normally execute
-Nonmem, or ask a colleague.}
-
-\item{nmquiet}{Silent console messages from Nonmem? The default
-behaviour depends. It is FALSE if there is only one model to
-execute and `progress=FALSE`.}
-
-\item{progress}{Track progress? Default is `TRUE` if `quiet` is
-FALSE and more than one model is being simulated. The progress
-tracking is based on the number of models completed, not the
-status of the individual models.}
-
 \item{as.fun}{The default is to return data as a data.frame. Pass
 a function (say `tibble::as_tibble`) in as.fun to convert to
 something else. If data.tables are wanted, use
@@ -356,6 +337,10 @@ NMdataConf.}
 \item{system.type}{A charachter string, either \"windows\" or
 \"linux\" - case insensitive. Windows is only experimentally
 supported. Default is to use \code{Sys.info()[["sysname"]]}.}
+
+\item{dir.sims}{The directory in which NMsim will store all
+generated files. Default is to create a folder called `NMsim`
+next to `file.mod`.}
 
 \item{dir.res}{Provide a path to a directory in which to save rds
 files with paths to results. Default is to use dir.sims. After
@@ -390,6 +375,13 @@ files to read will be returned. Pass them through
 `NMreadSim()` (which also supports waiting for the simulations
 to finish).}
 
+\item{text.sim}{A character string to be pasted into
+$SIMULATION. This must not contain seed or SUBPROBLEM which
+are handled separately. Default is to include "ONLYSIM". You
+cannot avoid that using `text.sim`. If you need to drop
+`ONLYSIM`, use
+`modify.model=list(simulation=list(overwrite("ONLYSIM","")))`.}
+
 \item{auto.dv}{Add a column called `DV` to input data sets if a
 column of that name is not found? Nonmem is generally
 dependent on a `DV` column in input data but this is typically
@@ -409,6 +401,15 @@ any integer 1-4 (default, quite a bit of cleaning) and 5
 
 \item{quiet}{If TRUE, messages from what is going on will be
 suppressed.}
+
+\item{nmquiet}{Silent console messages from Nonmem? The default
+behaviour depends. It is FALSE if there is only one model to
+execute and `progress=FALSE`.}
+
+\item{progress}{Track progress? Default is `TRUE` if `quiet` is
+FALSE and more than one model is being simulated. The progress
+tracking is based on the number of models completed, not the
+status of the individual models.}
 
 \item{check.mod}{Check the provided control streams for contents
 that may cause issues for simulation. Default is `TRUE`, and

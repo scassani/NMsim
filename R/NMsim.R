@@ -219,6 +219,11 @@
 ##'     counter called `NMREP` in the `$ERROR` section and include
 ##'     that in the output table(s). At this point, nothing is done to
 ##'     avoid overwriting existing variables.
+##' @param col.flagn Only used if `data` is provided. Use this if you
+##'     are including an exclusion flag column in data. However, what
+##'     NMsim will then do is to require that column to equal `0`
+##'     (zero) for the rows to be simulated. It is often better to
+##'     subset the data before simulation. See `filters` too.
 ##' @param filters Edit data filters (`IGNORE`/`ACCEPT` statements)
 ##'     before running model. This should normally only be used if no
 ##'     data set is provided. It can be useful if simulating for a VPC
@@ -227,7 +232,9 @@
 ##'     of BLQ's in the VPC even if they were excluded in the
 ##'     estimation. See `?NMreadFilters` which returns a table you can
 ##'     edit and pass to `filters`. You can also just pass a string
-##'     representing the full set of filters to be used.
+##'     representing the full set of filters to be used. If you pass a
+##'     string, consider including "IGN=@" to avoid character rows,
+##'     like the column headers.
 ##' @param sizes If needed, adjust the `$SIZES` section by providing a
 ##'     list of arguments to `NMupdateSizes()`. Example:
 ##'     `sizes=list(PD=80)`. See `?NMupdateSizes` for details. Don't
@@ -396,47 +403,51 @@
 
 
 
-NMsim <- function(file.mod,data,dir.sims, name.sim,
-                  order.columns=TRUE,
-                  file.ext=NULL,
-                  ## tab.ext=NULL,
-                  script=NULL,
+NMsim <- function(file.mod,data,
                   subproblems=NULL,
                   reuse.results=FALSE,
                   seed.R,
                   seed.nm,
-                  args.psn.execute,
+                  name.sim,
                   table.vars,
                   table.options,
                   table.format,
                   carry.out=TRUE,
-                  text.sim="",
                   method.sim=NMsim_default,
                   typical=FALSE,
-                  execute=TRUE,sge=FALSE,
-                  nc=1,transform=NULL,
-                  method.execute,
-                  inits,
-                  method.update.inits,
-                  create.dirs=TRUE,dir.psn,
                   modify.model,
-                  nmrep,
+                  inits,
                   filters,
                   sizes,
-                  sim.dir.from.scratch=TRUE,
-                  col.flagn=FALSE,
-                  args.NMscanData,
                   path.nonmem=NULL,
-                  nmquiet,
-                  progress,
+                  sge=FALSE,
+                  nc=1,
+                  execute=TRUE,
+                  file.ext=NULL,
+                  script=NULL,
+                  transform=NULL,
+                  order.columns=TRUE,
+                  method.execute,
+                  method.update.inits,
+                  nmrep,
+                  col.flagn=FALSE,
+                  sim.dir.from.scratch=TRUE,
+                  create.dirs=TRUE,
+                  dir.psn,
+                  args.psn.execute,
+                  args.NMscanData,
                   as.fun,
                   system.type=NULL,
+                  dir.sims,
                   dir.res,
                   file.res,
                   wait,
+                  text.sim="",
                   auto.dv=TRUE,
                   clean,
                   quiet=FALSE,
+                  nmquiet,
+                  progress,
                   check.mod = TRUE,
                   format.data.complete="rds",
 ### deprecated
@@ -452,6 +463,7 @@ NMsim <- function(file.mod,data,dir.sims, name.sim,
     ..carry.out <- NULL
     ..dir.res <- NULL
     ..name.sim <- NULL
+    col.row <- NULL
     DATAROW <- NULL
     data.name <- NULL
     default <- NULL

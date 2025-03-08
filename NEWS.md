@@ -1,6 +1,18 @@
 # Since NMsim 0.1.6
 
-New handling of data files has been implemented
+## Improvements
+* New handling of data files has been implemented. This improves
+  speed, reduced memory usage, and adds features. It is fully backward
+  compatible with the user interface of earlier versions.
+  - Data sets are only saved once for each model.
+  - Output tables are written and read more efficently. This is
+    obtained by a combination of default `TABLE` options and an
+    efficient method to read the tables if those options have not been
+    changed by the user. If the user does change them, a more robust
+    but slower and more memory intensive method is used.
+  - Input and output data are now by default merged using a row
+    identifier inserted by NMsim. This makes NMsim robust to NONMEM
+    code that does not simulate all rows in input data.
 
 ## Other changes
 * `NMcreateDoses()` requires AMT to be provided.

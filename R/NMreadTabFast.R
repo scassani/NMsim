@@ -39,7 +39,8 @@ NMreadTabFast <- function(file,file.mod,carry.out,col.row=NULL,...){
         } else {
             miss.carry.out <- setdiff(carry.out,colnames(inp))
             if(length(miss.carry.out)) {
-                message("variables in `carry.out` not found in input data ignored:\n",paste(miss.carry.out,collapse=", "))
+                ### NMsim() says this too. We don't want it repeated for all models.
+                ## message("variables in `carry.out` not found in input data ignored:\n",paste(miss.carry.out,collapse=", "))
                 carry.out <- setdiff(carry.out,miss.carry.out)
             }
         }

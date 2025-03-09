@@ -34,13 +34,13 @@
 ##' }
 ##' @import NMdata
 ##' @import data.table
-##' @export 
+##' @keywords internal
 
 #### Limitation: lower, init, and upper must be on same line
 
 #### Limitation: If using something like CL=(.1,4,15), two of those cannot be on the same line
 
-NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
+NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,ext,values,newfile,...){
 
     . <- NULL
     elemnum <- NULL
@@ -90,7 +90,11 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 
     
 #### 
+    if(missing(ext)) ext <- NULL
 
+    if(update || !is.null(ext)){
+        replace.inits <- TRUE
+    }
     
     inits.orig <- NMreadInits(file=file.mod,return="all",as.fun="data.table")
     pars.l <- inits.orig$elements
@@ -137,12 +141,23 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 ### update from ext
     if(update){
         
-        ext <- NMreadExt(file.ext,as.fun="data.table")
-        ## thetas.ext <- ext[par.type=="THETA"]
-        ext
-        inits.w <- mergeCheck(inits.w[,-("value.elem_init")],ext[,.(par.type,i,j,value.elem_init=as.character(value))],by=c("par.type","i","j"),all.x=TRUE,fun.na.by=NULL,quiet=TRUE)
+        ext.new <- NMreadExt(file.ext,as.fun="data.table")
+
+        inits.w <- mergeCheck(inits.w[,-("value.elem_init")],ext.new[,.(par.type,i,j,value.elem_init=as.character(value))],by=c("par.type","i","j"),all.x=TRUE,fun.na.by=NULL,quiet=TRUE)
     }
-    
+
+    if(FALSE){
+
+        if(!is.null(ext)){
+            inits.w[,tmprow:=.I]
+            inits.w.new <- mergeCheck(inits.w[,-("value.elem_init")],
+                                      ext.new[,.(par.type,i,j,value.elem_init=as.character(value))],
+                                      by=c("par.type","i","j"),all.y=TRUE,fun.na.by=NULL,quiet=TRUE)
+            inits.w <- rbind(
+                inits.w[!tmprow%in%inits.w.new$tmprow],
+                inits.w.new)
+        }
+    }    
 ### Implement changes as requested in values
     fun.update.vals <- function(dt,value,name){
         par.type <- NULL
@@ -249,7 +264,7 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,values,newfile,...){
 
     mod.lines <- inits.orig$lines
     
-   
+    
     lines.all.2 <- elems.all[,.(newtext=paste(string.elem,collapse=" ")),keyby=.(par.type,linenum)]
     lines.all.2[,elems.found:=TRUE]
 ##### this is the new total lines obj

@@ -10,22 +10,28 @@ adjust.method.update.inits <- function(method.update.inits,system.type,dir.psn,c
     if(missing(method.update.inits)) method.update.inits <- NULL
 
     if(is.null(method.update.inits)){
-        ### if nothing is provided, we use nmsim.deprec in order to support NMdata<0.1.9
+### if nothing is provided, we use nmsim.deprec in order to support NMdata<0.1.9
         if(length(inits)==0) {
-            inits$method <- "nmsim.deprec"
+            ## inits$method <- "nmsim.deprec"
+            inits$method <- "nmsim"
         } else {
             ## inits is provided, but no method included.
             if(!"method" %in% names(inits)) inits$method <- "nmsim"
         }
     } else {
+        if(!is.null(inits)){
+            if(!is.null(inits$method)) stop("method.update.inits is deprecated. Use i.e. `inits=list(method='nmsim'` instead. You supplied both which is not allowed.")
+            message("method.update.inits is deprecated. Use i.e. `inits=list(method='nmsim'` instead.")
+        }
         if(tolower(method.update.inits)=="nmsim") {
+            ## this is the old interface. That gives the old method.
             method.update.inits <- "nmsim.deprec"
         }
         inits$method <- method.update.inits
     }
 
     if(inits$method!="none" && is.null(inits$update)) inits$update <- TRUE
-        
+    
     
     if(missing(file.ext)) file.ext <- NULL
     if(!is.null(file.ext)){
@@ -35,27 +41,28 @@ adjust.method.update.inits <- function(method.update.inits,system.type,dir.psn,c
     ## if method.execute is psn, default is psn. If not, it is NMsim.
     if(is.null(inits$method)) {
         inits$method <- "psn"
-        cmd.update.inits <- file.psn(dir.psn,"update_inits")
+        ## cmd.update.inits <- file.psn(dir.psn,"update_inits")
 
         if(system.type=="windows"){
             ## We have seen problems with PSN on windows. Until
             ## clarified, internal method prefered on win.
-            inits$method <- "nmsim.deprec"
+            ## inits$method <- "nmsim.deprec"
+            inits$method <- "nmsim"
         }
         
         ## check if update_inits is avail
         ## if(suppressWarnings(system(paste(cmd.update.inits,"-h"),show.output.on.console=FALSE)!=0)){
         if(system.type=="linux"){
             
-            which.found <- system(paste("which",cmd.update.inits),ignore.stdout=T)
-            if(which.found!=0){
-                inits$method <- "nmsim"
-                rm(cmd.update.inits)
-            }
+            ## which.found <- system(paste("which",cmd.update.inits),ignore.stdout=T)
+            ## if(which.found!=0){
+            inits$method <- "nmsim"
+            ## rm(cmd.update.inits)
+            ## }
         }
     }
 
-    
+
     inits$method <- simpleCharArg("inits$method",inits$method,"nmsim",c("psn","nmsim","nmsim.deprec","none"))
     ## if update.inits with psn, it needs to be available
     if(inits$method=="psn"){
@@ -71,14 +78,12 @@ adjust.method.update.inits <- function(method.update.inits,system.type,dir.psn,c
     }
 
 ### nmsim2 requires NMdata 
-    if(inits$method=="nmsim"){
-            if(packageVersion("NMdata")<"0.1.8.921"){
-stop("updating initial values using the nmsim2 method requires NMdata 0.1.9.")
-    }
+    ## if(inits$method=="nmsim"){
+    ##     if(packageVersion("NMdata")<"0.1.8.921"){
+    ##         stop("updating initial values using the nmsim2 method requires NMdata 0.1.9.")
+    ##     }
+    ## }
 
-
-    }
-    
 
     ## inits$method <-  method.update.inits
 

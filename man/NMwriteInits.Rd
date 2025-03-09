@@ -4,7 +4,15 @@
 \alias{NMwriteInits}
 \title{Writes a parameter values to a control stream}
 \usage{
-NMwriteInits(file.mod, update = TRUE, file.ext = NULL, values, newfile, ...)
+NMwriteInits(
+  file.mod,
+  update = TRUE,
+  file.ext = NULL,
+  ext,
+  values,
+  newfile,
+  ...
+)
 }
 \arguments{
 \item{file.mod}{Path to control stream.}
@@ -49,3 +57,4 @@ NMwriteInits(file.mod,
 )
 }
 }
+\keyword{internal}

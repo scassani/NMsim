@@ -81,9 +81,9 @@ test_that("basic - default",{
     expect_equal_to_reference(simres.nometa,fileRef.noMeta)
     if(F){
         ref.nometa <- readRDS(fileRef.noMeta)
-simres.nometa
-ref.nometa        
-}
+        simres.nometa
+        ref.nometa        
+    }
     
     ## attributes(NMreadSim("testOutput/NMsim_xgxr021_default_01_paths.rds"))
     fix.time(simres)
@@ -561,7 +561,7 @@ test_that("space in file name",{
     expect_equal_to_reference(tab.covs,fileRef)
     if(F){
         readRDS(fileRef)
-        }
+    }
     
     expect_equal(unique(
         nrow(simres1)
@@ -643,7 +643,7 @@ test_that("default with renaming",{
                     name.sim="default_01"
                     )
 
-    expect_equal(unique(simres$model.sim),"ref_default_01_1")
+    expect_equal(unique(simres$model.sim),"ref_default_01")
     
     fix.time(simres)
     expect_equal_to_reference(simres,fileRef)
@@ -883,7 +883,6 @@ test_that("Two models on one rds",{
                     name.sim="twomodels_01"
                    ,file.res="testOutput/twomodels_01_paths.rds"
                    ,table.vars=cc(PRED,IPRED)
-,path.nonmem=path.nonmem
                    ,sge=F
                    ,wait=TRUE
                    ,path.nonmem=path.nonmem
@@ -1160,7 +1159,8 @@ test_that("basic - nmsim update inits",{
     expect_equal_to_reference(simres,fileRef)
 
     if(F){
-        readRDS(fileRef)
+        ref <- readRDS(fileRef)
+        ref
         simres
     }
     
@@ -1256,7 +1256,7 @@ test_that("fast tables",{
                   ## ,table.options=tabopts[Iopts]
                  ,carry.out="TAPD"
                   )
-    attributes(res1)
+    ## attributes(res1)$NMsimModTab
     
     res2 <- NMsim(file.mod=file.mod,
                   data=dt.sim,

@@ -592,7 +592,7 @@ NMsim <- function(file.mod,data,
     method.update.inits <- inits$method
     file.ext <- inits$file.ext
     
-    
+    if(isFALSE(col.flagn) && packageVersion("NMdata") <= "0.1.9.903") col.flagn <- NULL
 
 ### seed.R
     if(missing(seed.R)) seed.R <- NULL
@@ -1094,7 +1094,8 @@ NMsim <- function(file.mod,data,
     if(!is.null(data)){
 
         if(is.character(carry.out)){
-            not.found <- lapply(data,function(dat)carry.out[!carry.out%in% colnames(dat)]) |>
+            
+            not.found <- lapply(data$data,function(dat)carry.out[!carry.out%in% colnames(dat)]) |>
                 unlist() |>
                 unique()
             if(length(not.found)){
@@ -1106,16 +1107,16 @@ NMsim <- function(file.mod,data,
         dt.data.tmp[,tmprow:=.I]
         dt.data.tmp[,{NMwriteData(data$data[[DATAROW]]
                                  ,file=path.data
-                                  ,genText=F
-                                ,formats.write=c("csv",format.data.complete)
+                                 ,genText=F
+                                 ,formats.write=c("csv",format.data.complete)
                                   ## if NMsim is not controlling $DATA, we don't know what can be dropped.
-                                 ## ,csv.trunc.as.nm=TRUE
-                                ,script=script
+                                  ## ,csv.trunc.as.nm=TRUE
+                                 ,script=script
                                  ,quiet=TRUE)
-                                 ### returning a sctring because NMwriteData wit genText may return incompatible results
+### returning a sctring because NMwriteData wit genText may return incompatible results
                                  ##"OK"
         },
-                    by=tmprow]
+        by=tmprow]
     }
     
     

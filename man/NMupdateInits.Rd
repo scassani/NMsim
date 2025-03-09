@@ -9,7 +9,7 @@ NMupdateInits(file.mod, file.ext, newfile)
 \arguments{
 \item{file.mod}{The control stream to update. Will not be edited.}
 
-\item{file.ext}{}
+\item{file.ext}{Path to ext file. Default is to replace extension on `file.mod`.}
 
 \item{newfile}{New file to generate}
 }

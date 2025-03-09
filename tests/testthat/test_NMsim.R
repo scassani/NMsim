@@ -45,10 +45,12 @@ test_that("Basic",{
                   name.sim = "sd1",
                   seed.nm=2342,
                   execute=FALSE,
-                  method.update.inits="nmsim")
+                  ## method.update.inits="nmsim"
+                  )
 
     ## ref <- readRDS(fileRef)
-    expect_equal_to_reference(sim1,fileRef)
+    mod <- NMreadSection("testOutput/xgxr025_sd1/xgxr025_sd1.mod")
+    expect_equal_to_reference(mod,fileRef)
 
     ## readLines("testOutput/xgxr025_sd1/xgxr025_sd1.mod")
     
@@ -473,5 +475,28 @@ test_that("seed, seed.R, seed.nm",{
                        execute=FALSE
                        ))
 
+    
+})
+
+
+test_that("Basic - deprecated update inits method",{
+
+###  On windows this gives and error that tmp.dat is not found.
+    fileRef <- "testReference/NMsim_10.rds"
+
+    file.mod <- "testData/nonmem/xgxr025.mod"
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  dir.sim="testOutput",
+                  name.sim = "inits_depr",
+                  seed.nm=2342,
+                  execute=FALSE,
+                  method.update.inits="nmsim")
+
+    ## ref <- readRDS(fileRef)
+    mod <- NMreadSection("testOutput/xgxr025_inits_depr/xgxr025_inits_depr.mod")
+    expect_equal_to_reference(sim1,fileRef)
+
+    ## readLines("testOutput/xgxr025_sd1/xgxr025_sd1.mod")
     
 })

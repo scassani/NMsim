@@ -1,6 +1,6 @@
 ##' Create new Nonmem control stream with updated initial parameter values
 ##' @param file.mod The control stream to update. Will not be edited.
-##' @param file.ext 
+##' @param file.ext Path to ext file. Default is to replace extension on `file.mod`. 
 ##' @param newfile New file to generate
 ##' @return The resulting control stream path(s)
 ##' @import NMdata
@@ -41,7 +41,7 @@ NMupdateInits <- function(file.mod,file.ext,newfile){
         setnames(dt.pars,"est","value")
     }    
 
-    ###  handle tab.ext
+    ###  handle ext if provided as a data.frame
     if(!is.null(ext)){
         if(!is.data.table(ext)){
             stop("ext must be a data.table")
@@ -60,7 +60,7 @@ NMupdateInits <- function(file.mod,file.ext,newfile){
     l.split <- length(dt.pars.split)
     suffix.names <- ""
     if(l.split>1){
-        stop("NMupdateInits does not support updating multiple models")
+        stop("NMupdateInits does not support updating a model with multiple parameter sets.")
         suffix.names <- padZeros(seq(1:l.split))
     }
     

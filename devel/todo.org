@@ -142,7 +142,7 @@ I don't understand why this line is here. NMseed seems to have taken care of thi
 
 section.sim <- sub("(SIM(ULATION)*( +ONLYSIM(ULATION)*)*) *",paste("\\1",seed),section.sim)
 
-*** WAITING [#A] Dpends on NMdata 0.1.9: Make inits(method="nmsim") default 
+*** DONE Make inits(method="nmsim") default 
 *** DONE table.format argument
 If number of rows is >1M I think the default format may be insufficient
 
@@ -320,7 +320,7 @@ The implementation compares all explicitly given arguments. E.g. if
 a=1 by default and it was explicitly given in previous run but not in
 the new one, it will be a difference.
 *** DONE Support multiple $TABLE blocks
-*** TODO [#A] Dont allow / in name.sim
+*** DONE Dont allow / in name.sim
 or at least drop them when generating file names from it
 *** TODO [#A] auto set PD if many input variables
 ** VPC sims - no new method needed

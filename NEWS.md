@@ -1,9 +1,10 @@
 # NMsim 0.2.0
 
 ## Improvements
-* New handling of data files has been implemented. This improves
-  speed, reduced memory usage, and adds features. It is fully backward
-  compatible with the user interface of earlier versions.
+* A greatly improved handling of data files has been implemented. This
+  improves speed, reduced memory and disk usage, and adds features. It
+  is fully backward compatible with the user interface of earlier
+  versions.
   - Data sets are only saved once for each model.
   - Output tables are written and read more efficently. This is
     obtained by a combination of default `TABLE` options and an
@@ -17,7 +18,13 @@
     output. Force the inclusion of this column using the `nmrep`
     argument if needed even if not using `subproblems`.
 
-* Variables from input data to be included in results can be specified using the new `carry.out` argument. The default behavior by `NMsim()` is to include all variables from input data on the result. However, if the data set contains many rows or columns, this can be memory demanding. Now you can minimize memory use and maximize speed by limiting the variables in both input and output. For example 
+* Variables from input data to be included in results can be specified
+  using the new `carry.out` argument. The default behavior by
+  `NMsim()` is to include all variables from input data on the
+  result. However, if the data set contains many rows or columns, this
+  can be memory demanding. Now you can minimize memory use and
+  maximize speed by limiting the variables in both input and
+  output. For example
 
 ```
 simres <- NMsim(file.mod,data,
@@ -29,7 +36,7 @@ simres <- NMsim(file.mod,data,
 `simres` will in this case contain only `PRED`, `IPRED`, and `Y` from
 the output table, and only `ID`, `TIME`, and `EVID` from the input
 `data.frame` (`data`). `NMsim()` also takes a new argument
-`table.format` whic can be used to adjust the table format. But
+`table.format` which can be used to adjust the table format. But
 normally, that is not be necessary. There is no reason to list `ID` or
 any other column from the input data in `table.vars` since they can be
 carried over directly fro the input data, avoiding potential loss of

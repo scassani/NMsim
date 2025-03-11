@@ -929,7 +929,7 @@ NMsim <- function(file.mod,data,
     ## fn.data is the data file name, no path
     
     ## dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(name.mod,".csv"),name.sim))]
-    dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(model,".csv"),name.sim))]
+    dt.models[,fn.data:=paste0("NMsimData_",fnAppend(fnExtension(model,".csv"),name.sim.paths))]
     dt.models[,fn.data:=fnAppend(fn.data,data.name),by=.(ROWMODEL)]
     ## dt.models[,fn.data:=gsub(" ","_",fn.data)]
     dt.models[,fn.data:=cleanStrings(fn.data)]
@@ -1364,8 +1364,8 @@ NMsim <- function(file.mod,data,
             }
             if(n.sim.sections == 1 ){
                 
-                name.sim <- names.sections[grepl("^(SIM|SIMULATION)$",names.sections)]
-                section.sim <- all.sections.sim[[name.sim]]
+                name.simsec <- names.sections[grepl("^(SIM|SIMULATION)$",names.sections)]
+                section.sim <- all.sections.sim[[name.simsec]]
                 
                 section.sim <- gsub("\\([0-9]+\\)","",section.sim)
                 

@@ -28,6 +28,7 @@
 ##' @seealso NMsim_VarCov
 ##' @import NMdata
 ##' @import data.table
+##' @return Path to simulation control stream
 ##' @author Brian Reilly, Philip Delff
 ##' @examples
 ##' \dontrun{

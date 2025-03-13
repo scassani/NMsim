@@ -104,9 +104,8 @@
 ##' @param text.sim A character string to be pasted into
 ##'     $SIMULATION. This must not contain seed or SUBPROBLEM which
 ##'     are handled separately. Default is to include "ONLYSIM". You
-##'     cannot avoid that using `text.sim`. If you need to drop
-##'     `ONLYSIM`, use
-##'     `modify.model=list(simulation=list(overwrite("ONLYSIM","")))`.
+##'     cannot avoid that using `text.sim`. Instead, you can use
+##'     `onlysim=FALSE` which will be passed to `NMsim_default()`.
 ##' @param method.sim A function (not quoted) that creates the
 ##'     simulation control stream and other necessary files for a
 ##'     simulation based on the estimation control stream, the data,
@@ -117,7 +116,71 @@
 ##'     methods.
 ##' @param typical Run with all ETAs fixed to zero? Technically all
 ##'     ETAs=0 is obtained by replacing \code{$OMEGA} by a zero
-##'     matrix. Default is FALSE.
+##'     matrix. Default is `FALSE`.
+##' @param inits Control the parameter values. `inits` is a list. The
+##'     `method` element controls which method is used to do this, and
+##'     this corresponds to the old `method.update.inits` argument. If
+##'     using the new `method=nmsim` you can specify parameter
+##'     values, fix/unfix them, and edit lower and upper limits for
+##'     estimation.
+##' \itemize{
+##'
+##' \item{`method="nmsim"`}, all other
+##'     arguments are passed to `NMwriteInits`. This is a flexible
+##'     method that allows for modification of the parameter values
+##'     and is expected to be the default method in the
+##'     future. Example which will update the parameter values based
+##'     on the available estimate, but with `THETA(2)=1.3`:
+##'     `inits=list(method="nmsim","THETA(2)"=list(init=1.3))`. See
+##'     `?NMwriteInits` too.
+##' 
+##' \item{`method="psn"`}
+##'     uses PSN's "update_inits". Requires a functioning PSN
+##'     installation and possibly that \code{dir.psn} is correctly
+##'     set. The advantages of this method are that it keeps comments
+##'     in the control stream and that it is a method known to many.
+##'
+##' \item{`method="nmsim"`}
+##'  Uses a simple internal method to update the parameter values
+##' based on the ext file.  The advantages of "nmsim" are it does not
+##' require PSN, and that it does not rely on code-interpretation for generation of simulation control streams. "nmsim" fixes the whole
+##' OMEGA and SIGMA matrices as single blocks making the $OMEGA and
+##' $SIGMA sections of the control streams less easy to read. On the
+##' other hand, this method is robust because it avoids any
+##' interpretation of BLOCK structure or other code in the control
+##' streams.
+##'
+##' \item{`method="none"`} Do nothing. This is useful if the model to simulate
+##' has not been estimated but parameter values have been manually put
+##' into the respective sections in the control stream.
+##' }
+##' 
+##' See also `file.ext` which can now be handled by `inits` too. This
+##' change collects the update of the "initial"
+##' parameter values into one interface rather than multiple
+##' arguments.
+##' @param modify Named list of additional control stream
+##'     section edits. Note, these can be functions that define how to
+##'     edit sections. This is an advanced feature which is not needed
+##'     to run most simulations. It is however powerful for some types
+##'     of analyses, like modifying parameter values. See vignettes
+##'     for further information.
+##' @param filters Edit data filters (`IGNORE`/`ACCEPT` statements)
+##'     before running model. This should normally only be used if no
+##'     data set is provided. It can be useful if simulating for a VPC
+##'     but a different subset of data needs to be simulated than the
+##'     one used for estimation. A common example on this is inclusion
+##'     of BLQ's in the VPC even if they were excluded in the
+##'     estimation. See `?NMreadFilters` which returns a table you can
+##'     edit and pass to `filters`. You can also just pass a string
+##'     representing the full set of filters to be used. If you pass a
+##'     string, consider including "IGN=@" to avoid character rows,
+##'     like the column headers.
+##' @param sizes If needed, adjust the `$SIZES` section by providing a
+##'     list of arguments to `NMupdateSizes()`. Example:
+##'     `sizes=list(PD=80)`. See `?NMupdateSizes` for details. Don't
+##'     use arguments like `file.mod` and `newfile` which are handled
+##'     internally.
 ##' @param execute Execute the simulation or only prepare it?
 ##'     `execute=FALSE` can be useful if you want to do additional
 ##'     tweaks or simulate using other parameter estimates.
@@ -144,59 +207,7 @@
 ##'     in the system search path. So as long as you know where your
 ##'     Nonmem executable is, "nmsim" is recommended. The default is
 ##'     "nmsim" if path.nonmem is specified, and "psn" if not.
-##' @param inits Control the parameter values. `inits` is a list. The
-##'     `method` element controls which method is used to do this, and
-##'     this corresponds to the old `method.update.inits` argument. If
-##'     using the new `method=nmsim2` you can specify parameter
-##'     values, fix/unfix them, and edit lower and upper limits for
-##'     estimation. If inits contains `method=nmsim2`, all other
-##'     arguments are passed to `NMwriteInits`. This is a flexible
-##'     method that allows for modification of the parameter values
-##'     and is expected to be the default method in the
-##'     future. Example which will update the parameter values based
-##'     on the available estimate, but with `THETA(2)=1.3`:
-##'     `inits=list(method="nmsim2","THETA(2)"=list(init=1.3))`. See
-##'     `?NMwriteInits` too.
-##'
-##' See `method.update.inits` methods for other methods available. See
-##' also `file.ext` which can now be handled by `inits` too. This
-##' change is done because it collects the update of the "initial"
-##' parameter values into one interface rather than multiple
-##' arguments.
 ##' 
-##' @param method.update.inits This argument is being deprecated, please migrate to `inits` instead. The initial values of all parameters
-##'     are by updated from the estimated model before running the
-##'     simulation. NMsim can do this with a native function or use
-##'     PSN to do it - or the step can be skipped to not update the
-##'     values. The possible values are
-##'
-##' \itemize{
-##'
-##' \item{"psn"}
-##'     uses PSN's "update_inits". Requires a functioning PSN
-##'     installation and possibly that \code{dir.psn} is correctly
-##'     set. The advantages of this method are that it keeps comments
-##'     in the control stream and that it is a method known to many.
-##'
-##' \item{"nmsim"}
-##'  Uses a simple internal method to update the parameter values
-##' based on the ext file.  The advantages of "nmsim" are it does not
-##' require PSN, and that it does not rely on code-interpretation for generation of simulation control streams. "nmsim" fixes the whole
-##' OMEGA and SIGMA matrices as single blocks making the $OMEGA and
-##' $SIGMA sections of the control streams less easy to read. On the
-##' other hand, this method is robust because it avoids any
-##' interpretation of BLOCK structure or other code in the control
-##' streams.
-##'
-##' \item{"none"} Do nothing. This is useful if the model to simulate
-##' has not been estimated but parameter values have been manually put
-##' into the respective sections in the control stream.
-##'
-##' On linux/mac, The default is to use "PSN" if found. On Windows,
-##' "nmsim" is the default.
-##' 
-##' }
-##'
 ##' @param path.nonmem The path to the Nonmem executable to use. The
 ##'     could be something like "/usr/local/NONMEM/run/nmfe75" (which
 ##'     is a made up example). No default is available. You should be
@@ -208,12 +219,6 @@
 ##'     'update_inits' by just typing that in a terminal, you don't
 ##'     need to specify this unless you want to explicitly use a
 ##'     specific installation of PSN on your system.
-##' @param modify.model Named list of additional control stream
-##'     section edits. Note, these can be functions that define how to
-##'     edit sections. This is an advanced feature which is not needed
-##'     to run most simulations. It is however powerful for some types
-##'     of analyses, like modifying parameter values. See vignettes
-##'     for further information.
 ##' @param nmrep Include `NMREP` as counter of subproblems? The
 ##'     default is to do so if `subproblems>0`. This will insert a
 ##'     counter called `NMREP` in the `$ERROR` section and include
@@ -224,22 +229,6 @@
 ##'     NMsim will then do is to require that column to equal `0`
 ##'     (zero) for the rows to be simulated. It is often better to
 ##'     subset the data before simulation. See `filters` too.
-##' @param filters Edit data filters (`IGNORE`/`ACCEPT` statements)
-##'     before running model. This should normally only be used if no
-##'     data set is provided. It can be useful if simulating for a VPC
-##'     but a different subset of data needs to be simulated than the
-##'     one used for estimation. A common example on this is inclusion
-##'     of BLQ's in the VPC even if they were excluded in the
-##'     estimation. See `?NMreadFilters` which returns a table you can
-##'     edit and pass to `filters`. You can also just pass a string
-##'     representing the full set of filters to be used. If you pass a
-##'     string, consider including "IGN=@" to avoid character rows,
-##'     like the column headers.
-##' @param sizes If needed, adjust the `$SIZES` section by providing a
-##'     list of arguments to `NMupdateSizes()`. Example:
-##'     `sizes=list(PD=80)`. See `?NMupdateSizes` for details. Don't
-##'     use arguments like `file.mod` and `newfile` which are handled
-##'     internally.
 ##' @param create.dirs If the directories specified in dir.sims and
 ##'     dir.res do not exists, should it be created? Default is TRUE.
 ##' @param sim.dir.from.scratch If TRUE (default) this will wipe the
@@ -256,13 +245,6 @@
 ##'     1000 replications, fixed something and now rand 500. If you
 ##'     choose FALSE here, you can end up with the results of 500 new
 ##'     and 500 old simulations.
-##' @param file.ext Depecated. Use
-##'     `inits=list(file.ext="path/to/file.ext") instead`. Optionally
-##'     provide a parameter estimate file from Nonmem. This is
-##'     normally not needed since `NMsim` will by default use the ext
-##'     file stored next to the input control stream (replacing the
-##'     file name extension with `.ext`). If using
-##'     method.update.inits="psn", this argument cannot be used.
 ##' @param auto.dv Add a column called `DV` to input data sets if a
 ##'     column of that name is not found? Nonmem is generally
 ##'     dependent on a `DV` column in input data but this is typically
@@ -327,7 +309,89 @@
 ##'     input data to output data. `csv` will also lead to loss of
 ##'     additional information such as factor levels.
 ##' @param ... Additional arguments passed to \code{method.sim}.
-##' @param list.sections Deprecated. Use modify.model instead.
+##' @param modify.model Deprecated. Use modify instead.
+##' @param list.sections Deprecated. Use modify instead.
+##' 
+##' @param auto.dv Add a column called `DV` to input data sets if a
+##'     column of that name is not found? Nonmem is generally
+##'     dependent on a `DV` column in input data but this is typically
+##'     uninformative in simulation data sets and hence easily
+##'     forgotten when generating simulation data sets. If
+##'     \code{auto.dv=TRUE} and no `DV` column is found, `DV=NA` will
+##'     be added. In this case (`auto.dv=TRUE` and no `DV` column
+##'     found) a `MDV=1` column will also be added if none found.
+##' @param file.res Path to an rds file that will contain a table of
+##'     the simulated models and other metadata. This is needed for
+##'     subsequently retrieving all the results using
+##'     `NMreadSim()`. The default is to create a file called
+##'     `NMsim_..._MetaData.rds` under the \code{dir.res} directory
+##'     where ... is based on the model name. However, if multiple
+##'     models (\code{file.mod}) are simulated, this will result in
+##'     multiple rds files. Specifying a path ensures that one rds
+##'     file containing information about all simulated models will be
+##'     created. Notice if \code{file.res} is supplied, \code{dir.res}
+##'     is not used.
+##' @param clean The degree of cleaning (file removal) to do after
+##'     Nonmem execution. If `method.execute=="psn"`, this is passed
+##'     to PSN's `execute`. If `method.execute=="nmsim"` a similar
+##'     behavior is applied, even though not as granular. NMsim's
+##'     internal method only distinguishes between 0 (no cleaning),
+##'     any integer 1-4 (default, quite a bit of cleaning) and 5
+##'     (remove temporary dir completely).
+##' @param quiet If TRUE, messages from what is going on will be
+##'     suppressed.
+##' @param nmquiet Silent console messages from Nonmem? The default
+##'     behaviour depends. It is FALSE if there is only one model to
+##'     execute and `progress=FALSE`.
+##' @param progress Track progress? Default is `TRUE` if `quiet` is
+##'     FALSE and more than one model is being simulated. The progress
+##'     tracking is based on the number of models completed, not the
+##'     status of the individual models.
+##' @param check.mod Check the provided control streams for contents
+##'     that may cause issues for simulation. Default is `TRUE`, and
+##'     it is only recommended to disable this if you are fully aware
+##'     of such a feature of your control stream, you know how it
+##'     impacts simulation, and you want to get rid of warnings.
+##' @param as.fun The default is to return data as a data.frame. Pass
+##'     a function (say `tibble::as_tibble`) in as.fun to convert to
+##'     something else. If data.tables are wanted, use
+##'     as.fun="data.table". The default can be configured using
+##'     NMdataConf.
+##' @param args.NMscanData If \code{table.options} is used, NMsim
+##'     turns to `NMdata::NMscanData()` for a general method to read
+##'     the output tables. Use `args.NMscanData` to pass additional
+##'     arguments (in a list) to that function if you want the results
+##'     to be read in a specific way. This can be if the model for
+##'     some reason drops rows, and you need to merge by a row
+##'     identifier. You would do `args.NMscanData=list(col.row="ROW")`
+##'     to merge by a column called `ROW`. This is only used in rare
+##'     cases. Better just stick to NMsim's optimized default
+##'     `table.options` and related methods for reading results.
+##' @param system.type A charachter string, either \"windows\" or
+##'     \"linux\" - case insensitive. Windows is only experimentally
+##'     supported. Default is to use \code{Sys.info()[["sysname"]]}.
+##' @param format.data.complete For development purposes - users do
+##'     not need this argument. Controls what format the complete
+##'     input data set is saved in.  Possible values are `rds`
+##'     (default), `fst` (experimental) and `csv`. `fst` may be faster
+##'     and use less disk space but factor levels may be lost from
+##'     input data to output data. `csv` will also lead to loss of
+##'     additional information such as factor levels.
+##' @param ... Additional arguments passed to \code{method.sim}.
+##' @param modify.model Deprecated. Use modify instead.
+##' @param list.sections Deprecated. Use modify instead.
+##' @param method.update.inits Deprecated, please migrate to `inits`
+##'     instead. The initial values of all parameters are by updated
+##'     from the estimated model before running the simulation. NMsim
+##'     can do this with a native function or use PSN to do it - or
+##'     the step can be skipped to not update the values.
+##' @param file.ext Depecated. Use
+##'     `inits=list(file.ext="path/to/file.ext")` instead. Optionally
+##'     provide a parameter estimate file from Nonmem. This is
+##'     normally not needed since `NMsim` will by default use the ext
+##'     file stored next to the input control stream (replacing the
+##'     file name extension with `.ext`). If using
+##'     method.update.inits="psn", this argument cannot be used.
 ##' @param suffix.sim Deprecated. Use name.sim instead.
 ##' @param text.table Deprecated. Use `table.vars` and `table.options`
 ##'     instead.
@@ -362,7 +426,6 @@
 ##' (or estimation actually) control stream and want NMsim to run it
 ##' on different data sets.
 ##'
-##' \item \code{NMsim_typical} Deprecated. Use \code{typical=TRUE} instead. 
 ##' 
 ##' \item \code{NMsim_EBE} Simulates _known_ ETAs. By default, the ETA
 ##' values are automatically taken from the estimation run. This is
@@ -393,6 +456,8 @@
 ##' than `NMsim`. For simulation with parameter variability based on
 ##' bootstrap results, use \code{NMsim_default}.
 ##'
+##' \item \code{NMsim_typical} Deprecated. Use \code{typical=TRUE} instead. 
+##'
 ##' }
 ##' @import NMdata
 ##' @import data.table
@@ -415,20 +480,18 @@ NMsim <- function(file.mod,data,
                   carry.out=TRUE,
                   method.sim=NMsim_default,
                   typical=FALSE,
-                  modify.model,
                   inits,
+                  modify,
                   filters,
                   sizes,
                   path.nonmem=NULL,
                   sge=FALSE,
                   nc=1,
                   execute=TRUE,
-                  file.ext=NULL,
                   script=NULL,
                   transform=NULL,
                   order.columns=TRUE,
                   method.execute,
-                  method.update.inits,
                   nmrep,
                   col.flagn=FALSE,
                   sim.dir.from.scratch=TRUE,
@@ -454,6 +517,9 @@ NMsim <- function(file.mod,data,
                   text.table,
                   suffix.sim,
                   seed,
+                  file.ext=NULL,
+                  method.update.inits,
+                  modify.model,
                   list.sections,
                   ...
                   ){
@@ -641,19 +707,19 @@ NMsim <- function(file.mod,data,
     name.sim.paths <- cleanStrings(name.sim)
 
     modelname <- NULL
-    
-    ## if(missing(col.row)) col.row <- NULL
-    ## col.row <- NMdata:::NMdataDecideOption("col.row",col.row)
-    
-    ## input.archive <- inputArchiveDefault
     input.archive <- FALSE
 
-    if(missing(modify.model)) modify.model <- NULL
     if(!missing(list.sections)){
-        if(!is.null(modify.model)){
-            stop("both list.sections (deprecated argument) and modify.model supplied. Please use only modify.model.")
+        stop("`list.sections` is deprecated. Use `modify`.")
+    }
+    
+    if(missing(modify)) modify <- NULL
+    if(!missing(modify.model)){
+        if(!is.null(modify)){
+            stop("both `modify.model` (deprecated argument) and `modify` supplied. Please use only `modify`.")
         }
-        message("\'list.sections\' is deprecated. Please use \'modify.model\'.")
+        message("`modify.model` is deprecated. Please use `modify`.")
+        modify <- modify.model
     }
 
     if(missing(subproblems)|| is.null(subproblems)) subproblems <- 0
@@ -714,7 +780,7 @@ NMsim <- function(file.mod,data,
 
 ### Create NMREP in $ERROR. Adding 1 to start counting at 1.
         
-        modify.model <- c(modify.model,
+        modify <- c(modify,
                           list(ERROR=add("NMREP=IREP")))
     }
     
@@ -1095,9 +1161,9 @@ NMsim <- function(file.mod,data,
 
         if(is.character(carry.out)){
             
-            not.found <- lapply(data$data,function(dat)carry.out[!carry.out%in% colnames(dat)]) |>
-                unlist() |>
-                unique()
+            not.found <- lapply(data$data,function(dat)carry.out[!carry.out%in% colnames(dat)]) 
+            not.found <- unlist(not.found)
+            not.found <- unique(not.found)
             if(length(not.found)){
                 warning(paste0("Not all variables in `carry.out` found in (all) data set(s):\n",paste(not.found,collapse=" ")))
             }
@@ -1386,7 +1452,7 @@ NMsim <- function(file.mod,data,
     
     
     
-#### Section start: Additional control stream modifications specified by user - modify.model ####
+#### Section start: Additional control stream modifications specified by user - modify ####
 
     if(missing(sizes)) sizes <- NULL
     if(!is.null(sizes)){
@@ -1406,11 +1472,11 @@ NMsim <- function(file.mod,data,
     }
 
 
-    if( !is.null(modify.model) ){
-        modifyModel(modify.model,dt.models)
+    if( !is.null(modify) ){
+        modifyModel(modify,dt.models)
     }
     
-### Section end: Additional control stream modifications specified by user - modify.model
+### Section end: Additional control stream modifications specified by user - modify
 
 
     

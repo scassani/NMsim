@@ -90,7 +90,6 @@ test_that("modify.model",{
 
     mod <- NMreadSection("testOutput/xgxr021_sd1_modify/xgxr021_sd1_modify.mod")
     
-
     ## ref <- readRDS(fileRef)
     expect_equal_to_reference(mod,fileRef)
 

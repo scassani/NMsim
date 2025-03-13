@@ -182,10 +182,19 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,col.id="ID",args.NMexpandDoses,un
         } else {
             dt.tapd <- merge(TAPD,covs.data,all.x=TRUE,allow.cartesian = TRUE)
         }
-
         
         if(is.null(args.NMexpandDoses)) args.NMexpandDoses <- list()
-        args.NMexpandDoses$data <- data[get(col.evid)==1]
+        args.NMexpandDoses$data <- data[get(col.evid)%in%c(1,4)]
+
+        if(nrow(args.NMexpandDoses$data)==0){
+            message("No doses in data. `TAPD` is ignored.")
+            TAPD <- NULL
+        }
+
+    }
+
+    if(!is.null(TAPD)){
+
         if(is.null(args.NMexpandDoses$quiet)) args.NMexpandDoses$quiet <- TRUE
         doses.tmp <- do.call(NMexpandDoses,args.NMexpandDoses)
 

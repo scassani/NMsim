@@ -58,6 +58,11 @@ need to worry about merging input and output data correctly -
   passing them to `NMsim()`.
 
 ## Other changes
+* `NMsim()`'s argument `modify.model` has been renamed to
+  `modify`. This is to align argument names with other arguments
+  available for model modification, namely `inits`, `sizes`, and
+  `filters`.
+
 * `NMcreateDoses()` requires AMT to be provided.
 
 * `addEVID2()` only requires `CMT` argument when the column of the

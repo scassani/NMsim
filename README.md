@@ -99,7 +99,7 @@ methods are currently provided:
 -   Simulation of subjects already estimated in Nonmem model
     (`method.sim=NMsim_EBE`)
 -   Simulation with parameter uncertainty based on a Nonmem covariance
-    step (`method.sim=NMsim_VarCov`)
+    step (`method.sim=NMsim_VarCov` and `method.sim=NMsim_NWPRI`)
 -   Simulation “as is” in case you already prepared a simulation control
     stream and just want to automate the use of it in combination with
     simulation data sets (`method.sim=NMsim_asis`)
@@ -128,13 +128,20 @@ simulation (or other job) you want to automate using `NMsim`.
 
 Many features are available. Prominent ones are:
 
+-   Can update and edit parameter values using the `inits` argument.
+-   Can very flexibly modify the simulation control stream on the fly
+    through the simple `modify.model` argument.
+-   Provides a simple interface `NMreadSim()` to read previously
+    performed simulation results. Automatically stores results in a
+    compressed format that can be separated from intermediate results
+    files.
+-   Results on file can be reused if available using
+    `reuse.results=TRUE`.
 -   Can use submit jobs to clusters. It can wait for the simulations to
     be done and automatically collect the results like in the example
     above.
 -   Simulation replicates using Nonmem `SUBPROBLEMS` feature avaible
     through the `subproblems` argument
--   Can modify the simulation control stream on the fly - a powerful
-    feature for studying the effect of varying model parameters
 -   Simulations of models on transformed observations can be
     automatically transformed back using the `transform` argument.
 

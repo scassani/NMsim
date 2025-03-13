@@ -21,8 +21,8 @@ adjust.method.update.inits <- function(method.update.inits,system.type,dir.psn,c
     } else {
         if(!is.null(inits)){
             if(!is.null(inits$method)) stop("method.update.inits is deprecated. Use i.e. `inits=list(method='nmsim'` instead. You supplied both which is not allowed.")
-            message("method.update.inits is deprecated. Use i.e. `inits=list(method='nmsim'` instead.")
         }
+        message("method.update.inits is deprecated. Use i.e. `inits=list(method='nmsim'` instead.")
         if(tolower(method.update.inits)=="nmsim") {
             ## this is the old interface. That gives the old method.
             method.update.inits <- "nmsim.deprec"
@@ -40,26 +40,26 @@ adjust.method.update.inits <- function(method.update.inits,system.type,dir.psn,c
     
     ## if method.execute is psn, default is psn. If not, it is NMsim.
     if(is.null(inits$method)) {
-        inits$method <- "psn"
+        inits$method <- "nmsim"
         ## cmd.update.inits <- file.psn(dir.psn,"update_inits")
 
-        if(system.type=="windows"){
-            ## We have seen problems with PSN on windows. Until
-            ## clarified, internal method prefered on win.
-            ## inits$method <- "nmsim.deprec"
-            inits$method <- "nmsim"
-        }
+        ## if(system.type=="windows"){
+        ##     ## We have seen problems with PSN on windows. Until
+        ##     ## clarified, internal method prefered on win.
+        ##     ## inits$method <- "nmsim.deprec"
+        ##     inits$method <- "nmsim"
+        ## }
         
         ## check if update_inits is avail
         ## if(suppressWarnings(system(paste(cmd.update.inits,"-h"),show.output.on.console=FALSE)!=0)){
-        if(system.type=="linux"){
+        ## if(system.type=="linux"){
             
-            ## which.found <- system(paste("which",cmd.update.inits),ignore.stdout=T)
-            ## if(which.found!=0){
-            inits$method <- "nmsim"
-            ## rm(cmd.update.inits)
-            ## }
-        }
+        ##     ## which.found <- system(paste("which",cmd.update.inits),ignore.stdout=T)
+        ##     ## if(which.found!=0){
+        ##     inits$method <- "nmsim"
+        ##     ## rm(cmd.update.inits)
+        ##     ## }
+        ## }
     }
 
 

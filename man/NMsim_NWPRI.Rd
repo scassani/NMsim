@@ -22,6 +22,9 @@ normal occurs. This fraction is given by PLEV.}
 
 \item{...}{Additional arguments passed to `NMsim_default()`.}
 }
+\value{
+Path to simulation control stream
+}
 \description{
 Modify control stream for simulation with uncertainty
     using inverse-Wishart distribution for OMEGA and SIGMA

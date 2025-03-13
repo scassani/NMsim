@@ -18,20 +18,18 @@ NMsim(
   carry.out = TRUE,
   method.sim = NMsim_default,
   typical = FALSE,
-  modify.model,
   inits,
+  modify,
   filters,
   sizes,
   path.nonmem = NULL,
   sge = FALSE,
   nc = 1,
   execute = TRUE,
-  file.ext = NULL,
   script = NULL,
   transform = NULL,
   order.columns = TRUE,
   method.execute,
-  method.update.inits,
   nmrep,
   col.flagn = FALSE,
   sim.dir.from.scratch = TRUE,
@@ -56,6 +54,9 @@ NMsim(
   text.table,
   suffix.sim,
   seed,
+  file.ext = NULL,
+  method.update.inits,
+  modify.model,
   list.sections,
   ...
 )
@@ -150,34 +151,57 @@ methods.}
 
 \item{typical}{Run with all ETAs fixed to zero? Technically all
 ETAs=0 is obtained by replacing \code{$OMEGA} by a zero
-matrix. Default is FALSE.}
-
-\item{modify.model}{Named list of additional control stream
-section edits. Note, these can be functions that define how to
-edit sections. This is an advanced feature which is not needed
-to run most simulations. It is however powerful for some types
-of analyses, like modifying parameter values. See vignettes
-for further information.}
+matrix. Default is `FALSE`.}
 
 \item{inits}{Control the parameter values. `inits` is a list. The
     `method` element controls which method is used to do this, and
     this corresponds to the old `method.update.inits` argument. If
-    using the new `method=nmsim2` you can specify parameter
+    using the new `method=nmsim` you can specify parameter
     values, fix/unfix them, and edit lower and upper limits for
-    estimation. If inits contains `method=nmsim2`, all other
+    estimation.
+\itemize{
+
+\item{`method="nmsim"`}, all other
     arguments are passed to `NMwriteInits`. This is a flexible
     method that allows for modification of the parameter values
     and is expected to be the default method in the
     future. Example which will update the parameter values based
     on the available estimate, but with `THETA(2)=1.3`:
-    `inits=list(method="nmsim2","THETA(2)"=list(init=1.3))`. See
+    `inits=list(method="nmsim","THETA(2)"=list(init=1.3))`. See
     `?NMwriteInits` too.
 
-See `method.update.inits` methods for other methods available. See
-also `file.ext` which can now be handled by `inits` too. This
-change is done because it collects the update of the "initial"
+\item{`method="psn"`}
+    uses PSN's "update_inits". Requires a functioning PSN
+    installation and possibly that \code{dir.psn} is correctly
+    set. The advantages of this method are that it keeps comments
+    in the control stream and that it is a method known to many.
+
+\item{`method="nmsim"`}
+ Uses a simple internal method to update the parameter values
+based on the ext file.  The advantages of "nmsim" are it does not
+require PSN, and that it does not rely on code-interpretation for generation of simulation control streams. "nmsim" fixes the whole
+OMEGA and SIGMA matrices as single blocks making the $OMEGA and
+$SIGMA sections of the control streams less easy to read. On the
+other hand, this method is robust because it avoids any
+interpretation of BLOCK structure or other code in the control
+streams.
+
+\item{`method="none"`} Do nothing. This is useful if the model to simulate
+has not been estimated but parameter values have been manually put
+into the respective sections in the control stream.
+}
+
+See also `file.ext` which can now be handled by `inits` too. This
+change collects the update of the "initial"
 parameter values into one interface rather than multiple
 arguments.}
+
+\item{modify}{Named list of additional control stream
+section edits. Note, these can be functions that define how to
+edit sections. This is an advanced feature which is not needed
+to run most simulations. It is however powerful for some types
+of analyses, like modifying parameter values. See vignettes
+for further information.}
 
 \item{filters}{Edit data filters (`IGNORE`/`ACCEPT` statements)
 before running model. This should normally only be used if no
@@ -215,14 +239,6 @@ result.}
 `execute=FALSE` can be useful if you want to do additional
 tweaks or simulate using other parameter estimates.}
 
-\item{file.ext}{Depecated. Use
-`inits=list(file.ext="path/to/file.ext") instead`. Optionally
-provide a parameter estimate file from Nonmem. This is
-normally not needed since `NMsim` will by default use the ext
-file stored next to the input control stream (replacing the
-file name extension with `.ext`). If using
-method.update.inits="psn", this argument cannot be used.}
-
 \item{script}{The path to the script where this is run. For
 stamping of dataset so results can be traced back to code.}
 
@@ -245,39 +261,6 @@ path to nonmem does not have to be specified if "execute" is
 in the system search path. So as long as you know where your
 Nonmem executable is, "nmsim" is recommended. The default is
 "nmsim" if path.nonmem is specified, and "psn" if not.}
-
-\item{method.update.inits}{This argument is being deprecated, please migrate to `inits` instead. The initial values of all parameters
-    are by updated from the estimated model before running the
-    simulation. NMsim can do this with a native function or use
-    PSN to do it - or the step can be skipped to not update the
-    values. The possible values are
-
-\itemize{
-
-\item{"psn"}
-    uses PSN's "update_inits". Requires a functioning PSN
-    installation and possibly that \code{dir.psn} is correctly
-    set. The advantages of this method are that it keeps comments
-    in the control stream and that it is a method known to many.
-
-\item{"nmsim"}
- Uses a simple internal method to update the parameter values
-based on the ext file.  The advantages of "nmsim" are it does not
-require PSN, and that it does not rely on code-interpretation for generation of simulation control streams. "nmsim" fixes the whole
-OMEGA and SIGMA matrices as single blocks making the $OMEGA and
-$SIGMA sections of the control streams less easy to read. On the
-other hand, this method is robust because it avoids any
-interpretation of BLOCK structure or other code in the control
-streams.
-
-\item{"none"} Do nothing. This is useful if the model to simulate
-has not been estimated but parameter values have been manually put
-into the respective sections in the control stream.
-
-On linux/mac, The default is to use "PSN" if found. On Windows,
-"nmsim" is the default.
-
-}}
 
 \item{nmrep}{Include `NMREP` as counter of subproblems? The
 default is to do so if `subproblems>0`. This will insert a
@@ -319,14 +302,16 @@ specific installation of PSN on your system.}
 \item{args.psn.execute}{A charachter string that will be passed as
 arguments PSN's `execute`.}
 
-\item{args.NMscanData}{If \code{execute=TRUE&sge=FALSE}, NMsim
-will normally read the results using \code{NMreadSim}. Use
-this argument to pass additional arguments (in a list) to that
-function if you want the results to be read in a specific
-way. This can be if the model for some reason drops rows, and
-you need to merge by a row identifier. You would do
-`args.NMscanData=list(col.row="ROW")` to merge by a column
-called `ROW`. This is only used in rare cases.}
+\item{args.NMscanData}{If \code{table.options} is used, NMsim
+turns to `NMdata::NMscanData()` for a general method to read
+the output tables. Use `args.NMscanData` to pass additional
+arguments (in a list) to that function if you want the results
+to be read in a specific way. This can be if the model for
+some reason drops rows, and you need to merge by a row
+identifier. You would do `args.NMscanData=list(col.row="ROW")`
+to merge by a column called `ROW`. This is only used in rare
+cases. Better just stick to NMsim's optimized default
+`table.options` and related methods for reading results.}
 
 \item{as.fun}{The default is to return data as a data.frame. Pass
 a function (say `tibble::as_tibble`) in as.fun to convert to
@@ -378,9 +363,8 @@ to finish).}
 \item{text.sim}{A character string to be pasted into
 $SIMULATION. This must not contain seed or SUBPROBLEM which
 are handled separately. Default is to include "ONLYSIM". You
-cannot avoid that using `text.sim`. If you need to drop
-`ONLYSIM`, use
-`modify.model=list(simulation=list(overwrite("ONLYSIM","")))`.}
+cannot avoid that using `text.sim`. Instead, you can use
+`onlysim=FALSE` which will be passed to `NMsim_default()`.}
 
 \item{auto.dv}{Add a column called `DV` to input data sets if a
 column of that name is not found? Nonmem is generally
@@ -432,7 +416,23 @@ instead.}
 
 \item{seed}{Deprecated. See \code{seed.R} and \code{seed.nm}.}
 
-\item{list.sections}{Deprecated. Use modify.model instead.}
+\item{file.ext}{Depecated. Use
+`inits=list(file.ext="path/to/file.ext")` instead. Optionally
+provide a parameter estimate file from Nonmem. This is
+normally not needed since `NMsim` will by default use the ext
+file stored next to the input control stream (replacing the
+file name extension with `.ext`). If using
+method.update.inits="psn", this argument cannot be used.}
+
+\item{method.update.inits}{Deprecated, please migrate to `inits`
+instead. The initial values of all parameters are by updated
+from the estimated model before running the simulation. NMsim
+can do this with a native function or use PSN to do it - or
+the step can be skipped to not update the values.}
+
+\item{modify.model}{Deprecated. Use modify instead.}
+
+\item{list.sections}{Deprecated. Use modify instead.}
 
 \item{...}{Additional arguments passed to \code{method.sim}.}
 }
@@ -477,7 +477,6 @@ more. Use this for instance if you already created a simulation
 (or estimation actually) control stream and want NMsim to run it
 on different data sets.
 
-\item \code{NMsim_typical} Deprecated. Use \code{typical=TRUE} instead. 
 
 \item \code{NMsim_EBE} Simulates _known_ ETAs. By default, the ETA
 values are automatically taken from the estimation run. This is
@@ -507,6 +506,8 @@ valid for simulation of `$THETA` variability. The method accepts a
 table of parameter values that can be produced with other tools
 than `NMsim`. For simulation with parameter variability based on
 bootstrap results, use \code{NMsim_default}.
+
+\item \code{NMsim_typical} Deprecated. Use \code{typical=TRUE} instead. 
 
 }
 }

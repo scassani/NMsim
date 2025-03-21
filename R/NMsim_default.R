@@ -36,7 +36,7 @@ NMsim_default <- function(file.sim,file.mod,data.sim,nsims=1,onlysim=TRUE,replac
 
 ###  Section end: Dummy variables, only not to get NOTE's in pacakge checks
     
-    lines.sim <- readLines(file.sim)
+    lines.sim <- readLines(file.sim,warn=FALSE)
 
     sections.sim <- NMreadSection(lines=lines.sim)
     names.sections <- names(sections.sim)

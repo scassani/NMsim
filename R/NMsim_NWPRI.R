@@ -71,7 +71,7 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999,...){
 ### NMsim_default() is run because it inserts $SIMULATION instead of
 ### $ESTIMATION and a few other things that are always needed.
     files.needed.def <- NMsim_default(file.sim=file.sim,file.mod,data.sim,...)
-    lines.sim <- readLines(file.sim)
+    lines.sim <- readLines(file.sim,warn=FALSE)
 
     cov <- NMreadCov(fnExtension(file.mod,".cov"))
     pars <- NMreadExt(file.mod,return="pars",as.fun="data.table")[,value:=est]

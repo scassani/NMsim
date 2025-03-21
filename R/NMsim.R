@@ -1263,7 +1263,7 @@ NMsim <- function(file.mod,data,
     dt.models[,{
         
         fn.tab.base <- paste0("FILE=",model.sim,".tab")
-        lines.sim <- readLines(path.sim)
+        lines.sim <- readLines(path.sim,warn=FALSE)
         
         lines.tables <- NMreadSection(lines=lines.sim,section="TABLE",as.one=FALSE,simplify=FALSE)
         
@@ -1418,7 +1418,7 @@ NMsim <- function(file.mod,data,
     if(do.seed || subproblems>0){
         dt.models[,{
             
-            lines.sim <- readLines(path.sim)
+            lines.sim <- readLines(path.sim,warn=FALSE)
             all.sections.sim <- NMreadSection(lines=lines.sim)
             names.sections <- names(all.sections.sim)
             n.sim.sections <- sum(grepl("^(SIM|SIMULATION)$",names.sections))

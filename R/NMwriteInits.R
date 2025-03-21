@@ -130,7 +130,9 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,ext,values,newfile,.
 
 ### the rest of the code is dependent on all of init, lower, and upper being available.
     cols.miss <- setdiff(outer(c("value.elem","elemnum"),c("init","lower","upper","FIX"),FUN=paste,sep="_"),colnames(inits.w))
-    inits.w[,(cols.miss):=NA_character_]
+    if(length(cols.miss)){
+        inits.w[,(cols.miss):=NA_character_]
+    }
     ##    inits.w[,fix:=ifelse(FIX=="1","FIX","")]
     inits.w[is.na(value.elem_FIX),value.elem_FIX:=""]
 
@@ -295,7 +297,7 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,ext,values,newfile,.
     lines.all.3[,text:=newtext]
     
 
-    lines.new <- readLines(file.mod)
+    lines.new <- readLines(file.mod,warn=FALSE)
 
     fun.update.ctl <- function(lines.old,section,dt.lines){
         text <- NULL

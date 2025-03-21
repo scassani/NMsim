@@ -50,7 +50,7 @@ NMsim_EBE <- function(file.sim,file.mod,data.sim,file.phi,return.text=FALSE){
     path.phi.sim <- fnAppend(fnExtension(file.sim,".phi"),"input")
     files.needed.def <- NMsim_default(file.sim=file.sim,file.mod=file.mod,data.sim=data.sim,onlysim=FALSE)
 
-    lines.sim <- readLines(file.sim)
+    lines.sim <- readLines(file.sim,warn=FALSE)
     
 ### prepare simulation control stream
     ## get rid of any $ETAS sections

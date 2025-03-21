@@ -12,7 +12,7 @@ typicalize <- function(file.sim,lines.sim,file.mod,return.text=FALSE,file.ext,Ne
 
     ## files.needed.def <- NMsim_default(file.sim=file.sim,file.mod,data.sim)
     if(!is.null(file.sim)){
-        lines.sim <- readLines(file.sim)
+        lines.sim <- readLines(file.sim,warn=FALSE)
         sections.sim <- NMreadSection(lines=lines.sim)
     }
     

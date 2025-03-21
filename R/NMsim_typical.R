@@ -29,7 +29,7 @@ NMsim_typical <- function(file.sim,file.mod,data.sim,return.text=FALSE){
 
 
     files.needed.def <- NMsim_default(file.sim=file.sim,file.mod,data.sim)
-    lines.sim <- readLines(file.sim)
+    lines.sim <- readLines(file.sim,warn=FALSE)
 
 ### this introduces dependency on file.ext or Netas as
 ### arguments. Better keep deprecated NMsim_typical as is. Used in typicalize() instead. 

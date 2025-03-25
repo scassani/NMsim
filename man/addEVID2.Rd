@@ -38,8 +38,16 @@ records. Required if `CMT` is a column in `data`. If longer
 than one, the records will be repeated in all the specified
 compartments. If a data.frame, covariates can be specified.}
 
-\item{EVID}{The value to put in the EVID column for the created
+\item{EVID}{The value to put in the `EVID` column for the created
 rows. Default is 2 but 0 may be prefered even for simulation.}
+
+\item{DV}{Optionally provide a single value to be assigned to the
+`DV` column. The default is to assign nothing which will
+result in `NA` as samples are stacked (`rbind`) with
+`data`. If you assign a different value in `DV`, the default
+value of `EVID` changes to `0`, and `MDV` will be `0` instead
+of `1`. An example where this is useful is when generating
+datasets for `$DESIGN` where `DV=0` is often used.}
 
 \item{col.id}{The name of the column in `data` that holds the
 unique subject identifier.}
@@ -120,4 +128,9 @@ addEVID2(df.doses,TAPD=seq.time,CMT=2)
 df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
 seq.time <- c(0,4,12,24)
 addEVID2(df.doses,TIME=seq.time,TAPD=3,CMT=2)
+
+## Using a custom DV value affects EVID and MDV 
+df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+seq.time <- c(4)
+addEVID2(df.doses,TAPD=seq.time,CMT=2,DV=0)
 }

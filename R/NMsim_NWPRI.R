@@ -145,7 +145,7 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999,...){
     lth = 2*nrow(pars[par.type=="THETA"]) + nrow(nwpri_df) + 10 
     lvr = 2*nrow(pars[(par.type=="OMEGA"|par.type=="SIGMA")&i==j]) + nrow(pars[par.type=="THETA"]) + 10
     
-    lines.sim = NMsim::NMupdateSizes(file.mod=NULL, newfile=NULL,lines = lines.sim, LTH = lth, LVR = lvr)
+    lines.sim = NMupdateSizes(file.mod=NULL, newfile=NULL,lines = lines.sim, LTH = lth, LVR = lvr,warn=FALSE)
     
 ### update the simulation control stream
     ## if(return.text){

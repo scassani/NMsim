@@ -18,6 +18,7 @@
 ##'     be updated. If `wipe=TRUE`, any existing `$SIZES` section is
 ##'     disregarded.
 ##' @param write Write results to `newfile`?
+##' @param warn Warn that this function is deprecated?
 ##' @param ... The $SIZES parameters. Provided anything, like `PD=40`
 ##'     See examples.
 ##' @return Character lines with updated control stream
@@ -42,9 +43,12 @@
 ##' @importFrom utils modifyList
 ##' @export
 
-NMupdateSizes <- function(file.mod=NULL,newfile,lines=NULL,wipe=FALSE,write=!is.null(newfile),...){
-    ### only exported in 0.1.6 and 0.2.0. Deprecated starting from 0.2.1.
-    .Deprecated(new="NMdata::NMwriteSizes()")    
+NMupdateSizes <- function(file.mod=NULL,newfile,lines=NULL,wipe=FALSE,write=!is.null(newfile),warn=TRUE,...){
+    
+### only exported in 0.1.6 and 0.2.0. Deprecated starting from 0.2.1.
+    if(warn){
+        .Deprecated(new="NMdata::NMwriteSizes()")    
+    }
 
     if(packageVersion("NMdata")<"0.1.8.905"){
         stop("NMupdateSizes requires NMdata 0.1.9 or later.")
@@ -78,21 +82,21 @@ NMupdateSizes <- function(file.mod=NULL,newfile,lines=NULL,wipe=FALSE,write=!is.
     ),collapse=" "
     )
     
-    # create lines from file.mod if not passed in as 'lines'
+                                        # create lines from file.mod if not passed in as 'lines'
     if(!is.null(file.mod) && is.null(lines)) {
         lines <- readLines(file.mod,warn=FALSE)
     } 
     
-    # if model already has $SIZES and we want to overwrite or append to it.
+                                        # if model already has $SIZES and we want to overwrite or append to it.
     if(!is.null(sizes.old)) {
-        # if we want to overwrite it or append to it, sizes.new and lines.new will already be modified for that, so replace
+                                        # if we want to overwrite it or append to it, sizes.new and lines.new will already be modified for that, so replace
         textlines = NMdata:::NMwriteSectionOne(lines = lines,section="SIZES",newlines=lines.new,location="replace")
 
-    # else if model does not have $SIZES, create it
+                                        # else if model does not have $SIZES, create it
     } else if (is.null(NMreadSizes(lines=lines))) {
         textlines = NMdata:::NMwriteSectionOne(lines=lines,section="SIZES",newlines=lines.new,location="first")
         
-    # else if it had $SIZES but we wiped it, and we want to replace/append it:
+                                        # else if it had $SIZES but we wiped it, and we want to replace/append it:
     } else if (!is.null(NMreadSizes(lines=lines)) && wipe) {
         textlines = NMdata:::NMwriteSectionOne(lines=lines,section="SIZES",newlines=lines.new,location="replace")
     }

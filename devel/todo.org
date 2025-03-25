@@ -403,11 +403,13 @@ col.id=NA will drop ID if there is only one set of doses (one set of cov values)
 
 ** addEVID2
 
-*** TODO [#A] Cheage name to NMsample()
+*** TODO [#A] Change name to NMsample()
 
 *** TODO [#A] Support DV
 If DV is not NA or 0, set MDV=0
+
 *** DONE Argument to set EVID value
+
 *** TODO Order the same way as NMdata::addTAPD?
 currently, addEVID2 does not order rows after adding simulation records
 ** plain nonmem run

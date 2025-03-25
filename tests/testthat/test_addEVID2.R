@@ -284,3 +284,27 @@ test_that("No CMT column",{
     
 })
 
+test_that("Providing DV",{
+    NMdataConf(reset=TRUE)
+    ##fileRef <- "testReference/addEVID2_16.rds"
+    dt.dos <- NMcreateDoses(TIME=c(0,12), AMT=data.table(AMT=1:2,grp=letters[1:2]),CMT=1) 
+    dt.dos
+    res0 <- addEVID2(dt.dos,TAPD=data.frame(TAPD=c(1,1)),CMT=2,DV=0,as.fun="data.table")
+    res2 <- addEVID2(dt.dos,TAPD=data.frame(TAPD=c(1,1)),CMT=2,as.fun="data.table")
+    res0
+    res2
+    expect_equal(
+        transform(res0,EVID=NULL,MDV=1,DV=NULL)
+       ,
+        transform(res2,EVID=NULL)
+    )
+
+    expect_equal(
+        res0[,sort(unique(MDV))]
+       ,c(0,1))
+
+    expect_equal(
+        res0[,sort(unique(DV))]
+        ,c(0))
+
+})

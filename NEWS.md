@@ -1,6 +1,19 @@
+# NMsim 0.2.1
+## New Features
+* `addEVID2()` gains a new argument `DV`. By default `addEVID2()` adds
+  rows without `DV` values and with `EVID=2` and `MDV=1`. If `DV` is
+  supplied, `addEVID2()` will now by default use `EVID=0` and
+  `MDV=0`. An example where this is useful is when generating datasets
+  for `$DESIGN` where `DV=0` is often used.
+  
+## Bugfixes
+* Version 0.2.0 gave some warnings about non-existing columns. The
+  warnings are benign and can be safely ignored. However, they are
+  avoided in Version 0.2.1.
+
 # NMsim 0.2.0
 
-## Improvements
+## New Features
 * A greatly improved handling of data files has been implemented. This
   improves speed, reduced memory and disk usage, and adds features. It
   is fully backward compatible with the user interface of earlier

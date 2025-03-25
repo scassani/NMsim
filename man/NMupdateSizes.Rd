@@ -10,6 +10,7 @@ NMupdateSizes(
   lines = NULL,
   wipe = FALSE,
   write = !is.null(newfile),
+  warn = TRUE,
   ...
 )
 }
@@ -33,6 +34,8 @@ be updated. If `wipe=TRUE`, any existing `$SIZES` section is
 disregarded.}
 
 \item{write}{Write results to `newfile`?}
+
+\item{warn}{Warn that this function is deprecated?}
 
 \item{...}{The $SIZES parameters. Provided anything, like `PD=40`
 See examples.}

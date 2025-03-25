@@ -21,7 +21,7 @@ test_that("Basic",{
     file.mod <- "testData/nonmem/xgxr032.mod"
 
     if(packageVersion("NMdata")>"0.1.8.904"){
-        res <- NMupdateSizes(file.mod,LTV=50,write=FALSE)
+        res <- NMupdateSizes(file.mod,LTV=50,write=FALSE,warn=FALSE)
 
         expect_equal_to_reference(res,fileRef)
 
@@ -50,7 +50,7 @@ test_that("with exisiting $SIZES",{
     file.mod <- "testData/nonmem/xgxr051.mod"
 
     if(packageVersion("NMdata")>"0.1.8.904"){
-        res <- NMupdateSizes(file.mod,LTV=50,write=FALSE)
+        res <- NMupdateSizes(file.mod,LTV=50,write=FALSE,warn=FALSE)
 
         expect_equal_to_reference(res,fileRef)
     }

@@ -19,8 +19,15 @@
 ##'     records. Required if `CMT` is a column in `data`. If longer
 ##'     than one, the records will be repeated in all the specified
 ##'     compartments. If a data.frame, covariates can be specified.
-##' @param EVID The value to put in the EVID column for the created
+##' @param EVID The value to put in the `EVID` column for the created
 ##'     rows. Default is 2 but 0 may be prefered even for simulation.
+##' @param DV Optionally provide a single value to be assigned to the
+##'     `DV` column. The default is to assign nothing which will
+##'     result in `NA` as samples are stacked (`rbind`) with
+##'     `data`. If you assign a different value in `DV`, the default
+##'     value of `EVID` changes to `0`, and `MDV` will be `0` instead
+##'     of `1`. An example where this is useful is when generating
+##'     datasets for `$DESIGN` where `DV=0` is often used.
 ##' @param col.id The name of the column in `data` that holds the
 ##'     unique subject identifier.
 ##' @param args.NMexpandDoses Only relevant - and likely not needed -
@@ -83,20 +90,23 @@
 ##' df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
 ##' seq.time <- c(0,4,12,24)
 ##' addEVID2(df.doses,TIME=seq.time,TAPD=3,CMT=2)
+##'
+##' ## Using a custom DV value affects EVID and MDV 
+##' df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+##' seq.time <- c(4)
+##' addEVID2(df.doses,TAPD=seq.time,CMT=2,DV=0)
 ##' @import data.table
 ##' @import NMdata
 ##' @return A data.frame with dosing records
 ##' @export 
 
 
-addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,col.id="ID",args.NMexpandDoses,unique=TRUE,as.fun,doses,time.sim){
+addEVID2 <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDoses,unique=TRUE,as.fun,doses,time.sim){
     
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
     . <- NULL
-    ..EVID <- EVID
     DOSN <- NULL
-    DV <- NULL
     ##    ID <- NULL
     MDV <- NULL
     PDOSN <- NULL
@@ -135,6 +145,17 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,col.id="ID",args.NMexpandDoses,un
         TIME <- time.sim
     }
 
+    if(missing(DV)) DV <- NULL
+    ..DV <- DV
+    
+    if(missing(EVID)||is.null(EVID)){
+        if(is.null(DV)){
+            EVID <- 2
+        } else {
+            EVID <- 0
+        }
+    }
+    ..EVID <- EVID
     
     if(is.data.table(data)) {
         data <- copy(data)
@@ -237,7 +258,12 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID=2,col.id="ID",args.NMexpandDoses,un
     dt.obs[
        ,(col.evid):=..EVID][
        ,MDV:=1]
-    
+
+    if(!is.null(DV)){
+        dt.obs[
+           ,DV:=..DV][
+           ,MDV:=0]
+    }
 
     
 ### add CMT

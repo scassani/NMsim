@@ -51,8 +51,8 @@ test_that("Full covariance matrix",{
     cov.l <- addParType(cov.l,suffix="i")
     cov.l <- addParType(cov.l,suffix="j")
 
-    res <- cov.l[par.type.i=="THETA" & par.type.j=="THETA" ] |>
-        NMcreateMatLines(as.one.block=TRUE)
+    res <- cov.l[par.type.i=="THETA" & par.type.j=="THETA" ] 
+    res <- NMcreateMatLines(res,as.one.block=TRUE)
 
 
     if(packageVersion("NMdata")>"0.1.8.904"){

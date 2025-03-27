@@ -9,7 +9,7 @@ test_that("Basic",{
     fileRef <- "testReference/genPhiFile_01.rds"
     etas <- data.table(ID=1:2,ETA1=c(.01,-.2))
     file.phi <- "testOutput/genPhiFile_out_01.phi"
-    ## if(!dir.exists(dirname(file.phi))) dir.create(file.phi)
+    if(!dir.exists(dirname(file.phi))) dir.create(dirname(file.phi))
     genPhiFile(etas,file=file.phi)
     readLines(file.phi)
     res <- NMreadPhi(file.phi)

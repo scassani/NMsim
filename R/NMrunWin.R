@@ -108,7 +108,7 @@ NMrunWin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,fu
         sprintf("IF EXIST \"%s\" COPY /Y \"%s\" \"%s\"",fn,fn,dest)
     }
     rm.if.pres <- function(fn){
-        sprintf("IF EXIST \"%s\" DEL /s /q \"%s\"",fn,fn)
+        sprintf("IF EXIST \"%s\" DEL /s /q \"%s\" >nul 2>&1",fn,fn)
     }
 
     lines.bat <- c(
@@ -135,7 +135,7 @@ NMrunWin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,fu
 
         lines.bat <- c(lines.bat
                        ##sprintf("CD .. & rd /s /q \"%s\"",dir.tmp)
-                       ,"rd /s /q \"%oldwd%\""
+                       ,"rd /s /q \"%oldwd%\" >nul 2>&1"
                        )
     }
 

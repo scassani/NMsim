@@ -140,7 +140,7 @@ NMrunWin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,fu
     }
 
     if(!is.null(fun.post)){
-        lines.bash <- c(lines.bat,
+        lines.bat <- c(lines.bat,
                         fun.post(file.path(dir.mod.abs,basename(fn.mod)))
                         )
     }

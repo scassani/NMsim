@@ -1612,7 +1612,6 @@ NMsim <- function(file.mod,data,
 #### Section start: Read results if requested ####
     
     if(execute && (wait.exec||wait)){
-message("NMreadSim")
 ##### Messaging user
 ### we are controlling this messaging better from NMreadSim()
         ## if(!quiet) message("* Collecting Nonmem results")
@@ -1625,10 +1624,7 @@ message("NMreadSim")
     
     ## if(!wait) return(simres$lst)
     ## if(execute && (wait.exec||wait)){
-    message("NMreadSim 2")
     if(is.NMsimRes(simres) || (execute && (wait.exec||wait))){
-        print(" print NMreadSim 3")
-        message("NMreadSim 3")
         if(!quiet){
             if(nrow(simres)==0){
                 message("Simulation results are empty. An empty data.frame is returned.")

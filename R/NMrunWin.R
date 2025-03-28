@@ -144,7 +144,8 @@ NMrunWin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,fu
                         fun.post(file.path(dir.mod.abs,basename(fn.mod)))
                         )
     }
-    
+    ## restore redirection 
+    lines.bat <- c(lines.bat,"echo. > CON")
     lines.bat
 }
 

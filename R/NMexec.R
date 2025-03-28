@@ -329,6 +329,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
             writeTextFile(contents.bat,file=path.script)
 
             shell(shQuote(paste("call", path.script),type="cmd") )
+            shell("echo. > CON")
         }
         if(NMsimConf$system.type=="linux"){
             

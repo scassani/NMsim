@@ -23,21 +23,36 @@ setorder(dt.sim.known,ID,TIME,EVID,CMT)
 
 ## NMdataConf(dir.psn="/opt/psn")
 ## a manual linux setup
-path.nonmem.custom <- "/opt/nonmem/nm751/run/nmfe75"
+## path.nonmem.custom <- "/opt/nonmem/nm751/run/nmfe75"
+## path.nonmem.custom <- "c:/nm75g64/run/nmfe75.bat"
 dir.psn.custom= "/opt/psn"
 
 
 ## 
-path.nonmem <- "/opt/NONMEM/nm75/run/nmfe75"
+## path.nonmem <- "/opt/NONMEM/nm75/run/nmfe75"
 
-if(file.exists(path.nonmem.custom)) {
-    path.nonmem <- path.nonmem.custom
-    NMdataConf(dir.psn=dir.psn.custom)
+## if(file.exists(path.nonmem.custom)) {
+##     path.nonmem <- path.nonmem.custom
+##     NMdataConf(dir.psn=dir.psn.custom)
+## }
+
+path.candidates <- c(## metworx
+    "/opt/NONMEM/nm75/run/nmfe75"
+    ## custom linux
+   ,"/opt/nonmem/nm751/run/nmfe75"
+    ## a win path
+   ,"c:/nm75g64/run/nmfe75.bat"
+)
+
+##' function to pick first path that works
+pickPath <- function(paths){
+    paths <- paths[sapply(paths,file.exists)]
+    if(!length(paths)) stop("no paths valid")
+    paths[1]
 }
 
-path.nonmem
+(path.nonmem <- pickPath(path.candidates))
 
-file.exists(path.nonmem)
 
 #### need a function to drop NMsimVersion and NMsimTime from table
 fix.time <- function(x){
@@ -91,7 +106,6 @@ test_that("basic - default",{
     expect_equal_to_reference(simres,fileRef)
 
 
-    
     if(F){
         ref <- readRDS(fileRef)
         colnames(ref)

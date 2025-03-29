@@ -308,7 +308,7 @@ if(is.null(read.fst)){
             }
             if(inherits(this.res,"try-error")){
                 if(!quiet) {
-                    message(sprintf("Results could not be read from %s\nPasting the bottom of output control stream:",path.lst.read))
+                    message(sprintf("\nResults could not be read from %s\nPasting the bottom of output control stream:",path.lst.read))
                     reportFailedRun(lst=path.lst.read)
                 }
                 this.res <- NULL

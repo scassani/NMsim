@@ -314,7 +314,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
                 string.cmd <- sprintf("cd \"%s\"; \"./%s\"",dirname(string.cmd),basename(string.cmd))
             }
             if(NMsimConf$system.type=="windows"){
-                string.cmd <- sprintf("CD \"%s\";call \"%s\"",dirname(string.cmd),basename(string.cmd))
+                string.cmd <- sprintf("@echo off;@CD \"%s\" >nul;cmd /c \"%s\"",dirname(string.cmd),basename(string.cmd))
             }
         }
         
@@ -329,8 +329,12 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
             writeTextFile(contents.bat,file=path.script)
 
             ## Maybe better to use system(,ignore.stdout=TRUE)
-            shell(shQuote(paste("call", path.script),type="cmd") )
-            shell("echo. > CON")
+            ## shell(shQuote(paste("call", path.script),type="cmd"),invisible=TRUE )
+            
+            path.script.win <- normalizePath(path.script, winslash = "\\", mustWork = TRUE)
+            sysres <- system(paste("cmd /c", shQuote(path.script.win)),ignore.stdout=FALSE,intern=FALSE)
+            ## sysres <- system2(paste("cmd /c", shQuote(path.script.win)))## ,ignore.stdout=FALSE,intern=FALSE)
+            shell("echo. > CON",invisible=TRUE)
         }
         if(NMsimConf$system.type=="linux"){
             

@@ -111,7 +111,7 @@ NMrunWin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,fu
         sprintf("IF EXIST \"%s\" DEL /s /q \"%s\" >nul",fn,fn)
     }
 
-    lines.bat <- c(
+    lines.bat <- c("@echo off",
         sprintf("call %s %s %s",path.nonmem,fn.mod,fnExtension(fn.mod,".lst"))
        ,
         paste(unlist(lapply(fnExtension(fn.mod,exts.cp),cp.if.pres,dest=dir.mod.abs)),collapse="\n")
@@ -129,7 +129,7 @@ NMrunWin <- function(fn.mod,dir.mod.abs,exts.cp,meta.tables,path.nonmem,clean,fu
 
         lines.bat <- c(lines.bat
                        ,"set \"oldwd=%cd%\""
-                       ,"CD ..")
+                       ,"CD .. >nul")
     
     if(clean==5){
 

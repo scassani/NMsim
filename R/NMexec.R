@@ -328,6 +328,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
                 strsplit(string.cmd,split=";")[[1]]
             writeTextFile(contents.bat,file=path.script)
 
+            ## Maybe better to use system(,ignore.stdout=TRUE)
             shell(shQuote(paste("call", path.script),type="cmd") )
             shell("echo. > CON")
         }

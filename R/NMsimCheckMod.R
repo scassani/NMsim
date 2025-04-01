@@ -21,7 +21,9 @@ NMsimCheckMod <- function(file.mod){
 
     
     if("error"%in%secnames){
-        if(any(grepl("OBSERVATIONS +ONLY",sections.mod[["error"]]))){
+        if(any(grepl("OBSERVATIONS +ONLY",sections.mod[["error"]]) |
+grepl("OBS +ONLY",sections.mod[["error"]]))
+               ){
             warning("OBSERVATIONS ONLY used in $ERROR. Predictions may not be evaluated for anything else than EVID=0 records.")
             }
     }

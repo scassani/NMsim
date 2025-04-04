@@ -19,7 +19,6 @@ NMdataConf(path.nonmem ="C:/nm75g64/run/nmfe75.bat")
 NMdataConf(dir.psn=NULL)
 
 
-
 file.mod <- "../tests/testthat/testData/nonmem/xgxr021.mod"
 
 

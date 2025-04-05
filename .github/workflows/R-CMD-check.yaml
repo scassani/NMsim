@@ -19,9 +19,10 @@ jobs:
       matrix:
         config:
 ## macOS is failing to create a file. Don't know why.
-          ##          - {os: macOS-latest,   r: 'release'}
+          - {os: macOS-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
+### gdtools or someting like that doesn't install on github
+          ##          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
 

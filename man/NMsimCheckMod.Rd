@@ -2,14 +2,21 @@
 % Please edit documentation in R/NMsimCheckMod.R
 \name{NMsimCheckMod}
 \alias{NMsimCheckMod}
-\title{Check a simulation control streams for things that can cause trouble in NMsim}
+\title{Check a simulation control streams for things that can cause
+trouble in NMsim}
 \usage{
-NMsimCheckMod(file.mod)
+NMsimCheckMod(file.mod, lines)
 }
 \arguments{
 \item{file.mod}{A control stream to check}
+
+\item{lines}{The control stream as text lines. Only use of of
+`file.mod` and `lines`.}
 }
 \description{
-Check a simulation control streams for things that can cause trouble in NMsim
+Check a simulation control streams for things that can cause
+trouble in NMsim
 }
+\keyword{Don't}
+\keyword{export}
 \keyword{internal}

@@ -1,7 +1,10 @@
-##' Check a simulation control streams for things that can cause trouble in NMsim
+##' Check a simulation control streams for things that can cause
+##' trouble in NMsim
 ##' @param file.mod A control stream to check
-##' @keywords internal
-## Don't export
+##' @param lines The control stream as text lines. Only use of of
+##'     `file.mod` and `lines`.
+##' @return NULL
+##' @keywords internal Don't export
 
 NMsimCheckMod <- function(file.mod,lines){
     

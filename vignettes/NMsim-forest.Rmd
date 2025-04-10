@@ -1,8 +1,7 @@
 ---
 title: "Simulation-Based Forest Plots with NMsim"
 author: 
-  - name: "Philip Delff"
-  - name: "Boris Grinshpun"
+  - name: "Philip Delff, Boris Grinshpun"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 toctitle: "Contents"
 output:
@@ -20,7 +19,7 @@ pkgdown:
   as_is: true
 ---
 
-```{r,setup-hide}
+```{r,setup-hide,include=FALSE}
 library(knitr)
 ```
 
@@ -28,8 +27,11 @@ library(knitr)
 
 # Introduction
 The forest plot is an effective and widely recognized way to
-illustrate estimated covariate effects on exposure or response, or parameters
-related to these (e.g. clearance). The forest plot typically includes precision of the estimate in terms of a confidence interval. Often, an acceptance region such as the 80%-125% bio equivalence is included for comparison.
+illustrate estimated covariate effects on exposure or response, or
+parameters related to these (e.g. clearance). The forest plot
+typically includes precision of the estimate in terms of a confidence
+interval. Often, an acceptance region such as the 80%-125% bio
+equivalence is included for comparison.
 
 In some cases, the forest plot can be derived based on model estimates
 without simulation. This is the case for a forest plot on exposure if
@@ -54,14 +56,13 @@ library(data.table)
 library(NMsim)
 library(NMdata)  
 library(NMcalc)  ## Optional. Used to calculate AUC.
-library(coveffectsplot)
+library(coveffectsplot) ## used for plotting
 library(knitr) ## for printing tables with knitr::kable
 
 NMdataConf(
     path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
     dir.sims="simtmp-forest", ## where to store temporary simulation results
     dir.res="simres-forest"   ## where to store final simulation results
-    ## ,as.fun="data.table"
 )
 
 ```
@@ -176,6 +177,7 @@ If you encounter issues with samples that do not run, consider whether any of yo
 <summary>Click to show example</summary>
 
 <div class="fold s">
+
 A quick way to look for this is by combining parameter estimates (from the `.ext` file) and the automatic labeling of the parameters using `NMdata::NMrelate()`.
 ```{r,echo=TRUE}
 NMdata::NMreadExt(file.mod,as.fun="data.table")[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>

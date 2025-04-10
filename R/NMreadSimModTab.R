@@ -292,6 +292,7 @@ if(is.null(read.fst)){
             use.carry.out <- .SD$carry.out
             if(!is.null(arg.carry.out)) use.carry.out <- arg.carry.out
             use.carry.out <- unlist(use.carry.out)
+            
             if(arg.fast.tables || .SD$fast.tables){
 
 ####### TODO: NMreadTabFast must optionally take file and file.mod. We need to not be affected by NMdataConf()$file.mod
@@ -308,7 +309,8 @@ if(is.null(read.fst)){
             }
             if(inherits(this.res,"try-error")){
                 if(!quiet) {
-                    message(sprintf("\nResults could not be read from %s\nPasting the bottom of output control stream:",path.lst.read))
+                    message()
+                    message(sprintf("Results could not be read from %s\nPasting the bottom of output control stream.",path.lst.read))
                     reportFailedRun(lst=path.lst.read)
                 }
                 this.res <- NULL

@@ -78,7 +78,7 @@ sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
                         sigma = sigma.mat.list,
                         sdf = omega.sigma.dfs[par.type=="SIGMA",DF2]
                     ) 
-    pars <- as.data.table(pars)
+    setDT(pars)
     if(format=="ext"){
         ## read in parameters simulated with simpar
         pars <- readParsWide(

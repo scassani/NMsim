@@ -4,7 +4,7 @@
 \alias{NMreplaceInits}
 \title{Replace initial values in Nonmem control stream}
 \usage{
-NMreplaceInits(inits, ...)
+NMreplaceInits(inits, fix = FALSE, ...)
 }
 \arguments{
 \item{inits}{A data.frame with new initial estimates, same style

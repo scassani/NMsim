@@ -106,7 +106,7 @@ NMsim_NWPRI <- function(file.sim,file.mod,data.sim,PLEV=0.999,...){
     lines.thetapv <-
         NMcreateMatLines(
             cov.l[par.type.i=="THETA"&par.type.j=="THETA", .(i, j, value, parameter.i, parameter.j, par.type.i,  par.name, par.type.j)]
-          , type="THETAPV",as.one.block=TRUE)
+          , type="THETAPV",as.one.block=TRUE,fix=TRUE)
     
     ## $OMEGAP
     # note: NMcreateMatLines sets 0 FIXED sigmas/omegas to 1e-30 to avoid non-semi-positive definite matrices error

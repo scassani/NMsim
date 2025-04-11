@@ -16,6 +16,13 @@ test_that("basic",{
     res <- NMcreateMatLines(ext1,type="OMEGA")
 
     expect_equal_to_reference(res,fileRef)
+
+    if(F){
+        ext1
+        res
+        readRDS(fileRef)
+    }
+    
     
 })
 
@@ -52,7 +59,7 @@ test_that("Full covariance matrix",{
     cov.l <- addParType(cov.l,suffix="j")
 
     res <- cov.l[par.type.i=="THETA" & par.type.j=="THETA" ] 
-    res <- NMcreateMatLines(res,as.one.block=TRUE)
+    res <- NMcreateMatLines(res,as.one.block=TRUE,fix=TRUE)
 
 
     if(packageVersion("NMdata")>"0.1.8.904"){

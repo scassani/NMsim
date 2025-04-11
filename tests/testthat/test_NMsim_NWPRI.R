@@ -88,14 +88,14 @@ test_that("NMsim_NWPRI",{
 
             ref$INPUT
             mod$INPUT
-        
-        mod$DATA
-        ref$DATA
+            
+            mod$DATA
+            ref$DATA
 
-        mod$TABLE
-        ref$TABLE
+            mod$TABLE
+            ref$TABLE
 
-}
+        }
 
     }
 })

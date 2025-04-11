@@ -518,7 +518,7 @@ To generate a prediction interval, this format is sufficient. If you want to dis
 ## data.table:
 as.data.table(simres.subprob)[,ID:=.GRP,by=.(NMREP,ID)]
 ## dplyr:
-simres.subprob |>
+simres.subprob <- simres.subprob |>
     group_by(NMREP,ID) |>
     mutate(ID = cur_group_id()) |>
     ungroup()

@@ -7,7 +7,7 @@
 ##' @return The modified control stream
 ##' @keywords internal
 
-NMreplaceInits <- function(inits,...){
+NMreplaceInits <- function(inits,fix=FALSE,...){
 
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
@@ -36,9 +36,9 @@ NMreplaceInits <- function(inits,...){
     ## create OMEGA section
     omegas <- inits[par.type=="OMEGA"]
 
-    lines.omega <- NMcreateMatLines(omegas,type="OMEGA")
+    lines.omega <- NMcreateMatLines(omegas,type="OMEGA",as.one.block=FALSE,fix=fix)
     sigmas <- inits[par.type=="SIGMA"]    
-    lines.sigma <- NMcreateMatLines(sigmas,type="SIGMA")
+    lines.sigma <- NMcreateMatLines(sigmas,type="SIGMA",as.one.block=FALSE,fix=fix)
 
 
     list.sections <- list(THETA=lines.theta

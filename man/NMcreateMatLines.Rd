@@ -4,7 +4,7 @@
 \alias{NMcreateMatLines}
 \title{Create text lines for OMEGA and SIGMA Nonmem sections}
 \usage{
-NMcreateMatLines(omegas, as.one.block = FALSE, fix = TRUE, type)
+NMcreateMatLines(omegas, as.one.block = FALSE, fix = FALSE, type)
 }
 \arguments{
 \item{omegas}{A data.table with at least `i`, `j` and `value`
@@ -20,8 +20,10 @@ matrices for ETAs), this should be `FALSE`, and for
 variance-covariance matrices (like `THETAP`), this should be
 `TRUE`.}
 
-\item{fix}{Include `FIX` for all lines? If not, none will be
-fixed. Currently, there is no support for keeping}
+\item{fix}{Include `FIX` for all lines? If `FALSE`, fixing will
+not be modified. Notice, `fix=TRUE` will fix everything -
+individual parameters cannot be controlled. For finer control
+and way more features, see `NMdata::NMwriteInits()`.}
 
 \item{type}{The matrix type. `OMEGA` or `SIGMA` - case
 in-sensitive. Will be used to print say `$OMEGA` in front of

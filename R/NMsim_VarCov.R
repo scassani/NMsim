@@ -36,8 +36,10 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
 #### Section start: Dummy variables, only not to get NOTE's in package checks ####
 
     . <- NULL
+    blocksize <- NULL
     est <- NULL
     i <- NULL
+    iblock <- NULL
     j <- NULL
     FIX <- NULL
     fn.sim <- NULL
@@ -82,7 +84,7 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
 #### Section start: sampling new parameters from COV matrix ####
     if(simulatePars){
         covmat <- NMdata::NMreadCov(path.cov)
-        ests <- NMreadExt(path.ext,as.fun="data.table")[NMREP==1,.(parameter,par.type,i,j,est,FIX)]
+        ests <- NMreadExt(path.ext,as.fun="data.table")[NMREP==1,.(parameter,par.type,i,j,est,FIX,iblock,blocksize)]
         ests <- ests[par.type%in%c("THETA","SIGMA","OMEGA")]
         ests <- ests[match(ests$parameter,colnames(covmat))]
         newpars <- mvrnorm(n=nsims,Sigma=covmat,mu=ests$est)
@@ -141,6 +143,7 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
 ### create control streams one by one
     res <- newpars[,
                    NMreplaceInits(files=unique(path.sim.0)
+                                 ,fix=TRUE
                                  ,newfile=unique(path.sim)
                                  ,inits=.SD
                                  ,quiet=TRUE)

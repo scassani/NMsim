@@ -1,4 +1,4 @@
-context("NMsim_NWPRI.R")
+context("NMsim_VarCov.R")
 
 library(data.table)
 library(NMdata)
@@ -36,7 +36,7 @@ head(dat.sim)
 dat.sim[,BBW:=75]
 
 
-test_that("NMsim_NWPRI",{
+test_that("Basic",{
 
         fileRef <- "testReference/NMsim_VarCov_01.rds"
         
@@ -48,7 +48,7 @@ test_that("NMsim_NWPRI",{
                       name.sim = "VarCov_1",
                       method.sim=NMsim_VarCov,
                       nsims=2,
-                      seed.nm=2342,
+                      seed.R=2342,
                       execute=FALSE,
                       method.update.inits="nmsim")
 

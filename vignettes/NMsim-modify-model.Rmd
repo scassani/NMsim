@@ -1,0 +1,546 @@
+---
+title: "NMsim - Seamless NONMEM Simulation Platform in R"
+author: 
+  - name: "Philip Delff"
+  - name: "Simone Cassani"
+    affil: 1
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+toctitle: "Contents"
+output:
+    html_document:
+      toc: true
+      toc_depth: 4
+      toc_float: true
+      number_sections: false
+      df_print: paged
+      editor_options:
+        chunk_output_type: inline
+      code_folding: show
+bibliography: [packages.bib]
+pkgdown:
+  as_is: true
+---
+
+```{css echo=FALSE}
+
+body{
+  font-size: 12pt;
+}
+
+h1.title {
+  font-size: 24px;
+  color: DarkRed;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+h1 { /* Header 1 */
+  font-size: 20px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+  margin-top: 1em;
+  font-size: 20px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+}
+h4 { /* Header 4 */
+  font-size: 16px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+}
+table.Rtable1 {
+    font-size: 12px;
+}
+
+.superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+.superbigimage img{
+     max-width: none;
+  }
+  
+h4.author {
+  font-weight:bold;
+  font-style:italic;
+  margin-top: 0em;
+  margin-bottom: 1em;
+}
+h4.date {
+  font-weight:bold;
+  margin-top: 0em;
+  margin-bottom: 5em;
+}
+
+
+/* -----------div tips------------- */
+
+div.summary {
+ padding: 1em;
+ margin: 1em;
+ padding-left: 50px;
+ background-size: 30px;
+ background-repeat: no-repeat;
+ background-position: 10px 10px;
+ min-height: 40px;
+ font-size: 16px;
+ color: #000000;
+ background-color: #bed3ec;
+ border: solid 5px #dfedff;
+ /* background-image: url("Summary_ffffff.png"); */
+}
+
+div.data {
+ padding: 1em;
+ margin: 1em;
+ padding-left: 50px;
+ background-size: 30px;
+ background-repeat: no-repeat;
+ background-position: 10px 10px;
+ min-height: 40px;
+ font-size: 16px;
+ color: #000000;
+ background-color: #FAD07D;
+ border: solid 5px #FFDE9C;
+ /* background-image: url("Stats graph_ffffff.png"); */
+}
+
+``` 
+
+
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      tidy = FALSE,
+                      message = FALSE,
+                      fig.align = 'center',
+                      out.width = "100%"
+                     ,fig.height=3.7
+                      )
+options(knitr.table.format = "html") 
+
+## From github
+#library(remotes)
+#install_github("NMautoverse/NMsim")
+library(data.table)
+library(knitr)
+library(kableExtra)
+library(NMdata)
+library(NMsim)
+library(NMcalc)
+library(ggplot2)
+library(pracma)
+
+NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
+           ## path.nonmem = "/opt/nonmem/nm751/run/nmfe75"
+          ,dir.sims="simtmp-modify"
+          ,dir.res="simres-modify"
+          ,as.fun="data.table"
+           )
+
+library(ggplot2)
+## theme_set(theme_bw()+theme(legend.position="bottom",strip.background =element_rect(fill="white")))
+theme_set(theme_classic()+theme(legend.position="bottom",strip.background = element_blank()))
+##scale_color_manual(values=c("orange","blue","darkgreen"))
+options(ggplot2.discrete.colour=c("orange","blue","darkgreen"))
+options(ggplot2.discrete.fill=c("orange","blue","darkgreen"))
+
+set.seed(11112024)
+
+reuse.results <- TRUE
+```
+
+```{r, bibs,include=FALSE,eval=FALSE}
+knitr::write_bib(c('rmarkdown','data.table','NMdata','NMsim','xgxr'), 'intro-packages.bib')
+```
+
+<!-- <img src="../reference/figures/NMsimlogo.png" alt="Logo" style="width:200px; float:right;"> -->
+
+# Objectives
+
+<!-- Philip comments:
+The introduction can be clearer. I would say we can assume the reader is familiar with basic use of NMsim at this point. A prerequisite section can even lay that out, and that can be the NMsim-intro vignette.
+This vignette rather allows NMsim user to specify modifications to nonmem models to be simulated. The current wording "run a model" is technically correct but for now, I think we should just focus on simulation, so I would use that verb rather than "run".
+"This option" is not clear. The modfify.model argument  should probably be very briefly introduced, maybe in an "Introduction" section before this. It is a flexible interface to edit the control stream before simulation. -->
+This NMsim vignette aims at enabling NONMEM users to modify and run a model directly from within R. This option allows the users to run simulations with parameters modified from theestimated values. The examples described below will address the following pharmacometric questions:
+
+<!-- Philip comments :
+The examples are great. This is the "Objectives" section. So maybe before each question, say what is done, like: 
+Modify KA: How is the conc-time profile.....? -->
+* How is the concentration-time profile affected if switching formulation (reducing absorption rate) by a range of fold-values?
+* What is the expected concentration-time profile in patients with a certain Drug-Drug Interaction effect on clearance and bioavailability?
+* How will a dose delay of different amounts of time affect the predicted exposure?
+* How can AUC computation over a coarse time grid be integrated in the simulation via `NMsim`?
+
+<!-- Philip comment: This wording can be clearer. Use nonmem to integrate AUC, with benefit that a sparse simulation grid can be used? -->
+
+# Variable Parameters
+
+<!-- Philip comment:
+The first part of this section could be elaborated a little and be called "Introduction" and put before the "objectives". list.sections is not formatted the same way as modify.model. 
+modify.model is a flexible interface that allows for modification of control stream sections before a simulation is performed. modify.model can be used to edit any section in a control stream but most commonly, this would be the $PK or $PRED section, or it could be $DES and $MODEL if needed.
+Remember that data related sections like $INPUT, $DATA, and $TABLE are automatically handled by NMsim, and it should not be necessary to consider those. For the $TABLE section specifically, look at the `table.vars` and `table.options` arguments instead. -->
+
+Sometimes we want to simulate with some modification to the estimated model. NMsim canmake such user-specified modifications to the model before simulating through the `modify.model` argument.
+
+Notice, until NMsim 0.1.0, the `modify.model` argument was called `list.sections`. The helper functions `add` and `overwrite` were introduced with NMsim 0.1.3. Until then, custom modification functions had to be provided like described in the section "Edit control stream using customized functions."
+
+# Configuration
+
+<!-- Philip comment:
+None of these configurations are specific to using the modify.model argument. In a prerequisites section, you can mention that the user may need to config a little (as described in te intro vignette) and then you can omit this section. -->
+
+NMsim must be configured with the path to the NONMEM executable. This can be done for each `NMsim()` call using the `path.nonmem` argument, but more easily it can be configured globally the following way. Also including where NMsim will run NONMEM and store intermediate files (`dir.sims`) and where to store final results (`dir.res`).
+
+```{r,echo=TRUE,eval=FALSE}
+library(NMdata)
+library(NMsim)
+## Point NMsim to your NONMEM exectuable - looks like this on linux/osx
+NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75")
+## or on Windows, it could be
+NMdataConf(path.nonmem = "c:/nm75g64/run/nmfe75.bat")
+NMdataConf(dir.sims="simtmp-modify", ## location of sim tmp files
+           dir.res="simres-modify",
+           as.fun="data.table")  ## location of sim results
+```
+
+# Change in formulation Example.
+
+<!-- Philip comment:
+I wrote the following as I was going through the doc. After having read the DDI example too, I actually really like this. But maybe in the intro and/or the first line of the examples, we should add what this illustrates in terms of NMsim features. 
+The section title can be improved to match the learning objective. I agree its good to "flavor" with interpretation and communicate potential uses of these features. But I'd suggest to move that into the text.
+Suggest: "Modify parameter values by editing the $PK section"-->
+
+The effect on the concentration-time profile of a change in formulation that reduces absorption rate `KA` is explored with the use of a scaling factor `KASCALE=c(1,4,10)` included to the NONMEM control stream via the `modify.model` argument. The absorption rate reduction is provided through the `NMsim` simulation data `dat.sim.varka` containing dosing events, simulation time steps and the value of `KASCALE` for each simulated patient. 
+
+First `KASCALE` is added to the simulation data
+
+<!-- Philip comment: remove unused code -->
+
+```{r,eval=TRUE,include=TRUE,results="hide"}
+file.mod <- system.file("examples/nonmem/xgxr021.mod",
+                        package="NMsim")
+data.sim <- NMreadCsv(system.file("examples/derived/dat_sim1.csv",
+                                 package="NMsim"))
+
+#data.sim=setDT(data.sim)
+# add KASCALE and copy patient info for each value of KASCALE
+dat.sim.varka <- data.sim[,data.table(KASCALE=c(1,4,10)),by=data.sim] 
+dat.sim.varka[,ID:=.GRP,by=.(KASCALE,ID)] # update patient IDs
+setorder(dat.sim.varka,ID,TIME,EVID) # order rows
+```
+Then the `NMsim` function is used to run the simulation in which the `modify.model` argument is used to simulate a modified model with different absorption rates, scaled by the parameter `KASCALE`. Two different approaches are demonstrated:
+
+(a) the effect of the scaling factor `KASCALE` is added at the end of the `PK` section in the NONMEM control stream.
+
+```{r,echo=T,eval=F}
+simres.varka <- NMsim(file.mod=file.mod # NONMEM control stream
+          ,data=dat.sim.varka # simulation data file
+          ,name.sim="varka"
+          ,modify.model=list(PK=add("KA=KA/KASCALE")))
+```
+
+```{r,echo=F,eval=T}
+simres.varka <- NMsim(file.mod=file.mod # NONMEM control stream
+          ,data=dat.sim.varka # simulation data file
+          ,name.sim="varka"
+          ,modify.model=list(PK=add("KA=KA/KASCALE"))
+          ,reuse.results = reuse.results)
+```
+
+(b) the specific line that defines `TVKA` is modified to include the effect of the scaling factor `KASCALE`
+```{r,echo=T,eval=F}
+simres.varka2 <- NMsim(file.mod=file.mod
+          ,data=dat.sim.varka
+          ,name.sim="varka2"
+          ,modify.model=list(PK=overwrite("THETA(1)","THETA(1)/KASCALE"))
+          )
+```
+
+```{r,echo=F,eval=T}
+simres.varka2 <- NMsim(file.mod=file.mod
+          ,data=dat.sim.varka
+          ,name.sim="varka2"
+          ,modify.model=list(PK=overwrite("THETA(1)","THETA(1)/KASCALE"))
+          # ,modify.model=list(PK=function(x) {
+          # ## identify line number if first definition of TVKA
+          # idx.line1.TVKA <- min(grep(" *TVKA *=",x))
+          # ## add /KASCALE after dropping potential comments
+          # x[idx.line1.TVKA] <- 
+          #   paste(sub(";.*","",x[idx.line1.TVKA]),"/KASCALE")
+          # x})
+          ,reuse.results = reuse.results)
+```
+The code below returns the plot
+
+<!-- Philip comment:
+This is really nice. 
+I suggest
+- comment on the strengths and weaknesses of add and overwrite. I think typically, most users should use "add" because it's simpler. "add" is really simple but it can only patch after the rest of PK has already been processed. If something in PK is derived from the variables being modified, it will not work. "overwrite" is the CAS9 approach which can be very powerful and suffers from off-target risk. And also, the code needed may be more specific to a model. In this example, overwrite refers to THETA(1) which is model specific. add referring to KA only may be more generic. 
+It would be very good to include some diffr() snippets to show what happened to the PK sections. If the PK section is simple, NMreadSection(sim.mod,section="PK") may be sufficient. sim.mod should be the generated simulation control streams. You may be able to run it on all of the control streams (the estimated, and the two simulated) at once, put it into a data.table, and show the control stream lines side by side as a table. -->
+
+```{r,varka-sim-plot,eval=TRUE,echo=TRUE,fig.cap="Concentration (`PRED`) profile as a function of time computed by `NMsim` modified models **a** (left) and **b** (right). The equivalence and robustness of the two modified models is supported by the matching results, corresponding to reduced `PRED` values for higher values of `KASCALE` (lower absorption rate)."}
+simres.varka=as.data.table(simres.varka)
+simres.varka2=as.data.table(simres.varka2)
+simres.both <- rbind(simres.varka[,method:="a. add()"],
+                     simres.varka2[,method:="b. custom/sub()"]
+                     )
+
+ggplot(simres.both[EVID==2],aes(TIME,PRED,colour=factor(KASCALE)))+
+  geom_line()+
+  labs(colour="Fold absorption prolongation, KASCALE")+
+  scale_x_continuous(breaks=seq(0,168,by=24))+
+  facet_wrap(~method)+
+  scale_color_manual(values=c("orange", "blue", "darkgreen"))
+```
+NOTE: the NMsim `overwrite` function prior to version 0.1.6 has a bug that was fixed in the0.1.5.902 github release; it can be installed with
+
+```{r,echo=T,eval=F}
+library(remotes)
+install_github("NMautoverse/NMsim")
+```
+
+# Drug-Drug Interaction (DDI)
+The effect of DDI on clearance (`CL`) and bioavailability (`F1`) is simulated for the following  scenarios
+```{r, ddi-table, echo=F,eval=T}
+data.table(scenario=c("noDDI","DDI.1","DDI.2")
+           ,CLSCALE=c("1","0.5","0.33")
+           ,FSCALE=c("1","1.2","1.1")
+           ,`CLSCALE/FSCALE`=c("1","0.42","0.3")
+) |> kableExtra::kable()
+```
+First the `CL` and `F1` data is added to the patient data
+```{r,echo=T,eval=T,results="hide"}
+## 'Outer join'
+dat.sim.DDI=data.sim[,data.table(CLSCALE=c(1,1/2,1/3)
+                                ,FSCALE=c(1,1.2,1.1)
+                                ,lab=c("noDDI","DDI.1","DDI.2"))
+                    ,by=data.sim]
+dat.sim.DDI[,ID:=.GRP,by=.(lab,ID)]
+setorder(dat.sim.DDI,ID,TIME,EVID)
+```
+
+Then, the DDI driven change in parameters is added at the end of the PK section of the NONMEM control stream via the `modify.model` argument in the `NMsim()` function.
+
+```{r,echo=T,eval=F}
+simres.DDI <- NMsim(file.mod=file.mod
+            ,data=dat.sim.DDI
+            ,name.sim="DDI"
+            ,modify.model=list(PK=add("CL=CL*CLSCALE"
+                                      ,"F1=FSCALE")))
+```
+```{r,echo=F,eval=T}
+simres.DDI <- NMsim(file.mod=file.mod
+                    ,data=dat.sim.DDI
+                    ,name.sim="DDI"
+                    ,modify.model=list(PK=NMsim:::add(c("CL=CL*CLSCALE"
+                                                        ,"F1=FSCALE")))
+                    ,reuse.results=reuse.results)
+```
+
+The effect on the concentration-time profile is shown in the figure below
+
+```{r, echo=F, eval=T,results="hide", fig.cap="Concentration (`PRED`) profile as a function of time computed by `NMsim` modified model for different DDIs. The modified model correctly simulates (i) a higher value of `Cmax` on day 1 for higher biovalability; (ii) a higher `PRED` value  at steady state for lower apparent clearance effect `CLSCALE/FSCALE` values."}
+ggplot(simres.DDI[simres.DDI$EVID==2,],aes(TIME,PRED,colour=factor(lab)))+
+  geom_line()+
+  labs(colour="DDI")+
+  scale_x_continuous(breaks=seq(0,168,by=24))+
+  scale_color_manual(values=c("orange", "blue", "darkgreen"))
+```
+# Dose delay
+
+<!-- Philip comment: A little more intro would be useful. What are you simulating, and how are you doing that? The current wording aims at the ladder, but it is very technical - even I have to read it slowly to follow. -->
+
+<!-- Philip comment: we should explain that we could set up different simulation data sets to obtain this. I mean by delaying the dose in the data set. But we are showing this to illustrate the flexibility of these features. In practice, many users might - with good reason - prefer to edit the time column in the sim data sets. -->
+
+Deviations in the administration schedule of a drug are simulated including three parameters in the  dataset: the dose number `DOSCUMN`, obtained with `NMdata::addTAPD()`, the specific number of the delayed dose `DELAYDOS` and the time delay `ALAG`. 
+
+```{r, echo=T,eval=T,results="hide"}
+dat.sim.alag = data.sim |> NMexpandDoses() |> addTAPD() # expand doses and add dose number
+dat.sim.alag[,ROW:=.I] # restore ROW with correct value
+# add delayed dose
+dat.sim.dos.delay=dat.sim.alag[,data.table(DELAYDOS=c(2,3,4,5,6,7))
+                                ,by=dat.sim.alag]
+# add dose delay 
+dat.sim.alag.final=dat.sim.dos.delay[,data.table(ALAG=c(0,6,12,18,24))
+                                     ,by=dat.sim.dos.delay]
+# update ID 
+dat.sim.alag.final[,ID:=.GRP,by=.(ALAG,DELAYDOS,ID)]
+setorder(dat.sim.alag.final,ID,TIME,EVID)
+#dat.sim.alag.final = dat.sim.alag.final |> fill(DOSCUMN)
+```
+
+The following patient has a 6 hours delay to the administration of dose 2.
+
+```{r, echo=F, eval=T}
+dat.sim.alag.final[ALAG==6 & DELAYDOS==2 & EVID==1,
+                   .(TIME,AMT,DOSCUMN,DELAYDOS,ALAG)] |> 
+  kableExtra::kable()
+```
+The time delay is included in the modified control stream with `NMsim` adding a single line at the end of the PK section, where the dose delay on compartment 1 `ALAG1` is modified for the dose with dose number `DOSCUMN` equal to the target delayed dose number `DELAYDOS`
+
+<!-- Philip comment: This explanation is easier to follow than the first one -->
+
+```{r,echo=T,eval=F}
+simres.alag <- NMsim(file.mod=file.mod
+              ,data=dat.sim.alag.final
+              ,name.sim="alag"
+              ,modify.model=list(PK=
+                    add("IF(DOSCUMN.EQ.DELAYDOS) ALAG1=ALAG")))
+```
+
+```{r,echo=F,eval=T}
+simres.alag <- NMsim(file.mod=file.mod,
+                     data=dat.sim.alag.final
+                     ,name.sim="alag"
+                     ,modify.model=
+                       list(PK=add(c("IF(DOSCUMN.EQ.DELAYDOS) ALAG1=ALAG")))
+                     ,table.vars = c("PRED","IPRED")
+                     ,reuse.results=reuse.results)
+```
+
+The effect on concentration-time profiles and daily AUC are shown in the two images below.
+
+```{r,echo=F,eval=T,fig.cap="Effect of time delay (0, 12 and 24 hours on dose 2) on concentration (`PRED`) profile as a function of time computed by `NMsim` modified model. The implementation of the modified model simply consists of the addition of the variables `DOSCUMN`, `DELAYDOS`, and `ALAG` to the original data set, and the addition of one line of code to the PK section of the control stream via `modify.model`."}
+# plot only a few examples
+ggplot(simres.alag[EVID==2 & ALAG%in%c(0,12,24) &
+                     DELAYDOS%in%c(2),],aes(TIME,PRED,colour=factor(ALAG)))+
+  geom_line()+
+  labs(colour="ALAG")+
+  scale_x_continuous(breaks=seq(0,168,by=24))+
+  scale_color_manual(values=c("orange", "blue", "darkgreen"))
+```
+
+<!-- Philip comment: The AUC vs dose delay needs a little explanation. I think the intro to the dose delay example should explain we want to study the effect of delaying doses on predicted exposure. And then also just a sentence or two before this plot. -->
+
+<!-- Philip comment would be good to include AUC/cmax derivation as folded code. -->
+
+```{r,echo=F,eval=T,fig.height=3.7,fig.cap="Daily exposure on day 3 as a function of time delay for dose 2 (left) and dose 3 (right). The simulation results predict an increased risk for possible safety concerns (left panel, over-exposure) and loss of efficacy (right panel, under-exposure) as dose time delay gets larger."}
+# AUC 
+sim.alag=simres.alag[EVID==2,.(ID,TIME,PRED,ALAG,DELAYDOS)]
+sim.alag[,DAY:=(TIME%/%24)+1]
+sim.dupli.24h=sim.alag[TIME%%24==0 & TIME>0,.(ID
+                                              ,DAY=DAY-1
+                                              ,TIME
+                                              ,PRED
+                                              ,ALAG
+                                              ,DELAYDOS)]
+sim.alag.final <- rbind(sim.alag
+                        ,sim.dupli.24h) |> setorder(ID,DAY,TIME)
+
+sim.alag.AUC<-sim.alag.final[DAY<8,.(AUC=trapz(TIME,PRED))
+                             ,by=.(ID,DAY,ALAG,DELAYDOS)]
+
+ggplot(sim.alag.AUC[DAY==3 & DELAYDOS%in%c(2,3)],aes(x=ALAG,y=AUC))+
+  geom_point(size=4)+
+  ylab("AUC 0-24h, day 3")+
+  xlab("Hours of delay")+
+  scale_x_continuous(breaks = seq(0, 24, by = 6))+
+  facet_wrap(~DELAYDOS
+             ,labeller = as_labeller(c("2"="Dose 2 delayed","3"="Dose 3 delayed")))
+```  
+
+# AUC
+
+<!-- Philip comment: A little more intro would be helpful. This is a more advanced example that modifies multiple sections. -->
+
+The following example computes daily exposure:
+
+* at post-processing, using trapezoidal method, after the unmodified NONMEM model is simulated on three different fine grids with evenly spaced time steps of `0.25`, `1`, and `4` hours, respectively, labelled __AUC trapz__
+
+```{r,echo=T,eval=T}
+file.mod.auc <- system.file("examples/nonmem/xgxr046.mod",
+                        package="NMsim")
+data.sim.auc <- NMreadCsv(system.file("examples/derived/dat_sim1.csv",
+                                 package="NMsim"))
+data.sim.auc[,AMT:=1000*AMT]
+
+# time step 1hr
+data.sim.1hr=data.sim.auc
+data.sim.1hr[,TSTEP:="1hr"]
+
+# time step 0.25hr
+data.sim.0.25hr=addEVID2(data.sim.auc[EVID==1],CMT=2,time.sim=seq(0,192,by=0.25))
+data.sim.0.25hr[,TSTEP:="0.25hr"]
+
+# time step 4hr
+data.sim.4hr <- addEVID2(data.sim.auc[EVID==1],CMT=2,time.sim=seq(0,192,by=4))
+data.sim.4hr[,TSTEP:="4hr"]
+
+sres.trapz <- NMsim(file.mod=file.mod.auc
+      ,data=list(data.sim.1hr # run NMsim on a list of data sets to run all different scenarios at once
+                 ,data.sim.0.25hr
+                 ,data.sim.4hr)
+      ,seed=12345
+      ,table.vars=cc(PRED,IPRED)
+      ,name.sim="AUC.trapz"
+      ,reuse.results=reuse.results
+      )
+
+# daily AUC computation
+sim.auc=sres.trapz[EVID==2,.(ID,TIME,PRED,time.step=TSTEP)] 
+sim.auc[,DAY:=(TIME%/%24)+1] # define DAY variable
+# create duplicate time steps for end-of-day
+# (e.g 24h belongs to both day 1 and day2)
+sim.dupli.24h=sim.auc[TIME%%24==0 & TIME>0,.(ID
+                                             ,DAY=DAY-1
+                                             ,TIME
+                                             ,PRED
+                                             ,time.step)]
+sim.auc.final <- rbind(sim.auc
+                       ,sim.dupli.24h) |> setorder(ID,DAY,TIME,time.step)
+
+sim.auc.trapz<-sim.auc.final[DAY<8,.(AUC=pracma::trapz(TIME,PRED))
+                             ,by=.(ID,DAY,time.step)]
+# stmp=sres1[EVID==2,.(ID,TIME,PRED)]
+# stmp[,DAY:=(TIME%/%24)+1]
+# sAUC<-stmp[,.(AUC=pracma::trapz(TIME,PRED)),by=.(ID,DAY)]
+```
+
+* at run time, with an `NMsim` modified script, on a course grid with evenly spaced time steps of `24` hours, labelled __AUC $DES__. Of note, this task requires additions to the control stream in multiple sections.
+
+```{r,echo=T,eval=T}
+# AUC with NMsim -  time step 24hr
+data.sim2 <- addEVID2(data.sim.auc[EVID==1],CMT=2,time.sim=seq(0,by=24,length.out=9))
+
+sres.des <- NMsim(file.mod=file.mod.auc
+          ,data=data.sim2
+          ,table.vars=cc(PRED,IPRED,AUCNMSIM)
+          ,name.sim="AUC.nmsim"
+          ,seed=12345
+          ,reuse.results=reuse.results
+          ,modify.model=list(MODEL=add("COMP=(AUC)")
+                  ,DES=add("DADT(3)=A(2)/V2")
+                  ,ERROR=add("AUCCUM=A(3)"
+                             ,"IF(NEWIND.NE.2) OLDAUCCUM=0"
+                             ,"AUCNMSIM = AUCCUM-OLDAUCCUM"
+                             ,"OLDAUCCUM = AUCCUM")))
+
+sres.des[,DAY:=TIME%/%24]
+sres.des[,AUC.NMsim:=AUCNMSIM]
+sres.auc.des=sres.des[AUCNMSIM!=0,.(TIME,DAY,PRED,AUC.NMsim)]
+```
+The plot comparing the `DES` and `trapz` AUC is obtained with the code below
+
+```{r, echo=T, eval=T,fig.height=3.7,fig.cap="Daily exposures computed at run time ($DES, coarse grid, x-axis) and post-processing time (`trapz`, fine grids, y-axis). AUC (trapz) converges to the value computed with $DES method as the time step is reduced. Includes identity line."}
+
+sres.final=mergeCheck(sim.auc.trapz[,.(DAY,AUC,time.step)]
+                      ,sres.auc.des[,.(DAY,AUC.NMsim)]
+                      ,by="DAY")
+
+ggplot(data=sres.final,aes(AUC.NMsim,AUC,colour=factor(time.step)))+
+  geom_point(size=4)+
+  labs(colour="Time step in fine grid")+
+  scale_color_manual(values=c("orange", "blue", "darkgreen"))+
+  xlim(c(0,17))+
+  ylim(c(0,17))+
+  ylab("AUC 0-24h by trapez method, on fine grid")+
+  xlab("AUC 0-24h by integration through $DES, on coarse grid")+
+  geom_abline(slope=1, intercept=0)
+```

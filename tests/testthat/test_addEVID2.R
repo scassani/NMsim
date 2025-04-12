@@ -286,7 +286,6 @@ test_that("No CMT column",{
 
 test_that("Providing DV",{
     NMdataConf(reset=TRUE)
-    ##fileRef <- "testReference/addEVID2_16.rds"
     dt.dos <- NMcreateDoses(TIME=c(0,12), AMT=data.table(AMT=1:2,grp=letters[1:2]),CMT=1) 
     dt.dos
     res0 <- addEVID2(dt.dos,TAPD=data.frame(TAPD=c(1,1)),CMT=2,DV=0,as.fun="data.table")
@@ -305,6 +304,65 @@ test_that("Providing DV",{
 
     expect_equal(
         res0[,sort(unique(DV))]
-        ,c(0))
+       ,c(0))
 
 })
+
+test_that("Unmatched covariates",{
+    fileRef <- "testReference/addEVID2_17.rds"
+
+    samp.times <- c(1, 4, 8)
+    dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0, TMIN=0, TMAX=200),AMT=70,CMT=NA)
+
+    res <- expect_message(
+        NMsim::addEVID2(dt.dos,TIME = data.frame(TIME=c(1,4,8), TSTRAT=seq(1:length(samp.times)), 
+                                                 TMIN=rep(0.01,length(samp.times)),
+                                                 TMAX=rep(200,length(samp.times))))
+        )
+
+
+    expect_equal_to_reference(res,fileRef)
+    
+})
+
+
+test_that("Unmatched covariates",{
+    fileRef <- "testReference/addEVID2_17.rds"
+
+    samp.times <- c(1, 4, 8)
+    dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0, TMIN=0, TMAX=200),AMT=70,CMT=NA)
+
+    dt.time <- data.frame(TIME=c(1,4,8), TSTRAT=c(1,2,3))
+
+    res <- expect_message(
+        NMsim::addEVID2(dt.dos,TIME = dt.time
+                        ## data.frame(TIME=c(1,4,8), TSTRAT=seq(1:length(samp.times)), 
+                        ##            TMIN=rep(0.01,length(samp.times)),
+                        ##            TMAX=rep(200,length(samp.times)))
+                        )
+    )
+
+
+    expect_equal_to_reference(res,fileRef)
+    
+})
+
+
+test_that("Unmatched are not covs",{
+    fileRef <- "testReference/addEVID2_18.rds"
+
+    samp.times <- c(1, 4, 8)
+    dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0, TMIN=0, TMAX=200),AMT=70,CMT=NA)
+    dt.time <- data.frame(TIME=c(1,4,8), TSTRAT=c(1,2,3))
+    
+    res <- NMsim::addEVID2(dt.dos,
+                           TIME =dt.time
+                          ,
+                        extras.are.covs=FALSE)
+
+
+res
+    expect_equal_to_reference(res,fileRef)
+    
+})
+

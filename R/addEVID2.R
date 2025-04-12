@@ -43,6 +43,14 @@
 ##'     combine sequences of time points that overlap (maybe across
 ##'     `TIME` and `TAPD`), and let `addEVID2()` clean them. If you
 ##'     want to keep your duplicated events, use `unique=FALSE`.
+##' @param extras.are.covs If `TIME` and/or `TAPD` are `data.frame`s
+##'     and contain other columns than `TIME` and/or `TAPD`, those are
+##'     by default assumed to be covariates to be merged with
+##'     data. More specifically, they will be merged by when the
+##'     sample times are added. If `extras.are.covs=FALSE`, they will
+##'     not be merged by. Instead, they will just be kept as
+##'     additional columns with specified values, aligned with the
+##'     sample times.
 ##' @param as.fun The default is to return data as a
 ##'     `data.frame`. Pass a function (say `tibble::as_tibble`) in
 ##'     as.fun to convert to something else. If data.tables are
@@ -101,7 +109,8 @@
 ##' @export 
 
 
-addEVID2 <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDoses,unique=TRUE,as.fun,doses,time.sim){
+addEVID2 <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDoses,unique=TRUE,
+                     extras.are.covs=TRUE,as.fun,doses,time.sim){
     
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
@@ -177,12 +186,28 @@ addEVID2 <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDoses,u
 
         if(!"TIME"%in%colnames(TIME)) stop("When TIME is a data.frame, it must contain a column called TIME.")
         TIME <- as.data.table(TIME)
-        cols.by <- intersect(colnames(TIME),colnames(covs.data))
-        if(length(cols.by) == 0){
-            dt.obs <- egdt(TIME,covs.data,quiet=TRUE)
+
+        
+        if(extras.are.covs){
+            cols.by <- intersect(colnames(TIME),colnames(covs.data))
+
+            if(length(cols.by) == 0){
+                dt.obs <- egdt(TIME,covs.data,quiet=TRUE)
+            } else {
+
+                dt.obs <-
+                    ## merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
+                    merge(covs.data,TIME,by=cols.by,allow.cartesian = TRUE)
+                if(!nrow(dt.obs)) message("No samples added. Covariates were found in sample time specifications but no matches found in `data`. Notice that extra columns (covariates) in `TIME` and `TAPD` must be matched in `data` for respective time values to be added.")
+            }
+
         } else {
-            dt.obs <- merge(TIME,covs.data,all.x=TRUE,allow.cartesian = TRUE)
+##### Check that no 
+            dt.obs <- egdt(TIME,covs.data[,setdiff(colnames(covs.data),colnames(TIME)),with=FALSE],quiet=TRUE)
         }
+        
+        
+
     }
 
 #### handle TAPD - add to time

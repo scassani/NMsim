@@ -29,8 +29,6 @@ navbar:
         href: articles/NMsim-config.html
       - text: Simulate Known Subjects
         href: articles/NMsim-known.html
-      - text: Simulate Typical Subjects
-        href: articles/NMsim-TypSubj.html
       - text: Simulations with Parameter Uncertainty
         href: articles/NMsim-ParamUncertain.html
       - text: Simulation-based forest plots with NMsim

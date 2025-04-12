@@ -7,6 +7,10 @@
   for `$DESIGN` where `DV=0` is often used.
   
 ## Bugfixes
+* `NMsim_VarCov()` would not include `$OMEGA` and `$SIGMA` blocks which
+  lead to errors in Nonmem. This bug was likely introduced in NMsim
+  0.1.6 and has now been fixed.
+
 * Version 0.2.0 gave some warnings about non-existing columns. The
   warnings are benign and can be safely ignored. However, they are
   avoided in Version 0.2.1.

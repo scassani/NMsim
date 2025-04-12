@@ -135,7 +135,7 @@ library(NMdata)
 library(NMsim)
 library(NMcalc)
 library(ggplot2)
-library(pracma)
+library(NMcalc)
 
 NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
            ## path.nonmem = "/opt/nonmem/nm751/run/nmfe75"
@@ -434,7 +434,7 @@ sim.dupli.24h=sim.alag[TIME%%24==0 & TIME>0,.(ID
 sim.alag.final <- rbind(sim.alag
                         ,sim.dupli.24h) |> setorder(ID,DAY,TIME)
 
-sim.alag.AUC<-sim.alag.final[DAY<8,.(AUC=trapz(TIME,PRED))
+sim.alag.AUC<-sim.alag.final[DAY<8,.(AUC=trapez(TIME,PRED))
                              ,by=.(ID,DAY,ALAG,DELAYDOS)]
 
 ggplot(sim.alag.AUC[DAY==3 & DELAYDOS%in%c(2,3)],aes(x=ALAG,y=AUC))+
@@ -452,7 +452,7 @@ ggplot(sim.alag.AUC[DAY==3 & DELAYDOS%in%c(2,3)],aes(x=ALAG,y=AUC))+
 
 The following example computes daily exposure:
 
-* at post-processing, using trapezoidal method, after the unmodified NONMEM model is simulated on three different fine grids with evenly spaced time steps of `0.25`, `1`, and `4` hours, respectively, labelled __AUC trapz__
+* at post-processing, using trapezoidal method, after the unmodified NONMEM model is simulated on three different fine grids with evenly spaced time steps of `0.25`, `1`, and `4` hours, respectively, labelled __AUC trapez__
 
 ```{r,echo=T,eval=T}
 file.mod.auc <- system.file("examples/nonmem/xgxr046.mod",
@@ -473,18 +473,18 @@ data.sim.0.25hr[,TSTEP:="0.25hr"]
 data.sim.4hr <- addEVID2(data.sim.auc[EVID==1],CMT=2,time.sim=seq(0,192,by=4))
 data.sim.4hr[,TSTEP:="4hr"]
 
-sres.trapz <- NMsim(file.mod=file.mod.auc
+sres.trapez <- NMsim(file.mod=file.mod.auc
       ,data=list(data.sim.1hr # run NMsim on a list of data sets to run all different scenarios at once
                  ,data.sim.0.25hr
                  ,data.sim.4hr)
       ,seed=12345
       ,table.vars=cc(PRED,IPRED)
-      ,name.sim="AUC.trapz"
+      ,name.sim="AUC.trapez"
       ,reuse.results=reuse.results
       )
 
 # daily AUC computation
-sim.auc=sres.trapz[EVID==2,.(ID,TIME,PRED,time.step=TSTEP)] 
+sim.auc=sres.trapez[EVID==2,.(ID,TIME,PRED,time.step=TSTEP)] 
 sim.auc[,DAY:=(TIME%/%24)+1] # define DAY variable
 # create duplicate time steps for end-of-day
 # (e.g 24h belongs to both day 1 and day2)
@@ -496,11 +496,11 @@ sim.dupli.24h=sim.auc[TIME%%24==0 & TIME>0,.(ID
 sim.auc.final <- rbind(sim.auc
                        ,sim.dupli.24h) |> setorder(ID,DAY,TIME,time.step)
 
-sim.auc.trapz<-sim.auc.final[DAY<8,.(AUC=pracma::trapz(TIME,PRED))
+sim.auc.trapez<-sim.auc.final[DAY<8,.(AUC=pracma::trapez(TIME,PRED))
                              ,by=.(ID,DAY,time.step)]
 # stmp=sres1[EVID==2,.(ID,TIME,PRED)]
 # stmp[,DAY:=(TIME%/%24)+1]
-# sAUC<-stmp[,.(AUC=pracma::trapz(TIME,PRED)),by=.(ID,DAY)]
+# sAUC<-stmp[,.(AUC=pracma::trapez(TIME,PRED)),by=.(ID,DAY)]
 ```
 
 * at run time, with an `NMsim` modified script, on a course grid with evenly spaced time steps of `24` hours, labelled __AUC $DES__. Of note, this task requires additions to the control stream in multiple sections.
@@ -526,11 +526,11 @@ sres.des[,DAY:=TIME%/%24]
 sres.des[,AUC.NMsim:=AUCNMSIM]
 sres.auc.des=sres.des[AUCNMSIM!=0,.(TIME,DAY,PRED,AUC.NMsim)]
 ```
-The plot comparing the `DES` and `trapz` AUC is obtained with the code below
+The plot comparing the `DES` and `trapez` AUC is obtained with the code below
 
-```{r, echo=T, eval=T,fig.height=3.7,fig.cap="Daily exposures computed at run time ($DES, coarse grid, x-axis) and post-processing time (`trapz`, fine grids, y-axis). AUC (trapz) converges to the value computed with $DES method as the time step is reduced. Includes identity line."}
+```{r, echo=T, eval=T,fig.height=3.7,fig.cap="Daily exposures computed at run time ($DES, coarse grid, x-axis) and post-processing time (`trapez`, fine grids, y-axis). AUC (trapez) converges to the value computed with $DES method as the time step is reduced. Includes identity line."}
 
-sres.final=mergeCheck(sim.auc.trapz[,.(DAY,AUC,time.step)]
+sres.final=mergeCheck(sim.auc.trapez[,.(DAY,AUC,time.step)]
                       ,sres.auc.des[,.(DAY,AUC.NMsim)]
                       ,by="DAY")
 

@@ -269,3 +269,12 @@ test_that("Suppress EVID",{
     expect_equal(res1,res2)
 
 })
+
+test_that("length(TIME)=3 and length(ADDL)=1",{
+    fileRef <- "testReference/NMcreateDoses_16.rds"
+
+    ## simple - ok
+    res <- NMcreateDoses(TIME=c(0,2,4),AMT=1,ADDL=4,II=12)
+    expect_equal_to_reference(res,fileRef)
+
+})

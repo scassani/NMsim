@@ -220,14 +220,16 @@ NMcreateDoses <- function(TIME, AMT, EVID=1, CMT=1, ADDL=NULL, II=NULL, RATE=NUL
             stop("ADDL and II must be of equal length. If constructing multiple dosing schemes, they must be eqully long for all schmes.")
         }
     }
-
+    
     if(addl.lastonly){
         if(any(dt.doses1[variable=="ADDL",length==1&max.length>1])){
             
             dt.doses1 <- rbind(
+                ## not the addl/ii rows
                 dt.doses1[!variable%in%c("ADDL","II")]
                ,
-                dt.doses1[variable%in%c("ADDL","II")][,.SD[rep(1:(length.time-1))],by=c("ID","variable",covs)][,value:=NA]
+                ## repeat the addl/ii rows
+                dt.doses1[variable%in%c("ADDL","II")][,.SD[rep(1:(length.time-1))],by=c("ID","variable","max.length","length.time",covs)][,value:=NA]
                ,
                 dt.doses1[variable%in%c("ADDL","II")][,.SD[.N],by=c("ID","variable",covs)]
             )

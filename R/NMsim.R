@@ -1088,11 +1088,11 @@ NMsim <- function(file.mod,data,
 ##### todo all file.xyz arguments must be NULL or of equal length. And this should be done per model
     
     if(method.update.inits=="nmsim.deprec" && any(dt.models[,!file.exists(file.ext)])){
-        stop(paste("ext file(s) not found. Did you forget to copy it? Normally, NMsim needs that file to find estimated parameter values. If you do not have an ext file and you are running a simulation that does not need it, please use `method.update.inits=\"none\"`. Was expecting to find ",paste(dt.models[!file.exists(file.ext),file.ext],collapse="\n"),sep=""))
+        stop(paste("ext file(s) not found. Did you forget to copy it? Normally, NMsim needs that file to find estimated parameter values. If you do not have an ext file and you are running a simulation that does not need it, please use `inits=list(method=\"none\")`. Was expecting to find ",paste(dt.models[!file.exists(file.ext),file.ext],collapse="\n"),sep=""))
     }
 
     if(method.update.inits=="nmsim" && inits$update && any(dt.models[,!file.exists(file.ext)])){
-        stop(paste("ext file(s) not found. Did you forget to copy it? Normally, NMsim needs that file to find estimated parameter values. If you do not have an ext file and you are running a simulation that does not need it, please use `method.update.inits=\"none\"`. Was expecting to find ",paste(dt.models[!file.exists(file.ext),file.ext],collapse="\n"),sep=""))
+        stop(paste("ext file(s) not found. Did you forget to copy it? Normally, NMsim needs that file to find estimated parameter values. If you do not have an ext file and you are running a simulation that does not need it, please use `inits=list(method=\"none\")`. Was expecting to find ",paste(dt.models[!file.exists(file.ext),file.ext],collapse="\n"),sep=""))
     }
     
     if(method.update.inits=="psn"){
@@ -1103,7 +1103,7 @@ NMsim <- function(file.mod,data,
         {
             if(!file.exists(fnExtension(file.mod,"lst"))){
                 
-                stop("When using method.update.inits=\"psn\", an output control stream with file name extensions .lst must be located next to the input control stream. Consider also `method.update.inits=\"nmsim\"`.")
+                stop("When using `inits=list(method=\"psn\")`, an output control stream with file name extensions .lst must be located next to the input control stream. Consider also the default `inits=list(method=\"nmsim\")`.")
             }
             cmd.update <- sprintf("%s --output_model=\"%s\" \"%s\"",normalizePath(cmd.update.inits,mustWork=FALSE),fn.sim.tmp,normalizePath(file.mod))
 ### would be better to write to another location than next to estimation model
@@ -1173,10 +1173,10 @@ NMsim <- function(file.mod,data,
         dt.data.tmp[,tmprow:=.I]
         dt.data.tmp[,{NMwriteData(data$data[[DATAROW]]
                                  ,file=path.data
-                                 ,genText=F
+                                 ,genText=T
                                  ,formats.write=c("csv",format.data.complete)
                                   ## if NMsim is not controlling $DATA, we don't know what can be dropped.
-                                  ## ,csv.trunc.as.nm=TRUE
+                                  ,csv.trunc.as.nm=TRUE
                                  ,script=script
                                  ,quiet=TRUE)
 ### returning a sctring because NMwriteData wit genText may return incompatible results
@@ -1634,7 +1634,7 @@ NMsim <- function(file.mod,data,
         return(returnSimres(simres))
     } else {
         if(!quiet & execute){
-            message(sprintf("\nSimulation results not returned. Read them with:\n  simres <- NMreadSim(c(\"%s\"))\nThe first time the results are read, they will be efficiently stored in the simulation results folder. Until then, they only exist as Nonmem result files.",paste(dt.models[,unique(path.rds)],collapse="\",\n    \"")))
+            message(sprintf("\nRead results with:\n  simres <- NMreadSim(c(\"%s\"))\nThe first time the results are read, they will be efficiently stored in the simulation results folder. Until then, they only exist as Nonmem result files. Trick: `NMreadSim()` also supports the `wait` argument to watch over Nonmem runs and return results once ready.",paste(dt.models[,unique(path.rds)],collapse="\",\n    \"")))
         }
         addClass(dt.models,"NMsimModTab")
         return(invisible(dt.models[,unique(path.rds)]))

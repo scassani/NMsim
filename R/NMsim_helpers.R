@@ -69,12 +69,12 @@ adjust.method.update.inits <- function(method.update.inits,system.type,dir.psn,c
         
         cmd.update.inits <- file.psn(dir.psn,"update_inits")
         if(system.type=="linux" && suppressWarnings(system(paste(cmd.update.inits,"-h"),ignore.stdout = TRUE)!=0)){
-            stop('Attempting to use PSN\'s update_inits but it was not found. Look at the dir.psn argument or use method.update.inits="nmsim"')
+            stop('Attempting to use PSN\'s update_inits but it was not found. Look at the dir.psn argument or use the default `inits=list(method="nmsim")`')
         }
     }
 
     if(!is.null(inits$file.ext) && inits$method=="psn"){
-        stop("argument `file.ext` is not allowed when method.update.inits==\"psn\"")
+        stop("argument `file.ext` is not allowed when `inits=list(method='psn')`")
     }
 
 ### nmsim2 requires NMdata 

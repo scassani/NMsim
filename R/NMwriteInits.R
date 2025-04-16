@@ -63,6 +63,7 @@ NMwriteInits <- function(file.mod,update=TRUE,file.ext=NULL,ext,values,newfile,.
     type.elem <- NULL
     value.elem_lower <- NULL
     value.elem_init <- NULL
+    value.elem_init_update <- NULL
     value.elem_upper <- NULL
     value.elem <- NULL
     value.elem_FIX <- NULL

@@ -1327,7 +1327,8 @@ test_that("commas in data set",{
     file.mod <- "testData/nonmem/xgxr022.mod"
 
     dt.sim.tmp <- copy(dt.sim)
-    dt.sim.tmp[,comma:="a , comma"]
+    dt.sim.tmp[
+       ,comma:="a , comma"]
     
     simres <- NMsim(file.mod,
                     data=dt.sim.tmp,
@@ -1335,11 +1336,9 @@ test_that("commas in data set",{
                     name.sim="commas",
                     path.nonmem=path.nonmem
                    ,
-                    method.update.inits="nmsim",
                     seed.R=43
                    ,as.fun="data.table")
 
-    simres[,ID:=.GRP,.(ID,NMREP)]
     fix.time(simres)
     
     expect_equal_to_reference(simres,fileRef)
@@ -1348,7 +1347,6 @@ test_that("commas in data set",{
         ref <- readRDS(fileRef)
         simres
         ref
-        omega.sim
     }
     
 

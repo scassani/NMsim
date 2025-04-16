@@ -1,5 +1,7 @@
 # NMsim 0.2.1
 ## New Features
+* `NMsample()`
+
 * `addEVID2()` gains a new argument `DV`. By default `addEVID2()` adds
   rows without `DV` values and with `EVID=2` and `MDV=1`. If `DV` is
   supplied, `addEVID2()` will now by default use `EVID=0` and
@@ -18,6 +20,14 @@
   avoided in Version 0.2.1.
 
 * Updating initial values with `SAME`
+
+* Data sets with commas
+
+* `NMcreateDoses()` addl.lastonly
+
+## Other Improvements 
+* The configuration of job submission is simplified when jobs are run
+  in parallel with single-core processing.
 
 # NMsim 0.2.0
 

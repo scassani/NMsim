@@ -4,7 +4,18 @@
 \alias{simPopEtas}
 \title{Generate a population based on a Nonmem model}
 \usage{
-simPopEtas(file, N, seed.R, pars, file.phi, as.fun, file.mod, seed, ...)
+simPopEtas(
+  file,
+  N,
+  seed.R,
+  pars,
+  file.phi,
+  overwrite = FALSE,
+  as.fun,
+  file.mod,
+  seed,
+  ...
+)
 }
 \arguments{
 \item{file}{Passed to `NMdata::NMreadExt()`. Path to ext file. By
@@ -27,6 +38,9 @@ argument.}
 
 \item{file.phi}{An optional phi file to write the generated
 subjects to.}
+
+\item{overwrite}{If `file.phi` exists already, overwrite it?
+Default is `FALSE`.}
 
 \item{as.fun}{The default is to return data as a data.frame. Pass
 a function (say `tibble::as_tibble`) in as.fun to convert to

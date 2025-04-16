@@ -15,6 +15,8 @@
 ##'     argument.
 ##' @param file.phi An optional phi file to write the generated
 ##'     subjects to.
+##' @param overwrite If `file.phi` exists already, overwrite it?
+##'     Default is `FALSE`.
 ##' @param as.fun The default is to return data as a data.frame. Pass
 ##'     a function (say `tibble::as_tibble`) in as.fun to convert to
 ##'     something else. If data.tables are wanted, use

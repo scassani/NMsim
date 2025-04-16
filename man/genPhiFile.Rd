@@ -4,16 +4,20 @@
 \alias{genPhiFile}
 \title{Generate a .phi file for further simulation with Nonmem}
 \usage{
-genPhiFile(data, file)
+genPhiFile(data, file, overwrite = FALSE)
 }
 \arguments{
-\item{data}{A dataset that contains "ID" and all ETAs. This can be
-obtained by `NMdata::NMscanData`.}
+\item{data}{A dataset that contains "ID" and all `ETA`s. This can
+be obtained by `NMdata::NMscanData`.}
 
 \item{file}{Path to the .phi file to be written.}
+
+\item{overwrite}{If `file` exists already, overwrite it? Default
+is `FALSE`.}
 }
 \value{
-Invisibly, character lines (strings) optionally written to file
+Invisibly, character lines (strings) optionally written to
+    file
 }
 \description{
 This will typically be used in a couple of different

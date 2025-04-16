@@ -6,10 +6,13 @@
 ##' is internally by NMsim when simulating new subjects from models
 ##' estimated with SAEM.
 ##' 
-##' @param data A dataset that contains "ID" and all ETAs. This can be
-##'     obtained by `NMdata::NMscanData`.
+##' @param data A dataset that contains "ID" and all `ETA`s. This can
+##'     be obtained by `NMdata::NMscanData`.
 ##' @param file Path to the .phi file to be written.
-##' @return Invisibly, character lines (strings) optionally written to file
+##' @param overwrite If `file` exists already, overwrite it? Default
+##'     is `FALSE`.
+##' @return Invisibly, character lines (strings) optionally written to
+##'     file
 ##' @import data.table
 ##' @export
 

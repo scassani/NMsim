@@ -1330,8 +1330,6 @@ NMsim <- function(file.mod,data,
     if(!"path.sim"%in%cnames.gen) stop("path.sim must be in returned data.table")
 
 
-
-
 ##### Moved to after reuse.results - before NMexec()
     ## if multiple models have been spawned, and files.needed has been generated, the only allowed method.execute is "nmsim"
     if(nrow(dt.models.gen)>1 && "files.needed"%in%colnames(dt.models.gen)){
@@ -1340,6 +1338,10 @@ NMsim <- function(file.mod,data,
         }
     }
 
+    if(sge && nc>1 && "files.needed"%in%colnames(dt.models.gen)){
+        warning("This simulation uses auxiliary input data. This has been seen to create issues in combination with multi-core execution. If this fails, try using
+`nc=1`.")
+    }
 
     ## if multiple models spawned, direct is not allowed
     if(nrow(dt.models.gen)>1){

@@ -1551,7 +1551,7 @@ NMsim <- function(file.mod,data,
         }
 
 ###### execute jobs using NMexec
-        dt.models[,lst:={
+        dt.models[,path.mod.exec:={
             simres.n <- NULL
             files.needed.n <- try(strsplit(files.needed,":")[[1]],silent=TRUE)
             if(inherits(files.needed.n,"try-error")) files.needed.n <- NULL
@@ -1572,7 +1572,7 @@ NMsim <- function(file.mod,data,
             }
             
             
-            NMexec(files=path.sim,sge=sge,nc=nc,wait=wait.exec,
+            obj.exec <- NMexec(files=path.sim,sge=sge,nc=nc,wait=wait.exec,
                    args.psn.execute=args.psn.execute,nmquiet=nmquiet,quiet=TRUE,
                    method.execute=NMsimConf$method.execute,
                    path.nonmem=NMsimConf$path.nonmem,
@@ -1588,9 +1588,10 @@ NMsim <- function(file.mod,data,
             ## simres.n
             if(do.pb){
                 setTxtProgressBar(pb, .I)
+            
             }
             
-            path.sim.lst
+            obj.exec$mod.exec
         },by=.(ROWMODEL)]
         if(do.pb){
             close(pb)

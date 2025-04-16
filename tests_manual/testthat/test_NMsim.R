@@ -271,6 +271,41 @@ test_that("basic - known",{
     
 })
 
+if(F){ ##### NOT WORKING
+    test_that("basic - known - psn not working",{
+
+        fileRef <- "testReference/NMsim_03b.rds"
+
+        file.mod <- "../../tests/testthat/testData/nonmem/xgxr021.mod"
+        
+        set.seed(43)
+        simres <- NMsim(file.mod,
+                        data=dt.sim.known,
+                        table.vars="PRED IPRED" ,
+                        ## dir.sims="testOutput",
+                        method.sim=NMsim_EBE,
+                        name.sim="known_psn_01",
+                        method.execute="psn",
+                        path.nonmem=path.nonmem
+                        )
+
+        fix.time(simres)
+        expect_equal_to_reference(simres,fileRef)
+
+
+        if(F){
+            ref <- readRDS(fileRef)
+            compareCols(simres,ref)
+            ref
+            simres
+            compareCols(attributes(simres)$NMsimModTab,
+                        attributes(ref)$NMsimModTab)
+        }
+
+        
+    })
+}
+
 
 
 test_that("basic - spaces in paths",{
@@ -368,8 +403,6 @@ test_that("SAEM - default",{
             attributes(ref)$NMsimModTab
         )
     }
-
-
 })
 
 

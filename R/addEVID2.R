@@ -1,5 +1,5 @@
 ##' @rdname NMsample
-
+##' @export 
 ## Deprecated with NMsim 0.2.1
 
 addEVID2 <- function(...){

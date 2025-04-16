@@ -190,6 +190,10 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
                                      ,accepted=NULL
                                      ,clean=FALSE
                                      ,lower=FALSE)
+    if(!is.null(files.needed)){
+        
+        args.psn.execute  <- paste0(args.psn.execute," -extra_files=",paste(basename(files.needed),collapse=","))
+    }
 
     if(missing(files)) files <- NULL
     if(missing(dir)) dir <- NULL
@@ -223,13 +227,13 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
     }
 
 
-    for(file.mod in files.exec){
-        file.mod <- NMdata:::filePathSimple(file.mod)
+    list.obj.exec <- 
+    lapply(1:length(files.exec),function(I){
+        file.mod <- NMdata:::filePathSimple(files.exec[I])
         if(!quiet) message(paste0("Executing ",file.mod))
         if(!file.exists(file.mod)){
             stop(paste("Could not find file:",file.mod))
         }
-### cat(file.mod,"\n")
 
         
         ## replace extension of fn.input based on path.input - prefer rds
@@ -286,35 +290,37 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
                 pnm <- NULL
             }
         }
-
+               
         if(NMsimConf$method.execute=="psn"){
-            ##if(system.type=="linux"){
-            
-            string.cmd <- sprintf('cd "%s"; "%s" %s',rundir,cmd.execute ,args.psn.execute)
+            obj.exec <- list()
+            obj.exec$dir.exec <- NA_character_
+            obj.exec$mod.exec <- NA_character_
+            obj.exec$path.script <- NA_character_
+            obj.exec$cmd <- sprintf('cd "%s"; "%s" %s',rundir,cmd.execute ,args.psn.execute)
             ##}
             ## if(system.type=="windows"){
             ##     pas
             ## }
             if(sge){
-                string.cmd <- paste0(string.cmd," -run_on_sge")
+                obj.exec$cmd <- paste0(obj.exec$cmd," -run_on_sge")
                 if(nc>1){
-                    string.cmd <- paste0(string.cmd," -sge_prepend_flags=\"-pe orte ",nc," -V\" -parafile=",basename(pnm)," -nodes=",nc)
+                    obj.exec$cmd <- paste0(obj.exec$cmd," -sge_prepend_flags=\"-pe orte ",nc," -V\" -parafile=",basename(pnm)," -nodes=",nc)
                 }
             }
-            string.cmd <- paste(string.cmd,basename(file.mod))
+            obj.exec$cmd <- paste(obj.exec$cmd,basename(file.mod))
         }
 
         
         if(NMsimConf$method.execute=="nmsim"){
             
-            string.cmd <- NMexecDirectory(file.mod,NMsimConf$path.nonmem,files.needed=files.needed,system.type=NMsimConf$system.type,dir.data=dir.data,clean=clean,sge,nc,pnm=pnm,fun.post=fun.post)
-            dir.tmp <- dirname(string.cmd)
+            obj.exec <- NMexecDirectory(file.mod,NMsimConf$path.nonmem,files.needed=files.needed,system.type=NMsimConf$system.type,dir.data=dir.data,clean=clean,sge,nc,pnm=pnm,fun.post=fun.post)
+            ##obj.exec$dir <- dirname(obj.exec$cmd)
 
             if(NMsimConf$system.type=="linux"){
-                string.cmd <- sprintf("cd \"%s\"; \"./%s\"",dirname(string.cmd),basename(string.cmd))
+                obj.exec$cmd <- sprintf("cd \"%s\"; \"./%s\"",obj.exec$dir.exec,basename(obj.exec$path.script))
             }
             if(NMsimConf$system.type=="windows"){
-                string.cmd <- sprintf("@echo off;@CD \"%s\" >nul;cmd /c \"%s\"",dirname(string.cmd),basename(string.cmd))
+                obj.exec$cmd <- sprintf("@echo off;@CD \"%s\" >nul;cmd /c \"%s\"",obj.exec$dir.exec,basename(obj.exec$path.script))
             }
         }
         
@@ -325,7 +331,7 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
             path.script <- file.path(dirname(file.mod),"NMsim_exec.bat")
 
             contents.bat <-
-                strsplit(string.cmd,split=";")[[1]]
+                strsplit(obj.exec$cmd,split=";")[[1]]
             writeTextFile(contents.bat,file=path.script)
 
             ## Maybe better to use system(,ignore.stdout=TRUE)
@@ -338,23 +344,26 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
         }
         if(NMsimConf$system.type=="linux"){
             
-            if(nmquiet) string.cmd <- paste(string.cmd, ">/dev/null 2>&1")
-            if(!wait) string.cmd <- paste(string.cmd,"&")
+            if(nmquiet) obj.exec$cmd <- paste(obj.exec$cmd, ">/dev/null 2>&1")
+            if(!wait) obj.exec$cmd <- paste(obj.exec$cmd,"&")
             if(exists("dir.tmp") && !is.null(dir.tmp)) {          
                 writeTextFile(string.cmd,file.path(dir.tmp,"NMexec_command.txt"))
             }
             
-            procres <- system(string.cmd,ignore.stdout=nmquiet)
+            procres <- system(obj.exec$cmd,ignore.stdout=nmquiet)
             if(procres!=0) {##stop("Nonmem failed. Exiting.")
                 ##message("Nonmem failed. Exiting.")
                 if(sge){
-                reportFailedRun(file.path(dir.tmp,basename(fnExtension(file.mod,"lst"))))
+                    reportFailedRun(file.path(dir.tmp,basename(fnExtension(file.mod,"lst"))))
                 }
                 stop("Nonmem failed. Exiting.")
             }
         }
-    }
+        
+        as.data.table(obj.exec)
+    })
+    dt.obj.exec <- rbindlist(list.obj.exec)
 
-    return(invisible(NULL))
+    return(invisible(dt.obj.exec))
 
 }

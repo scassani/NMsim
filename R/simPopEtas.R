@@ -29,7 +29,7 @@
 ##' @importFrom MASS mvrnorm
 ##' @export
 
-simPopEtas <- function(file,N,seed.R,pars,file.phi,as.fun,file.mod,seed,...){
+simPopEtas <- function(file,N,seed.R,pars,file.phi,overwrite=FALSE,as.fun,file.mod,seed,...){
 
     par.type <- NULL
     i <- NULL
@@ -78,7 +78,7 @@ simPopEtas <- function(file,N,seed.R,pars,file.phi,as.fun,file.mod,seed,...){
     setcolorder(dt.etas,"ID")
     
     if(!is.null(file.phi)){
-        genPhiFile(data=dt.etas,file=file.phi)
+        genPhiFile(data=dt.etas,file=file.phi,overwrite=overwrite)
         return(invisible(as.fun(dt.etas)))
     }
     return(as.fun(dt.etas))

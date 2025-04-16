@@ -1320,3 +1320,37 @@ test_that("subproblems and nsims",{
 
 })
 
+test_that("commas in data set",{
+    
+    fileRef <- "testReference/NMsim_17.rds"
+
+    file.mod <- "testData/nonmem/xgxr022.mod"
+
+    dt.sim.tmp <- copy(dt.sim)
+    dt.sim.tmp[,comma:="a , comma"]
+    
+    simres <- NMsim(file.mod,
+                    data=dt.sim.tmp,
+                    table.vars="PRED IPRED Y",
+                    name.sim="commas",
+                    path.nonmem=path.nonmem
+                   ,
+                    method.update.inits="nmsim",
+                    seed.R=43
+                   ,as.fun="data.table")
+
+    simres[,ID:=.GRP,.(ID,NMREP)]
+    fix.time(simres)
+    
+    expect_equal_to_reference(simres,fileRef)
+
+    if(F){
+        ref <- readRDS(fileRef)
+        simres
+        ref
+        omega.sim
+    }
+    
+
+})
+

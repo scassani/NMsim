@@ -318,7 +318,7 @@ test_that("Unmatched covariates",{
         NMsim::addEVID2(dt.dos,TIME = data.frame(TIME=c(1,4,8), TSTRAT=seq(1:length(samp.times)), 
                                                  TMIN=rep(0.01,length(samp.times)),
                                                  TMAX=rep(200,length(samp.times))))
-        )
+    )
 
 
     expect_equal_to_reference(res,fileRef)
@@ -358,11 +358,14 @@ test_that("Unmatched are not covs",{
     res <- NMsim::addEVID2(dt.dos,
                            TIME =dt.time
                           ,
-                        extras.are.covs=FALSE)
+                           extras.are.covs=FALSE)
 
-
-res
+    ## res
     expect_equal_to_reference(res,fileRef)
-    
+
+    if(F){
+        res
+        readRDS(fileRef)
+    }
 })
 

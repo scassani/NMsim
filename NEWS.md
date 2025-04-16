@@ -6,6 +6,8 @@
   `MDV=0`. An example where this is useful is when generating datasets
   for `$DESIGN` where `DV=0` is often used.
   
+* `simPopEtas()` by default does not overwrite an existing `.phi` file.
+  
 ## Bugfixes
 * `NMsim_VarCov()` would not include `$OMEGA` and `$SIGMA` blocks which
   lead to errors in Nonmem. This bug was likely introduced in NMsim
@@ -14,6 +16,8 @@
 * Version 0.2.0 gave some warnings about non-existing columns. The
   warnings are benign and can be safely ignored. However, they are
   avoided in Version 0.2.1.
+
+* Updating initial values with `SAME`
 
 # NMsim 0.2.0
 

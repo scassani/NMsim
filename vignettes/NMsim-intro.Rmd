@@ -593,7 +593,7 @@ p.pi
 ```
 
 
-## Read previously generated simulations
+# Read previously generated simulations
 There is no need to save simulation results because they are already saved by `NMsim`. Instead, use arguments `dir.sims`, `dir.res` and `name.sim` to make sure to get a meaningful structure for the generated files. Then read the results with `NMreadSim()`. To re-read the first simulation we did in this article, we can do this:
 
 

@@ -15,8 +15,8 @@
 
 
 
-genPhiFile <- function(data,file){
-##     if(missing(file)) file <- NULL
+genPhiFile <- function(data,file,overwrite=FALSE){
+    ##     if(missing(file)) file <- NULL
 
     
     name.eta.phi <- NULL
@@ -24,7 +24,7 @@ genPhiFile <- function(data,file){
     SUBJECT_NO <- NULL
     
     dt.covs <- findCovs(data,by="ID",as.fun="data.table")
-    ### it should be checked against the ext file that we found all the etas.
+### it should be checked against the ext file that we found all the etas.
     
     cnames.covs <- colnames(dt.covs)
     dt.names <- data.table(
@@ -39,15 +39,19 @@ genPhiFile <- function(data,file){
     setnames(dt.etas,dt.names$name.tab,dt.names$name.eta.phi)
     dt.etas[,SUBJECT_NO:=.I]
     setcolorder(dt.etas,"SUBJECT_NO")
-    
-    fwrite(dt.etas,file=file,sep=" ")
-    lines.phi <- readLines(file)
+
+    tfile <- tempfile()
+    fwrite(dt.etas,file=tfile,sep=" ")
+    lines.phi <- readLines(tfile)
     lines.phi <- paste(" ",lines.phi)
-
-
     lines.phi <- c("TABLE NO.     1: Derived from output tables by NMsim",lines.phi)
+    
+    if(!file.exists(file)||overwrite){
+        writeTextFile(lines.phi,file)
+    } else {
+        message("Existing file not overwritten.")
+    }
 
-    writeTextFile(lines.phi,file)
     return(invisible(lines.phi))
 
 }

@@ -60,8 +60,6 @@ completeCov <- function(covlist,data,col.id="ID",sigdigs=2){
         
 ### todo carry over names
                 if(!is.null(names(covlist$quantiles))){
-                    ## covlist$covvalc <- covlist$values
-                ## } else {
                     names(covlist$values) <- names(covlist$quantiles)
                 }
     }

@@ -9,7 +9,7 @@
 ##'     the analysis on.
 ##' @param cover.ci The coverage of the confidence intervals. Default
 ##'     is 0.95.
-##' @param by a character vector of names columns to perform all
+##' @param by a character vector of column names to perform all
 ##'     calculations by. This could be sampling subsets or analyte.
 ##' @param as.fun The default is to return data as a
 ##'     `data.frame`. Pass a function (say `tibble::as_tibble`) in
@@ -130,10 +130,21 @@ summarizeCovs <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun)
     
 ### summarize distribution of ratio to ref across parameter samples/models
     sum.uncertain <- sum.res.model[
-       ,setNames(as.list(quantile(predm/val.exp.ref,probs=c((1-cover.ci)/2,.5,1-(1-cover.ci)/2))),
+       ,setNames(as.list(quantile(predm/val.exp.ref,probs=c((1-cover.ci)/2,.5,1-(1-cover.ci)/2),na.rm=TRUE)),
                  c("predml","predmm","predmu"))
        ,by=c(allby,"metric.var")]
+### check whether NA's were produced by quantile
+    if(any(unlist(
+        sum.uncertain[,lapply(.SD,function(x)any(is.na(x))),.SDcols=c("predml","predmm","predmu")]
+    ))){
+        if(sum.res.model[,any(val.exp.ref==0)]){
+            warning("NA's produced. There are 0's in the reference exposures which may be the reason.")
+        } else {
+            warning("NA's produced. 0's not found in the reference exposures.")
+        }
+    }
 
+    
 
 ### Section end: Summarize exposure metrics vs covariates
     ## A factor representation of covariate values - only based on the remainding values - not reference

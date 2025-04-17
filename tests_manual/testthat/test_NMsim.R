@@ -28,6 +28,42 @@ setorder(dt.sim.known,ID,TIME,EVID,CMT)
 dir.psn.custom= "/opt/psn"
 
 
+identical_cols <- function(x,y){
+    cols.x <- colnames(x)
+    cols.y <- colnames(y)
+    ##if(!identical(sort(cols.x),sort(cols.y))) stop("different")
+
+    dt.diff <- c()
+    
+    if(identical(sort(cols.x),sort(cols.y))){
+        if(!identical(cols.x,cols.y)){
+            dt.diff <- c(dt.diff,"column ordering different")
+        }
+    } else {
+        dt.diff <- c(dt.diff,"Different columns present in x and y")
+    }
+
+    res.ident <- sapply(cols.x,function(col){
+        identical(x[[col]],y[[col]])
+    })
+
+    if(!all(res.ident)) {
+        dt.diff <- c(dt.diff,"difference in columns")
+        message("differences in",paste(cols.x[!res.ident],collapse=", "))
+    }
+
+    if(length(dt.diff)){
+        compareCols(x,y)
+    }
+    if(length(dt.diff)==0){
+        message("Columns identical!")
+    } else {
+        message(paste(dt.diff,collapse="\n"))
+    }
+    return(invisible(dt.diff))
+    
+}
+
 ## 
 ## path.nonmem <- "/opt/NONMEM/nm75/run/nmfe75"
 
@@ -55,11 +91,15 @@ pickPath <- function(paths){
 
 
 #### need a function to drop NMsimVersion and NMsimTime from table
-fix.time <- function(x){
+fix.time <- function(x,extra=NULL){
     meta.x <- attr(x,"NMsimModTab")
     ## meta.x$time.call <- as.POSIXct("2020-02-01 00:01:01",tz="UTC")
     meta.x$NMsimVersion <- NULL
     meta.x$NMsimTime <- NULL
+
+    if(!is.null(extra)){
+        meta.x[,(extra):=NULL]
+    }
     
     setattr(x,"NMsimModTab",meta.x)
     invisible(x)
@@ -356,13 +396,14 @@ test_that("basic - spaces in paths",{
                        method.update.inits="nmsim"
                        )
 
-    fix.time(simres.psn)
-    fix.time(simres.nm)
-    
+    fix.time(simres.psn,"path.mod.exec")
+    fix.time(simres.nm,"path.mod.exec")
+
     expect_equal(simres.psn,simres.nm)
 
     if(F){
         compareCols(simres.psn,simres.nm)
+        identical_cols(simres.psn,simres.nm)
         compareCols(attributes(simres.psn)$NMsimModTab,attributes(simres.nm)$NMsimModTab)
     }
 })
@@ -392,8 +433,9 @@ test_that("SAEM - default",{
         ref <- readRDS(fileRef)
         ref
         simres
-        compareCols(simres,ref)
-
+        identical_cols(ref,simres)
+        
+        
         attributes(simres)
         attributes(ref)
         
@@ -436,7 +478,7 @@ test_that("SAEM - known",{
 
     if(F){
         ref <- readRDS(fileRef)
-        compareCols(simres,ref)
+        identical_cols(simres,ref)
         simres
         ref
         ref$IPRED
@@ -700,6 +742,9 @@ test_that("default with renaming",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres,ref)
+
+        identical_cols(simres,ref)
+
         ref
         simres
         compareCols(
@@ -815,7 +860,8 @@ test_that("transform",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres,ref)
-        ref
+identical_cols(simres,ref)
+ref
         simres
         
         compareCols(attributes(simres)$NMsimModTab,
@@ -849,6 +895,8 @@ test_that("dir.sims and dir.res with NMdataConf",{
     if(F){
         ref <- readRDS(fileRef)
         compareCols(simres,ref)
+        identical_cols(simres,ref)
+
         ref
         simres
         
@@ -1207,6 +1255,7 @@ test_that("basic - nmsim update inits",{
 
     if(F){
         ref <- readRDS(fileRef)
+        identical_cols(ref,simres)
         ref
         simres
     }
@@ -1274,10 +1323,10 @@ test_that("fast tables",{
     NMdataConf(dir.res="testOutput/simres")
     
 
-    dt.sim <- NMcreateDoses(TIME=0,ADDL=100,II=24,AMT=40) |>
-        addEVID2(TAPD=seq(0.25,24,by=.25),CMT=2)
+    dt.sim.this <- NMcreateDoses(TIME=0,ADDL=100,II=24,AMT=40) |>
+        addEVID2(TAPD=seq(1,24,by=6),CMT=2)
 
-    dt.sim[,WTBLI:=75]
+    dt.sim.this[,WTBLI:=75]
 
     file.mod <- "~/wdirs/NMsim/tests/testthat/testData/nonmem/xgxr032.mod"
     ## readLines(file.mod)
@@ -1295,7 +1344,7 @@ test_that("fast tables",{
     name.sim <- paste0("tabopts",Iopts)
 
     res1 <- NMsim(file.mod=file.mod,
-                  data=dt.sim,
+                  data=dt.sim.this,
                   name.sim=name.sim,
                   table.vars=cc(PRED,IPRED,Y)
                   ## ,subproblems=2
@@ -1306,7 +1355,7 @@ test_that("fast tables",{
     ## attributes(res1)$NMsimModTab
     
     res2 <- NMsim(file.mod=file.mod,
-                  data=dt.sim,
+                  data=dt.sim.this,
                   name.sim="nmrep_subprob",
                   table.vars=cc(PRED,IPRED,Y,NMREP)
                  ,subproblems=2
@@ -1315,8 +1364,8 @@ test_that("fast tables",{
                  ,carry.out=c("TAPD","WTBLI")
                   )
 
-    
-    
+    res1    
+    res2    
 })
 
 
@@ -1345,6 +1394,9 @@ test_that("subproblems and nsims",{
 
     if(F){
         ref <- readRDS(fileRef)
+        identical_cols(simres,ref)
+        compareCols(attributes(simres)$NMsimModTab,
+                    attributes(ref)$NMsimModTab)
         simres
         ref
         omega.sim
@@ -1378,6 +1430,9 @@ test_that("commas in data set",{
 
     if(F){
         ref <- readRDS(fileRef)
+        identical_cols(simres,ref)
+        compareCols(attributes(simres)$NMsimModTab,
+                    attributes(ref)$NMsimModTab)
         simres
         ref
     }

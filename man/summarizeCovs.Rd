@@ -21,7 +21,7 @@ the analysis on.}
 \item{cover.ci}{The coverage of the confidence intervals. Default
 is 0.95.}
 
-\item{by}{a character vector of names columns to perform all
+\item{by}{a character vector of column names to perform all
 calculations by. This could be sampling subsets or analyte.}
 
 \item{as.fun}{The default is to return data as a

@@ -143,9 +143,11 @@ NMexec <- function(files,file.pattern,dir,sge=TRUE,input.archive,
     
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
+    dir.tmp <- NULL
     nid <- NULL
     input <- NULL
     result <- NULL
+    string.cmd <- NULL
     name <- NULL
     
 ### Section end: Dummy variables, only not to get NOTE's in pacakge checks

@@ -569,6 +569,7 @@ NMsim <- function(file.mod,data,
     none <- NULL
     psn <- NULL
     par.type <- NULL
+    path.mod.exec <- NULL
     path.rds <- NULL
     path.results <- NULL
     pathResFromists <- NULL
@@ -1354,7 +1355,7 @@ NMsim <- function(file.mod,data,
     ## if files.needed, psn execute cannot be used.
     if("files.needed"%in%colnames(dt.models.gen)){
         if(execute && NMsimConf$method.execute=="psn"){
-            stop("method.execute=\"psn\" cannot be used with simulation methods that need additional files to run. Try method.execute=\"nmsim\".")
+            warning("method.execute=\"psn\" currently has issues with simulation methods that need additional files to run - and this one does. Try method.execute=\"nmsim\" which is default when `path.nonmem` is provided.")
         }
     }
     

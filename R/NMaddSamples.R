@@ -45,12 +45,12 @@
 ##'     want to keep your duplicated events, use `unique=FALSE`.
 ##' @param extras.are.covs If `TIME` and/or `TAPD` are `data.frame`s
 ##'     and contain other columns than `TIME` and/or `TAPD`, those are
-##'     by default assumed to be covariates to be merged with
+##'     by default assumed to be subject-level covariates to be merged with
 ##'     data. More specifically, they will be merged by when the
 ##'     sample times are added. If `extras.are.covs=FALSE`, they will
-##'     not be merged by. Instead, they will just be kept as
+##'     not be merged by. Instead, they will be kept as
 ##'     additional columns with specified values, aligned with the
-##'     sample times.
+##'     sample times. See examples.
 ##' @param quiet Suppress messages? Default is `FALSE`.
 ##' @param as.fun The default is to return data as a
 ##'     `data.frame`. Pass a function (say `tibble::as_tibble`) in
@@ -74,10 +74,13 @@
 ##' ## Separate sampling schemes depending on covariate values
 ##' dt.doses <- NMcreateDoses(TIME=data.frame(regimen=c("SD","MD","MD"),TIME=c(0,0,12)),AMT=10,CMT=1)
 ##'
-##' seq.time.sd <- data.frame(regimen="SD",TIME=seq(0,6))
-##' seq.time.md <- data.frame(regimen="MD",TIME=c(0,4,12,24))
+##' seq.time.sd <- data.frame(regimen="SD",TIME=seq(0,3))
+##' seq.time.md <- data.frame(regimen="MD",TIME=c(0,12,24))
 ##' seq.time <- rbind(seq.time.sd,seq.time.md)
 ##' NMaddSamples(dt.doses,TIME=seq.time,CMT=2)
+##'
+##' ## All subjects get all samples (\code{extras.are.covs=FALSE})
+##' NMaddSamples(dt.doses,TIME=seq.time,extras.are.covs=FALSE,CMT=2)
 ##'
 ##' ## an observed sample scheme and additional simulation times
 ##' df.doses <- NMcreateDoses(TIME=0,AMT=50,addl=list(ADDL=2,II=24))

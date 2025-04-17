@@ -43,7 +43,7 @@
 ##'     combine sequences of time points that overlap (maybe across
 ##'     `TIME` and `TAPD`), and let `NMaddSamples()` clean them. If you
 ##'     want to keep your duplicated events, use `unique=FALSE`.
-##' @param extras.are.covs If `TIME` and/or `TAPD` are `data.frame`s
+##' @param extras.are.covs If \code{TIME} and/or `TAPD` are `data.frame`s
 ##'     and contain other columns than `TIME` and/or `TAPD`, those are
 ##'     by default assumed to be subject-level covariates to be merged with
 ##'     data. More specifically, they will be merged by when the
@@ -79,7 +79,7 @@
 ##' seq.time <- rbind(seq.time.sd,seq.time.md)
 ##' NMaddSamples(dt.doses,TIME=seq.time,CMT=2)
 ##'
-##' ## All subjects get all samples (\code{extras.are.covs=FALSE})
+##' ## All subjects get all samples (extras.are.covs=FALSE)
 ##' NMaddSamples(dt.doses,TIME=seq.time,extras.are.covs=FALSE,CMT=2)
 ##'
 ##' ## an observed sample scheme and additional simulation times

@@ -120,3 +120,28 @@ file.psn <- function(dir.psn,file.psn){
     if(dir.psn=="") return(file.psn)
     file.path(dir.psn,file.psn)
 }
+
+##' Simplify file paths by dropping .. and //
+##' @param single or multiple file or dir paths as strings.
+##' @examples
+##' path=c("ds/asf.t","gege/../jjj.r")
+##' simplePath(path)
+##' @return Simplified paths as strings
+##' @keywords internal
+simplePath <- function(path){
+        parts.list <- strsplit(path,"/")
+
+        sapply(parts.list,function(parts){
+    simple <- character(0)
+    
+    for(p in parts){
+        if(p==""||p==".") next
+        if(p==".."){
+            if(length(simple)) simple <- head(simple,-1)
+        } else {
+            simple <- c(simple,p)
+        }
+    }
+    paste(simple,collapse="/")
+})
+}

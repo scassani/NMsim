@@ -1031,7 +1031,7 @@ NMsim <- function(file.mod,data,
     ## if(reuse.results && all(dt.models[,path.rds.exists==TRUE])){
     ## if(reuse.results && all(dt.models[,path.rds.exists==TRUE])){
     if(reuse.results && all(path.rds.exists==TRUE)){
-        if(!quiet) message(sprintf("Reading from simulation results on file:\n%s",dt.models[,paste(unique(path.rds),collapse="\n")]))
+        if(!quiet) message(sprintf("Reading from simulation results on file:\n%s",dt.models[,paste(simplePath(unique(path.rds)),collapse="\n")]))
         
         simres <- try(NMreadSim(dt.models[,path.rds],wait=wait,quiet=quiet,progress=progress,as.fun=as.fun))
         if(inherits(simres,"try-error") || is.null(simres) || nrow(simres)==0) {
@@ -1062,9 +1062,9 @@ NMsim <- function(file.mod,data,
 ###### Messaging to user
     if(!quiet) {
         message(sprintf("Location(s) of intermediate files and Nonmem execution:\n%s",
-                        dt.models[,paste(paste0("  ",unique(dir.sim)),collapse="\n")]))
+                        dt.models[,paste(paste0("  ",simplePath(unique(dir.sim))),collapse="\n")]))
         message(sprintf("Location of final result files:\n%s\n",
-                        dt.models[,paste(paste0("  ",unique(dirname(path.rds))),collapse="\n")]))
+                        dt.models[,paste(paste0("  ",simplePath(unique(dirname(path.rds)))),collapse="\n")]))
         ## It would be nice to say how many. But we dont know until after NMsim_method()
         ## message(sprintf("* Writing %d simulation control stream(s) and simulation data set(s)",dt.models[,.N]))
         message(sprintf("* Writing simulation control stream(s) and simulation data set(s)"))
@@ -1633,12 +1633,12 @@ NMsim <- function(file.mod,data,
             if(nrow(simres)==0){
                 message("Simulation results are empty. An empty data.frame is returned.")
             }
-            message("\nSimulation results returned. Re-read them without re-simulating using:\n",paste(sprintf("  simres <- NMreadSim(\"%s\")",dt.models[,unique(path.rds)]),collapse="\n"))
+            message("\nSimulation results returned. Re-read them without re-simulating using:\n",paste(sprintf("  simres <- NMreadSim(\"%s\")",dt.models[,simplePath(unique(path.rds))]),collapse="\n"))
         }
         return(returnSimres(simres))
     } else {
         if(!quiet & execute){
-            message(sprintf("\nRead results with:\n  simres <- NMreadSim(c(\"%s\"))\nThe first time the results are read, they will be efficiently stored in the simulation results folder. Until then, they only exist as Nonmem result files. Trick: `NMreadSim()` also supports the `wait` argument to watch over Nonmem runs and return results once ready.",paste(dt.models[,unique(path.rds)],collapse="\",\n    \"")))
+            message(sprintf("\nRead results with:\n  simres <- NMreadSim(c(\"%s\"))\nThe first time the results are read, they will be efficiently stored in the simulation results folder. Until then, they only exist as Nonmem result files. Trick: `NMreadSim()` also supports the `wait` argument to watch over Nonmem runs and return results once ready.",paste(dt.models[,simplePath(unique(path.rds))],collapse="\",\n    \"")))
         }
         addClass(dt.models,"NMsimModTab")
         return(invisible(dt.models[,unique(path.rds)]))

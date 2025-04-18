@@ -351,7 +351,7 @@ if(is.null(read.fst)){
         res[,ROWMODEL2:=NULL]
     }
     
-    res <- NMorderColumns(res,first=cc(PRED,IPRED),as.fun="data.table")
+    res <- NMorderColumns(res,first=cc(PRED,IPRED),as.fun="data.table",col.id="ID",col.time="TIME")
     setcolorder(res,c(setdiff(colnames(res),intersect(colnames(res),c("model.sim","model","name.sim"))),c("name.sim","model","model.sim")
                       ))
 

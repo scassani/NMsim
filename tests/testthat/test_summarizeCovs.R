@@ -36,7 +36,7 @@ if(FALSE){
     simres <- NMsim(file.mod # path to NONMEM model
                    ,data=dt.sim, # simulation dataset
                    ,dir.sims="testOutput/simtmp",
-                   ,dir.res="testOutput",
+                   ,dir.res="testData/simres",
                    ,name.sim="forest1" # output name suffix
                    ,method.sim=NMsim_NWPRI # sampling with mvrnorm
                    ,subproblems=3
@@ -51,7 +51,7 @@ test_that("basic",{
 
     fileRef <- "testReference/summarizeCovs_01.rds"
     
-    simres <- NMreadSim("testOutput/xgxr134_forest1_MetaData.rds")
+    simres <- NMreadSim("testData/simres/xgxr134_forest1_MetaData.rds")
 
     funs.exposure <- list(
         "Cmax"=function(x) max(x$IPRED)
@@ -64,9 +64,15 @@ test_that("basic",{
                                    by=cc(period),
                                    cover.ci=.95)
                 
-    fileRef <- "testReference/summarizeCovs_02.rds"
-    simres <- NMreadSim("testOutput/xgxr134_forest1_MetaData.rds")
+})
+
+
+test_that("zero refs",{
     
+    fileRef <- "testReference/summarizeCovs_02.rds"
+##    simres <- NMreadSim("testOutput/xgxr134_forest1_MetaData.rds")
+  simres <- NMreadSim("testData/simres/xgxr134_forest1_MetaData.rds")
+  
     funs.exposure <- list(
         "Cmax"=function(x) max(x$IPRED),
         "Cmin"=function(x) min(x$IPRED)
@@ -83,7 +89,6 @@ test_that("basic",{
                       )
         )
 
-    res
 
     expect_equal_to_reference(res,fileRef)
 

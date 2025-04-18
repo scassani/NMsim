@@ -220,13 +220,14 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
         if(!is.data.frame(TAPD)){
             TAPD <- data.table(TAPD=TAPD)
         }
-
+        
         if(!"TAPD"%in%colnames(TAPD)) stop("When TAPD is a data.frame, it must contain a column called TAPD.")
         TAPD <- as.data.table(TAPD)
         ## TODO - TAPD cannot be a covariate
-        cols.by <- intersect(colnames(TAPD),colnames(covs.data))
-        
+        cols.by <- setdiff(intersect(colnames(TAPD),colnames(covs.data)),"TAPD")
+        covs.data <- covs.data[,setdiff(colnames(covs.data),"TAPD"),with=FALSE]
         if(length(cols.by) == 0){
+            
             dt.tapd <- egdt(TAPD,covs.data,quiet=TRUE)
             ##dt.tapd <- TAPD
         } else {

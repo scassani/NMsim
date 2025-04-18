@@ -124,8 +124,10 @@ file.psn <- function(dir.psn,file.psn){
 ##' Simplify file paths by dropping .. and //
 ##' @param single or multiple file or dir paths as strings.
 ##' @examples
-##' path=c("ds/asf.t","gege/../jjj.r")
-##' simplePath(path)
+##' \dontrun{
+##' path <- c("ds/asf.t","gege/../jjj.r")
+##' NMsim:::simplePath(path)
+##' }
 ##' @return Simplified paths as strings
 ##' @keywords internal
 simplePath <- function(path){

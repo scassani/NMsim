@@ -51,7 +51,7 @@ test_that("basic",{
 
     fileRef <- "testReference/summarizeCovs_01.rds"
     
-    simres <- NMreadSim("testOutput/simres/xgxr134_forest1_MetaData.rds")
+    simres <- NMreadSim("testOutput/xgxr134_forest1_MetaData.rds")
 
     funs.exposure <- list(
         "Cmax"=function(x) max(x$IPRED)
@@ -65,7 +65,7 @@ test_that("basic",{
                                    cover.ci=.95)
                 
     fileRef <- "testReference/summarizeCovs_02.rds"
-    simres <- NMreadSim("testOutput/simres/xgxr134_forest1_MetaData.rds")
+    simres <- NMreadSim("testOutput/xgxr134_forest1_MetaData.rds")
     
     funs.exposure <- list(
         "Cmax"=function(x) max(x$IPRED),

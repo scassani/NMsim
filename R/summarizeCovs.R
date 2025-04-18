@@ -26,7 +26,6 @@
 
 
 summarizeCovs <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun){
-
     . <- NULL
     EVID <- NULL
     covlabel <- NULL
@@ -49,6 +48,8 @@ summarizeCovs <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun)
 
     if(missing(as.fun)) as.fun <- NULL
     as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
+
+    if(missing(cols.value)) cols.value <- NULL
     
     ## A standard evaluation interface to data.table::dcast
     dcastSe <- function(data,l,r,...){
@@ -59,14 +60,12 @@ summarizeCovs <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun)
     
 ### this is using model and model.sim as introduced in NMsim 0.1.4
     ## will not work with earlier versions!
-
+    
     ## predefined data columns to calculate by
     databy <- cc(model,type,pred.type,covvar,covlabel,covref,covval,covvalc)
-    
-    ## allby expands "by" to contain data columns that calculations
-    ## will always be done by.
-    allby <- c(databy,by)
 
+
+    
 ### modelby are NMsim model columns that will be used if found
     ## model.sim should always be present starting from NMsim 0.1.4. NMREP
     ## is in case a method using SUBPROBLEMS is used - like NWPRI.
@@ -75,9 +74,9 @@ summarizeCovs <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun)
     
     simres <- as.data.table(data)[EVID==2]
 
-    if(missing(cols.value)) cols.value <- NULL
     if(is.null(cols.value)){
-        simres[,pred.type:=NA]
+        ## simres[,pred.type:=NA]
+        databy <- setdiff(databy,"pred.type")
     } else {
 ### The var.conc argument applied
         ## long format so calculations can be done by "prediction type".
@@ -87,6 +86,18 @@ summarizeCovs <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun)
                        value.name="value")
     }
 
+    
+    ## allby expands "by" to contain data columns that calculations
+    ## will always be done by.
+    allby <- c(databy,by)
+
+    
+    cols.miss <- setdiff(c(allby,"ID"),colnames(simres))
+    if(length(cols.miss)){
+        stop(paste("The following columns are missing in data. `summarizeCovs` is intended to summarize results of simulations defined using `expandCovs()`. Please consult `?expandCovs`. Missing:\n",paste(cols.miss,collapse=",\n")))
+    }
+
+    
 ### summarizing exposure metrics for each subject in each model,
 ### each combination of covariates
     resp.model <- simres[,lapply(funs.exposure,function(f)f(.SD)),
@@ -134,6 +145,7 @@ summarizeCovs <- function(data,funs.exposure,cols.value,cover.ci=0.95,by,as.fun)
                  c("predml","predmm","predmu"))
        ,by=c(allby,"metric.var")]
 ### check whether NA's were produced by quantile
+    
     if(any(unlist(
         sum.uncertain[,lapply(.SD,function(x)any(is.na(x))),.SDcols=c("predml","predmm","predmu")]
     ))){

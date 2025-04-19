@@ -144,7 +144,7 @@ postprocess by the column that distringuishes those, too. In this
 example, that would be `analyte`.
 
 
-## Simulation
+# Simulation With Parameter Uncertainty
 
 We need to run the simulations repeatedly, sampling parameters based on uncertainty estimates. This can be done in various ways. First of all, one must choose between non-parametric and parametric sampling. Non-parameteric sampling is typically based on a bootstrap, and the parametetric sampling is often based on a successfull `$COVARIANCE` step. `NMsim` has methods to do either type, and multiple methods are available for parametric sampling. The best source of information on these different methods is the ACOP2024 poster
 [Simulation of clinical trial predictions with model uncertainty using NMsim](../reference/figures/NMsim_param_uncertainty_web.pdf) by Sanaya Shroff and Philip Delff.
@@ -190,7 +190,7 @@ A large RSE is a potential issue for strictly positive parameters (RSE=0.25 for 
 
 </details>
 
-## Post processing 
+# Post processing 
 
 `NMsim` provides a function to do the post processing of the set of simulations setup by `expandCovs()`. The key steps performed by this function are outlined below. Most importantly, it normalizes  the exposures by the reference value for each sampled set of parameters. Then, it derives median and a confidence interval as quantiles in the simulated distribution.
 
@@ -220,7 +220,7 @@ sum.uncertain <- summarizeCovs(simres,
                                  )
 ```
 
-## Plotting 
+# Plotting 
 
 We will use the R package `coveffectsplot` for plotting. `coveffectsplot::forest_plot()` requires certain column names so we adjust those first.
 
@@ -274,7 +274,7 @@ forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"])
 ```
 
 
-## Post processing explained step by step
+# Post processing explained step by step
 We are including the code from the main steps in the post processing function, `NMsim::summarizeCovs()`. It is important that the scientist understands that what the forest plots derived in this document represent is the relative effect of the covariate on the exposure metric. This is derived by `NMsim::summarizeCovs()` as quantiles of the exposure relative to the reference subject. The confidence interval hence expresses the uncertainty on the covariate effect for a subject with other covariates at reference values.
 
 <details>

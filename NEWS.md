@@ -34,7 +34,8 @@
 
 * Updating initial values in models using `SAME` argument on random
   effects (e.g. in between-occasion variability) would fail if the
-  effects were fixed. Thanks to Sergio Iadevaia for reporting this.
+  effects were fixed. Resolved. Thanks to Sergio Iadevaia for
+  reporting this.
 
 * Data sets with commas in character columns would make `NMsim`
   fail. Support for such data sets had not been carried over with the
@@ -48,6 +49,9 @@
   only. This is for the common case where initial doses (say a load or
   an initial escalation phase) are followed by a maintenance
   regimen. The bug has been resolved.
+  
+* `NMaddSamples()` would fail if using the `TAPD` argument when `TAPD`
+  was already available as a column in data. Fixed.
 
 ## Other Improvements 
 * The configuration of job submission is simplified when jobs are run
@@ -60,6 +64,9 @@
   modeler), `summarizeCovs()` would throw an error. Now
   `summarizeCovs()` will try to identify this, give useful messages
   back, and report the estimates.
+
+* Consistent ordering of columns in simulation results independently
+  of `col.id` and `col.time`.
 
 # NMsim 0.2.0
 

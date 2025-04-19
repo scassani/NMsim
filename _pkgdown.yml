@@ -9,6 +9,7 @@ template:
     assets/NMsim_general_html.Rmd
     assets/NMsim_general_web.pdf
     assets/ACOP_logo_transp.png
+mode: release
 navbar:
   structure:
     left: [home, articles, reference, news, pub, github]

@@ -30,24 +30,60 @@ The forest plot is an effective and widely recognized way to
 illustrate estimated covariate effects on exposure or response, or
 parameters related to these (e.g. clearance). The forest plot
 typically includes precision of the estimate in terms of a confidence
-interval. Often, an acceptance region such as the 80%-125% bio
-equivalence is included for comparison.
+interval. NMsim provides highly automated methods for simulation of Nonmem models for generation of forest plots. 
+
+
+## Objectives
+This short demonstration of generation of simulation-based forest plots using NMsim is intended to make the user ready to perform the following steps.
+
+- Generate simulation data sets designed for forest plot simulations
+-- Dosing and sampling scheme using `NMcreateDoses()` 
+-- Specify covariates to simulate using `expandCovs()`
+- Simulate with parameter uncertainty by one of
+-- Based on $COV using `NMsim_NWPRI()` or `NMsim_VarCov()`
+-- Using an existent bootstrap estimation (e.g. from PSN)
+- Postprocess simulation for plotting/tabulation
+-- Define end-points, such as an AUC, Cmax or any simulation-based endpoint
+-- Summarize covariate effect estimates with confidence intervals, using `summarizeCovs()`
+-- Plot the summary as a forest plot
+
+Each step is facilitated with efficient interfaces (R functions) and automated execution. Essentially, each step above is one function call. 
+
+Plotting is includied in the example using the `coveffectsplot` package. Other packages or user's own scripts can be used for plotting. 
+
+We shall focus the main example to be simple and general. Hopefully, the user will be able to customize and apply a similar workflow to their own models with minimum effort. Folded code-chunks and references will be provided for additional features.
+
+## Prerequisites
+- An estimated Nonmem model - at least, input control stream and `.ext` file.
+-- If simulating based on `$COVARIANCE`, the `.cov` file.
+-- If simulating based on  bootstrap, either a summary of or all the `.ext` files from the boot strap estimations must be available.
+-- If references and/or covariate quantile values are to be calculated by NMsim (easiest option), ideally all output (`$TABLE`) data sets and the input data set used for the estimation are available.
+- Familiarity with [`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html), at least including "A first simulation with `NMsim()`".
+-- Configuration of NMsim so user can succesfully do simulation using `NMsim()`.
+-- Familiarity with methods to simulate with parameter uncertainty can be helpful. Before settling on your final forest plot simulation, it is recommended to understand pros and cons of the different methods provided by NMsim as described in [`NMsim-ParamUncertain.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-ParamUncertain.html).
+
+## Background
+
+Forest plots include a confidence interval of the estimated or
+simulated effect. The confidence interval is derived from uncertainy
+estimates of the parameter set. This is not between-subject
+variability (BSV), also called intra-individual variability. For NMsim
+to simulate the distribution of the covariate effect, this uncertainty
+must be obtained through one of two sources. Either as the result of a
+succesfull `$COVARIANCE` step on the model, or using an already executed bootstrap. 
+
 
 In some cases, the forest plot can be derived based on model estimates
-without simulation. This is the case for a forest plot on exposure if
-the PK is linear and only steady-state average concentration (or AUC)
-is of interest. If the PK is non-linear and/or exposure metrics such
-as Cmax which depends on multiple PK parameters are of interest, a
+without simulation. This is the case for a forest plots of PK
+parameters such as clearance when a covariance step is available, and
+it can be the case with forest plots of exposure metrics if the PK is
+linear and only steady-state average concentration (or AUC) is of
+interest. If the PK is non-linear and/or exposure metrics such as Cmax
+which depends on multiple PK parameters are of interest, a
 simulation-based forest plot may be needed. As we shall see, NMsim
-provides a flexible and concise framework to perform the required
-simulations, a function for summarizing the simulation results is
-provided, and it is demonstrated how the summary is easily plotted
-using the coveffectsplot R package.
-
-This vignette is no attempt to harmonize how to construct a forest
-plot. Instead, we shall describe the steps taken, and it is up to the
-scientist to choose how they want to construct the analysis to address
-their questions most effectively. 
+provides a flexible and concise framework to perform the required. In
+fact, the simulation-based workflow is so general and easy to perform
+that it may be prefered even in cases where simulation is not needed.
 
 # Initialization
 
@@ -76,65 +112,45 @@ file.mod <- "NMsim-forest-models/xgxr134.mod"
 
 # Generation of simulation input data
 
+
+## Dosing and sampling
 The simulation data set has to match the model in compartment numbers,
 and it must contain all variables needed to run the NONMEM model. We
-simulate daily dosing of 30 mg.
-
+simulate daily dosing of 30 mg. `col.id=NA` to omit a subject id in `doses` as we will instead reuse it for multiple subjects.
 
 
 ```{r}
-doses <- NMcreateDoses(TIME=0,AMT=30,ADDL=100,II=24,col.id=NA)
+doses <- NMcreateDoses(TIME=0,AMT=30,ADDL=29,II=24)
 doses
-```
-
-`NMsim::expandCovs()` can be used to construct a set of simulations needed to derive a forest plot. It varies one covariate at a time, keeping all other covariates at their reference value. It can derive references and quantiles from a data set.
-
-For reference values we use median in the observed population for continuous covariates and manually select "Female" as the reference for sex.
-
-
-```{r}
-## reading output and input tables from estimation. Used to determine
-## reference values and quantiles.
-data.ref <- NMdata::NMscanData(file.mod,quiet=TRUE)
-covs <- expandCovs(
-    AGE=list(ref=median,quantiles=c(10,25,75,90)/100,label="Age (years)"),
-    ## notice, values OR quantiles can be provided
-    WEIGHTB=list(ref=median, quantiles=c(10,25,75,90)/100, label="Bodyweigt (kg)"),
-    MALEN=list(ref=c(Female=0), values=c(Male=1), label="Sex"),
-    data=data.ref,
-    as.fun="data.table"
-)
-## adding distinct ID's for each combination of covariates
-covs[,ID:=.GRP,by=.(type,covvar,covval)]
-covs
-```
-
-We now have all combinations of covariates in the object called `covs`. Notice the `type` column which distinguishes the reference combination in contrast to the other simulations where one covariate is being varied at a time. 
-
-```{r}
-## repeating the doses for all combinations of covariates
-dt.dos <- covs[,doses[],by=covs]
-dims(covs,doses,dt.dos)
-
 ```
 
 We sample every 15 minutes on the first day and one day in steady-state. 
 
 ```{r}
 ## add a sampling scheme
-time.sim <- rbind(
-    data.table(TIME=seq(0,24,.25),period="Day 1"),
-    data.table(TIME=seq(0,24,.25)+30*24,period="Steady-State")
+time.sim <- c(
+    seq(0,24,.25), ## Day 1
+    seq(0,24,.25)+30*24 ## Steady-State
 )
-dt.sim <- addEVID2(dt.dos,TIME=time.sim,CMT=2)
-dims(dt.dos,time.sim,dt.sim) 
+dt.sim <- addEVID2(doses,TIME=time.sim,CMT=2,as.fun="data.table")
+dt.sim[TIME<=24,period:="Day 1"]
+dt.sim[TIME>=30*24&TIME<=31*24,period:="Steady-State"]
 ```
+
+The following table summarizes the number of doses and samples. Notice, the doses are repeated.
+
+```{r summarize-dtsim,echo=FALSE}
+as.data.table(dt.sim)[,.N,keyby=.(period,EVID,ADDL,II)]
+```
+
+<details>
+<summary>How to sample multiple endpoints</summary>
 
 There is only one analyte in this data set. If for instance, you have a parent and a metabolite, adding sampling times could look like this:
 
 ```{r}
 dt.sim.parent.metab <-
-    addEVID2(dt.dos,TIME=time.sim,CMT=data.frame(analyte=c("parent","metabolite"),CMT=c(2,3)))
+    addEVID2(doses,TIME=time.sim,CMT=data.frame(analyte=c("parent","metabolite"),CMT=c(2,3)))
 ```
 
 We used the `period` column to distinguish time intervals for the
@@ -143,6 +159,58 @@ in that column. If you are looking at multiple analytes, remember to
 postprocess by the column that distringuishes those, too. In this
 example, that would be `analyte`.
 
+</details>
+
+## Specify covariates to analyze
+`NMsim::expandCovs()` can be used to construct a set of covariate value combinations needed to derive a forest plot. It varies one covariate at a time, keeping all other covariates at their reference value. It can derive references and quantiles from a data set.
+
+For reference values we use median in the observed population for continuous covariates and manually select "Female" as the reference for sex. Here is a short example:
+
+
+```{r}
+## reading output and input tables from estimation. Used to determine
+## reference values and quantiles.
+data.ref <- NMdata::NMscanData(file.mod,quiet=TRUE)
+## Specifying the covariates
+covs <- expandCovs(
+    AGE=list(ref=55,values=c(35,45,65,75)/100,label="Age (years)"), ## Age by specific values
+    ## notice, values OR quantiles can be provided
+    WEIGHTB=list(ref=median, quantiles=c(10,25,75,90)/100, label="Bodyweigt (kg)"), ## Bodyweight by quantiles
+    MALEN=list(ref=c(Female=0), values=c(Male=1), label="Sex"), ## Sex is treated categorical
+    data=data.ref,
+    as.fun="data.table"
+)
+```
+
+- We read the estimation data set `data.ref`, and pass that as the `data` argument to `expandCovs()`. Using this, `expandCovs()` can evaluate specified quantiles of covariates on the observed or any desired population.
+- We specify reference values and simulation covariate values as specific values (see `AGE`) or  covariate quantiles (`WEIGHTB`). If quantiles are derived by `expandCovs()`, the names of the covariates (here, `AGE`, `WEIGTB`, `MALEN`) must be columns in `data`. 
+- For categorical variables, we can label numeric values like `ref=c(Female=0)` which means we label `MALEN==0` as "Female".
+
+When deriving quantiles, `expandCovs()` will first derive unique covariate values for each subject in the data set, then derive the quantiles. Each subject hence contributes equally, independently of how many data points they contribute. 
+
+```{r covs-id}
+## adding distinct ID's for each combination of covariates
+covs[,ID:=.GRP,by=.(type,covvar,covval)]
+```
+
+```{r covs-print}
+print(covs)
+```
+
+We now have all combinations of covariates in the object called `covs`. Notice the `type` column which distinguishes the reference combination in contrast to the other simulations where one covariate is being varied at a time. 
+
+```{r,dt.sim.covs}
+## repeating the doses for all combinations of covariates. Using NMdata::egdt()
+dt.sim.noid <- dt.sim[,!("ID")]
+dt.sim.covs <- egdt(dt.sim.noid,covs)
+### same thing, the data.table way
+## dt.sim.covs <- covs[,dt.sim.noid[],by=covs]
+### same thing, dplyr way
+## dt.sim.covs <- dplyr::select(dt.sim,-ID) |>
+##   cross_join(covs)
+setorder(dt.sim.covs,ID,TIME,EVID)
+```
+
 
 # Simulation With Parameter Uncertainty
 
@@ -150,7 +218,32 @@ We need to run the simulations repeatedly, sampling parameters based on uncertai
 [Simulation of clinical trial predictions with model uncertainty using NMsim](../reference/figures/NMsim_param_uncertainty_web.pdf) by Sanaya Shroff and Philip Delff.
 
 
-In this case we shall use parametric sampling. Since in this case we are simulating typical subjects (random effects fixed at zero), we only need variability on the fixed effects (THETA's). Multiple methods are available in `NMsim` to do this. We shall use the method provided by NMsim based on the multivariate normal distribution (`mvrnorm`). This method is selected because it is adequate for sampling `THETA`'s, it does not require additional software installed, and it is robust. 
+In this case we shall use parametric sampling, relying on a Nonmem `$COVARIANCE` step. Since in this case we
+are simulating typical subjects (random effects fixed at zero), we
+only need variability on the fixed effects (THETA's). Multiple methods
+are available in `NMsim` to do this.  We use `NMsim_NWPRI` - which automates simulation using the Nonmem NWPRI subroutine to sample the parameter sets. This simulation method excels in being fast to execute because it simulates all the parameter sets sequentially in one Nonmem run. It is important to run this with `typical=TRUE`. If between-subject variability is desired, please refer to [`NMsim-ParamUncertain.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-ParamUncertain.html).
+
+
+```{r sim-nwpri,eval=FALSE}
+simres.forest.nwpri <- NMsim(file.mod # path to NONMEM model
+                      ,data=dt.sim.covs, # simulation dataset
+                      ,name.sim="forest_nwpri" # output name suffix
+                      ,method.sim=NMsim_NWPRI # sampling with mvrnorm
+                      ,subproblems=500 ## number of parameter sets sampled
+                      ,typical=TRUE # FALSE to include BSV
+                      ,table.vars=cc(PRED,IPRED) # output table variables
+                      ,seed.R=342 # seed for reproducibility
+                       )
+```
+
+<details>
+<summary>Simulation using multivariate normal distribution</summary>
+
+We shall use the method provided
+by NMsim based on the multivariate normal distribution
+(`mvrnorm`). This method is selected because it is adequate for
+sampling `THETA`'s, it does not require additional software installed,
+and it is robust.
 
 
 ```{r,eval=FALSE,include=FALSE}
@@ -158,9 +251,9 @@ ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
                       ,ext=ext  # Use the sampled parameter sets
 ```
 
-```{r,eval=FALSE}
-simres.forest <- NMsim(file.mod # path to NONMEM model
-                      ,data=dt.sim, # simulation dataset
+```{r sim-mvrnorm,eval=FALSE}
+simres.forest.mvrnorm <- NMsim(file.mod # path to NONMEM model
+                      ,data=dt.sim.covs, # simulation dataset
                       ,name.sim="forest_mvrnorm" # output name suffix
                       ,method.sim=NMsim_VarCov # sampling with mvrnorm
                       ,nsims=500
@@ -172,11 +265,13 @@ simres.forest <- NMsim(file.mod # path to NONMEM model
                        )
 ```
 
+</details>
+
 If you encounter issues with samples that do not run, consider whether any of your uncertainty estimates on `THETA`'s could lead to sampled `THETA`'s that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that `THETA` on the log scale to make sure all sampled values will be positive. 
 
 
 <details>
-<summary>Click to show example</summary>
+<summary>Show example</summary>
 
 
 A quick way to look for this is by combining parameter estimates (from the `.ext` file) and the automatic labeling of the parameters using `NMdata::NMrelate()`.
@@ -198,9 +293,11 @@ A large RSE is a potential issue for strictly positive parameters (RSE=0.25 for 
 
 ```{r}
 ### Read simulation results
-simres <- NMreadSim("simres-forest/xgxr134_forest_mvrnorm_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
+simres <- NMreadSim("simres-forest/xgxr134_forest_nwpri_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
 ## Check how many models returned simulation results
-as.data.table(simres)[,uniqueN(model.sim)]
+
+as.data.table(simres)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP")]|>
+        melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
 ```
 
 The step required by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
@@ -208,8 +305,8 @@ The step required by the user is to define the functions to derive relevant expo
 ```{r}
 ### Define exposure metrics
 funs.exposure <- list(
-    "Cmax"=function(x) max(x$PRED)
-   ,"AUC"=function(x) trapez(x$TIME,x$PRED)
+    "Cmax"=function(x) max(x$IPRED)
+   ,"AUC"=function(x) trapez(x$TIME,x$IPRED)
     ## ,"Concentration at 4 hours"=function(x) x$value[x$TAPD==4]
 )
 
@@ -222,13 +319,18 @@ sum.uncertain <- summarizeCovs(simres,
 
 # Plotting 
 
-We will use the R package `coveffectsplot` for plotting. `coveffectsplot::forest_plot()` requires certain column names so we adjust those first.
+
+We will use the R package `coveffectsplot` for plotting. `coveffectsplot::forest_plot()` requires certain column names so we adjust those first. An acceptance region such as the 80%-125% bio
+equivalence is included.
+
 
 ```{r,fig.width=10,warning=FALSE}
 setDT(sum.uncertain)
 setnames(sum.uncertain,
-         cc(covvalf,predmm,predml,predmu,metric.var),
-         cc(label,mid,lower,upper,paramname)
+         ## cc(covvalf,predmm,predml,predmu,metric.var),
+         ## cc(label,mid,lower,upper,paramname)
+         cc(predmm,predml,predmu,metric.var),
+         cc(mid,lower,upper,paramname)
          )
 
 sum.uncertain[,MEANVAL:=mid]

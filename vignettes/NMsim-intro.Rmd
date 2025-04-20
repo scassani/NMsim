@@ -207,6 +207,7 @@ NMdataConf(dir.sims="simtmp-intro", ## location of sim tmp files
            dir.res="simres-intro")  ## location of sim results
 ```
 
+For more information on this and how to test the configuration, see [`NMsim-config.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-config.html).
 
 # A first simulation with `NMsim()`
 

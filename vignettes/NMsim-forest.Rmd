@@ -36,16 +36,16 @@ interval. NMsim provides highly automated methods for simulation of Nonmem model
 ## Objectives
 This short demonstration of generation of simulation-based forest plots using NMsim is intended to make the user ready to perform the following steps.
 
-- Generate simulation data sets designed for forest plot simulations
--- Dosing and sampling scheme using `NMcreateDoses()` 
--- Specify covariates to simulate using `expandCovs()`
-- Simulate with parameter uncertainty by one of
--- Based on $COV using `NMsim_NWPRI()` or `NMsim_VarCov()`
--- Using an existent bootstrap estimation (e.g. from PSN)
-- Postprocess simulation for plotting/tabulation
--- Define end-points, such as an AUC, Cmax or any simulation-based endpoint
--- Summarize covariate effect estimates with confidence intervals, using `summarizeCovs()`
--- Plot the summary as a forest plot
+* Generate simulation data sets designed for forest plot simulations
+  * Dosing and sampling scheme using `NMcreateDoses()` 
+  * Specify covariates to simulate using `expandCovs()`
+* Simulate with parameter uncertainty by one of
+  * Based on $COV using `NMsim_NWPRI()` or `NMsim_VarCov()`
+  * Using an existent bootstrap estimation (e.g. from PSN)
+* Postprocess simulation for plotting/tabulation
+  * Define end-points, such as an AUC, Cmax or any simulation-based endpoint
+  * Summarize covariate effect estimates with confidence intervals, using `summarizeCovs()`
+  * Plot the summary as a forest plot
 
 Each step is facilitated with efficient interfaces (R functions) and automated execution. Essentially, each step above is one function call. 
 
@@ -54,13 +54,14 @@ Plotting is includied in the example using the `coveffectsplot` package. Other p
 We shall focus the main example to be simple and general. Hopefully, the user will be able to customize and apply a similar workflow to their own models with minimum effort. Folded code-chunks and references will be provided for additional features.
 
 ## Prerequisites
-- An estimated Nonmem model - at least, input control stream and `.ext` file.
--- If simulating based on `$COVARIANCE`, the `.cov` file.
--- If simulating based on  bootstrap, either a summary of or all the `.ext` files from the boot strap estimations must be available.
--- If references and/or covariate quantile values are to be calculated by NMsim (easiest option), ideally all output (`$TABLE`) data sets and the input data set used for the estimation are available.
-- Familiarity with [`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html), at least including "A first simulation with `NMsim()`".
--- Configuration of NMsim so user can succesfully do simulation using `NMsim()`.
--- Familiarity with methods to simulate with parameter uncertainty can be helpful. Before settling on your final forest plot simulation, it is recommended to understand pros and cons of the different methods provided by NMsim as described in [`NMsim-ParamUncertain.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-ParamUncertain.html).
+
+* An estimated Nonmem model - at least, input control stream and `.ext` file.
+  * If simulating based on `$COVARIANCE`, the `.cov` file.
+  * If simulating based on  bootstrap, either a summary of or all the `.ext` files from the boot strap estimations must be available.
+  * If references and/or covariate quantile values are to be calculated by NMsim (easiest option), ideally all output (`$TABLE`) data sets and the input data set used for the estimation are available.
+* Familiarity with [`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html), at least including "A first simulation with `NMsim()`".
+  * Configuration of NMsim so user can succesfully do simulation using `NMsim()`.
+  * Familiarity with methods to simulate with parameter uncertainty can be helpful. Before settling on your final forest plot simulation, it is recommended to understand pros and cons of the different methods provided by NMsim as described in [`NMsim-ParamUncertain.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-ParamUncertain.html).
 
 ## Background
 
@@ -173,7 +174,7 @@ For reference values we use median in the observed population for continuous cov
 data.ref <- NMdata::NMscanData(file.mod,quiet=TRUE)
 ## Specifying the covariates
 covs <- expandCovs(
-    AGE=list(ref=55,values=c(35,45,65,75)/100,label="Age (years)"), ## Age by specific values
+    AGE=list(ref=55,values=c(35,45,65,75),label="Age (years)"), ## Age by specific values
     ## notice, values OR quantiles can be provided
     WEIGHTB=list(ref=median, quantiles=c(10,25,75,90)/100, label="Bodyweigt (kg)"), ## Bodyweight by quantiles
     MALEN=list(ref=c(Female=0), values=c(Male=1), label="Sex"), ## Sex is treated categorical
@@ -327,10 +328,10 @@ equivalence is included.
 ```{r,fig.width=10,warning=FALSE}
 setDT(sum.uncertain)
 setnames(sum.uncertain,
-         ## cc(covvalf,predmm,predml,predmu,metric.var),
-         ## cc(label,mid,lower,upper,paramname)
-         cc(predmm,predml,predmu,metric.var),
-         cc(mid,lower,upper,paramname)
+         cc(covvalf,predmm,predml,predmu,metric.var),
+         cc(label,mid,lower,upper,paramname)
+         ##cc(predmm,predml,predmu,metric.var),
+         ##cc(mid,lower,upper,paramname)
          )
 
 sum.uncertain[,MEANVAL:=mid]
@@ -376,7 +377,7 @@ forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"])
 ```
 
 
-# Post processing explained step by step
+# Post-processing step-by-step
 We are including the code from the main steps in the post processing function, `NMsim::summarizeCovs()`. It is important that the scientist understands that what the forest plots derived in this document represent is the relative effect of the covariate on the exposure metric. This is derived by `NMsim::summarizeCovs()` as quantiles of the exposure relative to the reference subject. The confidence interval hence expresses the uncertainty on the covariate effect for a subject with other covariates at reference values.
 
 <details>

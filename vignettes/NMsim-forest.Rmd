@@ -194,8 +194,8 @@ When deriving quantiles, `expandCovs()` will first derive unique covariate value
 covs[,ID:=.GRP,by=.(type,covvar,covval)]
 ```
 
-```{r covs-print}
-print(covs)
+```{r covs-print,echo=FALSE}
+covs
 ```
 
 We now have all combinations of covariates in the object called `covs`. Notice the `type` column which distinguishes the reference combination in contrast to the other simulations where one covariate is being varied at a time. 
@@ -247,10 +247,6 @@ sampling `THETA`'s, it does not require additional software installed,
 and it is robust.
 
 
-```{r,eval=FALSE,include=FALSE}
-ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
-                      ,ext=ext  # Use the sampled parameter sets
-```
 
 ```{r sim-mvrnorm,eval=FALSE}
 simres.forest.mvrnorm <- NMsim(file.mod # path to NONMEM model
@@ -266,7 +262,59 @@ simres.forest.mvrnorm <- NMsim(file.mod # path to NONMEM model
                        )
 ```
 
+```{r, echo=FASLE}
+### Read simulation results
+simres <- NMreadSim("simres-forest/xgxr134_forest_nwpri_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
+## Check how many models returned simulation results
+
+as.data.table(simres)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP")]|>
+        melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
+```
+
+
 </details>
+
+
+<details>
+<summary>Simulation using simpar for parameter sampling</summary>
+
+```{r,eval=FALSE,include=TRUE}
+ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
+
+simres.forest.simpar <- NMsim(file.mod # path to NONMEM model
+                      ,data=dt.sim.covs, # simulation dataset
+                      ,name.sim="forest_simpar" # output name suffix
+                      ,method.sim=NMsim_VarCov # sampling with mvrnorm
+                      ,ext=ext
+                      ,typical=TRUE # FALSE to include BSV
+                      ,table.vars=cc(PRED,IPRED) # output table variables
+                      ,seed.R=342 # seed for reproducibility
+                      ,sge=TRUE # TRUE if submitting to a cluster
+                      ,nc=1
+                       )
+
+```
+</details>
+
+
+```{r bootstrap,include=FALSE,eval=FALSE}
+dat.bs <- NMscanInput(file.mod,apply.filters = T)
+load_all("~/wdirs/NMdata")
+load_all("~/wdirs/NMsim")
+load_all("~/wdirs/NMwork")
+
+## NMwriteData(as.data.table(dat.bs),file="NMsim-forest-models/xgxr2covs_bs.csv")
+NMwriteData(dat.bs,file="NMsim-forest-models/xgxr2covs_bs.csv")
+newmod <- newModel(file.mod=file.mod,newfile=fnAppend(file.mod,"bs"),description="Bootstrap",
+         modify=list(TABLE="",COV="")
+         )
+NMreplaceDataFile(files=newmod,path.data="xgxr2covs_bs.csv")
+system(sprintf("cd NMsim-forest-models ; execute %s",basename(fnAppend(file.mod,"bs"))))
+
+system("cd NMsim-forest-models ;
+nsamples=250 ; bootstrap -run_on_sge -samples=$nsamples -threads=250 -dir=xgxr134_bs_N$nsamples -seed=99521 xgxr134_bs.mod")
+
+```
 
 If you encounter issues with samples that do not run, consider whether any of your uncertainty estimates on `THETA`'s could lead to sampled `THETA`'s that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that `THETA` on the log scale to make sure all sampled values will be positive. 
 
@@ -291,17 +339,7 @@ A large RSE is a potential issue for strictly positive parameters (RSE=0.25 for 
 `NMsim` provides a function to do the post processing of the set of simulations setup by `expandCovs()`. The key steps performed by this function are outlined below. Most importantly, it normalizes  the exposures by the reference value for each sampled set of parameters. Then, it derives median and a confidence interval as quantiles in the simulated distribution.
 
 
-
-```{r}
-### Read simulation results
-simres <- NMreadSim("simres-forest/xgxr134_forest_nwpri_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
-## Check how many models returned simulation results
-
-as.data.table(simres)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP")]|>
-        melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
-```
-
-The step required by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax.
+The step required by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax. We are using `IPRED` for the calculations. Notice, the simulation was run with `typical=TRUE` so `PRED` and `IPRED` should be the same. However, with depending on the Nonmem version, `NWPRI` works a little differently, and `IPRED` has to be used prior to Nonmem 7.6.0.
 
 ```{r}
 ### Define exposure metrics
@@ -354,11 +392,11 @@ fun.plot <- function(data,...){
         facet_space = "free_y",
         xy_facet_text_bold = FALSE, 
         plot_table_ratio = 1.7, 
-        table_text_size = 3,
-        x_label_text_size = textsize,
-        y_label_text_size = textsize, 
-        x_facet_text_size = textsize, 
-        y_facet_text_size = textsize,
+        ## table_text_size = 3,
+        ## x_label_text_size = textsize,
+        ## y_label_text_size = textsize, 
+        ## x_facet_text_size = textsize, 
+        ## y_facet_text_size = textsize,
         base_size=textsize,
         strip_placement = "outside",
         table_position = "right",

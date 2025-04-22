@@ -64,6 +64,8 @@ test_that("basic",{
                                    by=cc(period),
                                    cover.ci=.95)
                 
+    sum.uncertain
+
 })
 
 

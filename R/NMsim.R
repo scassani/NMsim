@@ -1638,7 +1638,7 @@ NMsim <- function(file.mod,data,
         return(returnSimres(simres))
     } else {
         if(!quiet & execute){
-            message(sprintf("\nRead results with:\n  simres <- NMreadSim(c(\"%s\"))\nThe first time the results are read, they will be efficiently stored in the simulation results folder. Until then, they only exist as Nonmem result files. Trick: `NMreadSim()` also supports the `wait` argument to watch over Nonmem runs and return results once ready.",paste(dt.models[,simplePath(unique(path.rds))],collapse="\",\n    \"")))
+            message(sprintf("\nRead results with:\n  simres <- NMreadSim(c(\"%s\"))\nThe first time the results are read, they will be efficiently stored in the simulation results folder. Until then, they only exist as Nonmem result files.\nTrick: `NMreadSim()` also supports the `wait` argument to watch over Nonmem runs and return results once ready.",paste(dt.models[,simplePath(unique(path.rds))],collapse="\",\n    \"")))
         }
         addClass(dt.models,"NMsimModTab")
         return(invisible(dt.models[,unique(path.rds)]))

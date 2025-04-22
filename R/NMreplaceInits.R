@@ -21,12 +21,17 @@ NMreplaceInits <- function(inits,fix=FALSE,...){
 
 ### Section end: Dummy variables, only not to get NOTE's in pacakge checks
 
-
-
+    
+    
     ## create THETA section
+    if(!"FIX"%in%colnames(inits)) {
+        ## inits[,FIX:=0]
+        inits$FIX <- 0
+    }
     thetas <- inits[par.type=="THETA"]
     setorder(thetas,i)
 
+    
     thetas[,str.fix:=fifelse(as.logical(FIX)," FIX","")]
     lines.theta <- c("$THETA",
                      thetas[,paste0(value,str.fix)]

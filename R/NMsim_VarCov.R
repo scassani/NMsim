@@ -136,6 +136,12 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
     newpars[,fn.sim:=basename(path.sim)]
     newpars[,run.sim:=fnExtension(fn.sim,"")]
 
+
+    if(!all(c("iblock","blocksize")%in%newpars)){
+        newpars <- addBlocks(newpars,col.model="SUBMODEL")
+    }
+
+    
     if(!is.null(write.ext)){
         saveRDS(newpars,file=write.ext)
     }

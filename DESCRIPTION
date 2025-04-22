@@ -24,6 +24,7 @@ Suggests:
   knitr,
   rmarkdown,
   ggplot2,
+  ggstance,
   patchwork,
   tracee,
   tidyvpc,

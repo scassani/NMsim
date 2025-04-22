@@ -128,10 +128,10 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
     }
 
 ### Section end: Parameter from provided table
-
+    
     newpars[,ROW:=.I]
     length.num.char <- newpars[,ceiling(log10(uniqueN(SUBMODEL)+1))]
-    newpars[,submodel:=sprintf(fmt=paste0("%0",length.num.char,"d"),SUBMODEL)]
+    newpars[,submodel:=sprintf(fmt=paste0("%0",length.num.char,"d"),.GRP),by=.(SUBMODEL)]
     newpars[,path.sim:=fnAppend(path.sim.0,submodel),by=.(ROW)]
     newpars[,fn.sim:=basename(path.sim)]
     newpars[,run.sim:=fnExtension(fn.sim,"")]

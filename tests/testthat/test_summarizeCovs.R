@@ -1,5 +1,5 @@
-context("expandCovLists")
-
+context("summarizeCovs")
+NMdataConf(reset=TRUE)
 
 
 if(FALSE){
@@ -65,6 +65,11 @@ test_that("basic",{
                          cover.ci=.95)
     
     expect_equal_to_reference(res,fileRef)
+    if(FALSE){
+        ref <- readRDS(fileRef)
+        ref
+        res
+    }
 
 })
 
@@ -72,9 +77,9 @@ test_that("basic",{
 test_that("zero refs",{
     
     fileRef <- "testReference/summarizeCovs_02.rds"
-##    simres <- NMreadSim("testOutput/xgxr134_forest1_MetaData.rds")
-  simres <- NMreadSim("testData/simres/xgxr134_forest1_MetaData.rds")
-  
+    ##    simres <- NMreadSim("testOutput/xgxr134_forest1_MetaData.rds")
+    simres <- NMreadSim("testData/simres/xgxr134_forest1_MetaData.rds")
+    
     funs.exposure <- list(
         "Cmax"=function(x) max(x$IPRED),
         "Cmin"=function(x) min(x$IPRED)
@@ -85,13 +90,19 @@ test_that("zero refs",{
     res <-
         expect_warning(
             summarizeCovs(simres,
-                      funs.exposure = funs.exposure,
-                      by=cc(period),
-                      cover.ci=.95
-                      )
+                          funs.exposure = funs.exposure,
+                          by=cc(period),
+                          cover.ci=.95
+                          )
         )
 
 
     expect_equal_to_reference(res,fileRef)
+    if(FALSE){
+        ref <- readRDS(fileRef)
+        ref
+        res
+    }
+
 
 })

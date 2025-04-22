@@ -355,15 +355,27 @@ nsamples=1000 ; bootstrap -run_on_sge -samples=$nsamples -threads=1000 -dir=xgxr
 
 
 ```{r NMsim-boot,eval=FALSE,include=TRUE}
+
+load_all("~/wdirs/NMsim")
+load_all("~/wdirs/NMdata")
+NMdataConf(
+    path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
+    dir.sims="simtmp-forest", ## where to store temporary simulation results
+    dir.res="simres-forest"   ## where to store final simulation results
+)
+
+
 ## dir.bs <- "NMsim-forest-models/xgxr134_bs_N250/modelfit_dir1/"
 dir.bs <- "NMsim-forest-models/xgxr134_bs_N1000/modelfit_dir1/"
 lsts.bs <- list.files(dir.bs,pattern=".+\\.lst$",recursive=T,full.names = TRUE)
 ## fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","boot\\1",file)
-fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","\\1",file) |>
-                         as.integer()
-##fun.name(lsts.bs)
-ext.boot <- NMreadExt(lsts.bs,modelname=identity,as.fun="data.table")
-ext.boot[,model:=fun.name(model)]
+fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","\\1",file)  |>
+                          as.integer()
+## sort(fun.name(lsts.bs))
+ext.boot <- NMreadExt(lsts.bs,as.fun="data.table")
+ext.boot <- NMreadExt(lsts.bs,modelname=fun.name,as.fun="data.table")
+##ext.boot <- NMreadExt(lsts.bs,modelname=identity,as.fun="data.table")
+##ext.boot[,model:=fun.name(model)]
 
 simres.forest.boot <- NMsim(file.mod # path to NONMEM model
                            ,data=dt.sim.covs, # simulation dataset
@@ -376,6 +388,8 @@ simres.forest.boot <- NMsim(file.mod # path to NONMEM model
                            ,sge=TRUE # TRUE if submitting to a cluster
                            ,nc=1
                             )
+
+
 
 ```
 
@@ -408,7 +422,7 @@ A large RSE is a potential issue for strictly positive parameters (RSE=0.25 for 
 
 The step required by the user is to define the functions to derive relevant exposure metrics. We will use AUC 0-24h and Cmax. We are using `IPRED` for the calculations. Notice, the simulation was run with `typical=TRUE` so `PRED` and `IPRED` should be the same. However, with depending on the Nonmem version, `NWPRI` works a little differently, and `IPRED` has to be used prior to Nonmem 7.6.0.
 
-```{r}
+```{r summarize1}
 ### Define exposure metrics
 funs.exposure <- list(
     "Cmax"=function(x) max(x$IPRED)

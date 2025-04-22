@@ -2,16 +2,21 @@
 % Please edit documentation in R/modifyModel.R
 \name{modifyModel}
 \alias{modifyModel}
-\title{Internal method for handling modify.model argument to NMsim}
+\title{Internal method for handling modify argument to NMsim}
 \usage{
-modifyModel(modify.model, dt.models)
+modifyModel(modify, dt.models = NULL, list.ctl = NULL)
 }
 \arguments{
-\item{modify.model}{A list}
+\item{modify}{A list}
 
 \item{dt.models}{a data.table}
+
+\item{list.ctl}{List of coontrol streams as lines}
+}
+\value{
+dt.models (data.table) or result list.ctl (list)
 }
 \description{
-Internal method for handling modify.model argument to NMsim
+Internal method for handling modify argument to NMsim
 }
 \keyword{internal}

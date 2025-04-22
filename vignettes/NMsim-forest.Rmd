@@ -496,7 +496,7 @@ forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"])
 ```
 
 <details>
-<summary>How to sample multiple endpoints</summary>
+<summary>Comparison of different simulation methods</summary>
 
 ```{r sumAll}
 simres.forest.nwpri <- NMreadSim(c("simres-forest/xgxr134_nwpri_forest_MetaData.rds"),as.fun="data.table")

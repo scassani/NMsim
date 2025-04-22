@@ -111,6 +111,7 @@ summarizeCovs <- function(data,funs.exposure,cover.ci=0.95,by,as.fun){
     allby <- c(databy,by)
 
     
+    
     cols.miss <- setdiff(c(allby,"ID"),colnames(simres))
     if(length(cols.miss)){
         stop(paste("The following columns are missing in data. `summarizeCovs` is intended to summarize results of simulations defined using `expandCovs()`. Please consult `?expandCovs`. Missing:\n",paste(cols.miss,collapse=",\n")))
@@ -179,7 +180,14 @@ summarizeCovs <- function(data,funs.exposure,cover.ci=0.95,by,as.fun){
 
 ### Section end: Summarize exposure metrics vs covariates
     ## A factor representation of covariate values - only based on the remainding values - not reference
+    
+    cnames <- copy(colnames(sum.uncertain))
+    
+    cname.cvc <- which(cnames=="covvalc")
+    nnames <- length(cnames)
     sum.uncertain[,covvalf:=reorder(covvalc,covval)]
+    neworder <- c(cnames[1:cname.cvc],"covvalf",cnames[(cname.cvc+1):nnames])
+    setcolorder(sum.uncertain,neworder)
 
     as.fun(sum.uncertain)
 }

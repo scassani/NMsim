@@ -17,7 +17,7 @@
 ##' @export
 
 sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
-
+    
     
     if(packageVersion("NMdata")<"0.1.7.905"){
         stop("sampleParsSimpar requires NMdata 0.1.8 or later.")
@@ -69,7 +69,7 @@ sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
                NMdata::dt2mat)
 
     ## use simpar to sample params
-    pars <- simpar::simpar(
+    pars.sample <- simpar::simpar(
                         nsim = nsim,
                         theta = pars[par.type=="THETA",value],
                         covar = theta.covar,
@@ -77,13 +77,14 @@ sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
                         odf = omega.sigma.dfs[par.type=="OMEGA",DF2],
                         sigma = sigma.mat.list,
                         sdf = omega.sigma.dfs[par.type=="SIGMA",DF2]
-                    ) 
-    setDT(pars)
+                    )
+    pars.sample <- as.data.table(pars.sample)
+
     if(format=="ext"){
         ## read in parameters simulated with simpar
-        pars <- readParsWide(
-            data=pars,as.fun="data.table"
+        pars.sample <- readParsWide(
+            data=pars.sample,as.fun="data.table"
         )
     }
-    as.fun(pars)
+    as.fun(pars.sample)
 }

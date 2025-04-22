@@ -59,12 +59,12 @@ test_that("basic",{
         ## ,"Concentration at 4 hours"=function(x) x$value[x$TAPD==4]
     )
     
-    sum.uncertain <- summarizeCovs(simres,
-                                   funs.exposure = funs.exposure,
-                                   by=cc(period),
-                                   cover.ci=.95)
-                
-    sum.uncertain
+    res <- summarizeCovs(simres,
+                         funs.exposure = funs.exposure,
+                         by=cc(period),
+                         cover.ci=.95)
+    
+    expect_equal_to_reference(res,fileRef)
 
 })
 

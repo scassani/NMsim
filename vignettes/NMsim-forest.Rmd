@@ -524,9 +524,14 @@ sum.uncertain <- summarizeCovs(simres.forest.all,
                                )
 
 
+
 ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
-    geom_rect(aes(xmin=predml,xmax=predmu,ymin=covvalf,ymax=covvalf),position=ggstance::position_dodgev(height=0.3))+
-    geom_point(position=ggstance::position_dodgev(height=0.3))+
+    geom_rect(aes(xmin=.8,xmax=1.2,ymin=-Inf,ymax=Inf,colour=NULL),alpha=.1)+
+    ## geom_segment(aes(x=predml,xend=predmu,y=covvalf,yend=covvalf),
+    ##           position=ggstance::position_dodgev(height=0.5))+
+    geom_rect(aes(xmin=predml,xmax=predmu,ymin=covvalf,ymax=covvalf),
+               position=ggstance::position_dodgev(height=0.5))+
+    geom_point(position=ggstance::position_dodgev(height=0.5))+
     facet_grid(covlabel~metric.var,scales="free_y",switch="y")+
     geom_vline(xintercept=1,linetype=2)+
     labs(y="",x="Relative Covariate Effect")

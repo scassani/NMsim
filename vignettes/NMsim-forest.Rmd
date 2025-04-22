@@ -271,8 +271,9 @@ simres.forest.mvrnorm <- NMsim(file.mod # path to NONMEM model
 simres <- NMreadSim("simres-forest/xgxr134_forest_nwpri_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
 ## Check how many models returned simulation results
 
-as.data.table(simres)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP")]|>
-    melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
+###### This is more informative for me than for new readers
+## as.data.table(simres)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP")]|>
+##     melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
 ```
 
 
@@ -283,11 +284,8 @@ as.data.table(simres)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP"
 <summary>Simulation using simpar for parameter sampling</summary>
 
 ```{r NMsim-simpar,eval=FALSE,include=TRUE}
-## load_all("~/wdirs/NMsim")
 
 ext.simpar <- sampleParsSimpar(file.mod=file.mod,nsim=1000,seed.R=6789,as.fun="data.table")
-## source("~/wdirs/NMdata/R/addBlocks.R")
-## ext.simpar <- addBlocks(ext.simpar)[]
 
 simres.forest.simpar <- NMsim(file.mod # path to NONMEM model
                              ,data=dt.sim.covs, # simulation dataset
@@ -302,29 +300,6 @@ simres.forest.simpar <- NMsim(file.mod # path to NONMEM model
                               )
 
 
-
-## source("~/wdirs/NMdata/R/addBlocks.R")
-## ext.simpar <- addBlocks(ext.simpar)[]
-## load_all("~/wdirs/NMdata")
-## load_all("~/wdirs/NMsim")
-## NMdataConf(
-##     path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
-##     dir.sims="simtmp-forest", ## where to store temporary simulation results
-##     dir.res="simres-forest"   ## where to store final simulation results
-## )
-
-
-## simres.forest.simpar <- NMsim(file.mod # path to NONMEM model
-##                              ,data=dt.sim.covs, # simulation dataset
-##                              ,name.sim="simpar_forest_tmp" # output name suffix
-##                              ,method.sim=NMsim_VarCov # sampling with mvrnorm
-##                              ,ext=ext.simpar[model<=5]
-##                              ,typical=TRUE # FALSE to include BSV
-##                              ,table.vars=cc(PRED,IPRED) # output table variables
-##                              ,seed.R=342 # seed for reproducibility
-##                              ,sge=FALSE # TRUE if submitting to a cluster
-##                              ## ,nc=1
-##                               )
 
 ```
 </details>
@@ -355,27 +330,13 @@ nsamples=1000 ; bootstrap -run_on_sge -samples=$nsamples -threads=1000 -dir=xgxr
 
 
 ```{r NMsim-boot,eval=FALSE,include=TRUE}
-
-load_all("~/wdirs/NMsim")
-load_all("~/wdirs/NMdata")
-NMdataConf(
-    path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
-    dir.sims="simtmp-forest", ## where to store temporary simulation results
-    dir.res="simres-forest"   ## where to store final simulation results
-)
-
-
-## dir.bs <- "NMsim-forest-models/xgxr134_bs_N250/modelfit_dir1/"
 dir.bs <- "NMsim-forest-models/xgxr134_bs_N1000/modelfit_dir1/"
 lsts.bs <- list.files(dir.bs,pattern=".+\\.lst$",recursive=T,full.names = TRUE)
 ## fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","boot\\1",file)
 fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","\\1",file)  |>
                           as.integer()
-## sort(fun.name(lsts.bs))
-ext.boot <- NMreadExt(lsts.bs,as.fun="data.table")
+
 ext.boot <- NMreadExt(lsts.bs,modelname=fun.name,as.fun="data.table")
-##ext.boot <- NMreadExt(lsts.bs,modelname=identity,as.fun="data.table")
-##ext.boot[,model:=fun.name(model)]
 
 simres.forest.boot <- NMsim(file.mod # path to NONMEM model
                            ,data=dt.sim.covs, # simulation dataset
@@ -389,12 +350,9 @@ simres.forest.boot <- NMsim(file.mod # path to NONMEM model
                            ,nc=1
                             )
 
-
-
 ```
 
 </details>
-
 
 
 If you encounter issues with samples that do not run, consider whether any of your uncertainty estimates on `THETA`'s could lead to sampled `THETA`'s that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that `THETA` on the log scale to make sure all sampled values will be positive. 
@@ -512,8 +470,7 @@ simres.forest.all <- rbind(simres.forest.nwpri[,method:="NWPRI"],
                            ,fill=T
                            )
 
-as.data.table(simres.forest.all)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP"),by=method]|>
-    melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
+unique(simres.forest.all[,.(method,model.sim,NMREP)])[,.N,by=.(method)]
 
 ## load_all("~/wdirs/NMsim")
 sum.uncertain <- summarizeCovs(simres.forest.all,

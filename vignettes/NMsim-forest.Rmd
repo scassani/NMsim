@@ -2,21 +2,21 @@
 title: "Simulation-Based Forest Plots with NMsim"
 author: 
   - name: "Philip Delff, Boris Grinshpun"
-date: '`r format(Sys.Date(), "%B %d, %Y")`'
-toctitle: "Contents"
-output:
-  html_document:
-    toc: true
-    toc_depth: 4
-    toc_float: true
-    number_sections: false
-    df_print: kable
-    editor_options:
-      chunk_output_type: inline
-      code_folding: show
-bibliography: [packages.bib]
-pkgdown:
-  as_is: true
+    date: '`r format(Sys.Date(), "%B %d, %Y")`'
+    toctitle: "Contents"
+    output:
+      html_document:
+        toc: true
+        toc_depth: 4
+        toc_float: true
+        number_sections: false
+        df_print: kable
+        editor_options:
+          chunk_output_type: inline
+          code_folding: show
+          bibliography: [packages.bib]
+          pkgdown:
+            as_is: true
 ---
 
 ```{r,setup-hide,include=FALSE}
@@ -37,15 +37,15 @@ interval. NMsim provides highly automated methods for simulation of Nonmem model
 This short demonstration of generation of simulation-based forest plots using NMsim is intended to make the user ready to perform the following steps.
 
 * Generate simulation data sets designed for forest plot simulations
-  * Dosing and sampling scheme using `NMcreateDoses()` 
-  * Specify covariates to simulate using `expandCovs()`
+* Dosing and sampling scheme using `NMcreateDoses()` 
+* Specify covariates to simulate using `expandCovs()`
 * Simulate with parameter uncertainty by one of
-  * Based on $COV using `NMsim_NWPRI()` or `NMsim_VarCov()`
-  * Using an existent bootstrap estimation (e.g. from PSN)
+* Based on $COV using `NMsim_NWPRI()` or `NMsim_VarCov()`
+* Using an existent bootstrap estimation (e.g. from PSN)
 * Postprocess simulation for plotting/tabulation
-  * Define end-points, such as an AUC, Cmax or any simulation-based endpoint
-  * Summarize covariate effect estimates with confidence intervals, using `summarizeCovs()`
-  * Plot the summary as a forest plot
+* Define end-points, such as an AUC, Cmax or any simulation-based endpoint
+* Summarize covariate effect estimates with confidence intervals, using `summarizeCovs()`
+* Plot the summary as a forest plot
 
 Each step is facilitated with efficient interfaces (R functions) and automated execution. Essentially, each step above is one function call. 
 
@@ -56,12 +56,12 @@ We shall focus the main example to be simple and general. Hopefully, the user wi
 ## Prerequisites
 
 * An estimated Nonmem model - at least, input control stream and `.ext` file.
-  * If simulating based on `$COVARIANCE`, the `.cov` file.
-  * If simulating based on  bootstrap, either a summary of or all the `.ext` files from the boot strap estimations must be available.
-  * If references and/or covariate quantile values are to be calculated by NMsim (easiest option), ideally all output (`$TABLE`) data sets and the input data set used for the estimation are available.
+* If simulating based on `$COVARIANCE`, the `.cov` file.
+* If simulating based on  bootstrap, either a summary of or all the `.ext` files from the boot strap estimations must be available.
+* If references and/or covariate quantile values are to be calculated by NMsim (easiest option), ideally all output (`$TABLE`) data sets and the input data set used for the estimation are available.
 * Familiarity with [`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html), at least including "A first simulation with `NMsim()`".
-  * Configuration of NMsim so user can succesfully do simulation using `NMsim()`.
-  * Familiarity with methods to simulate with parameter uncertainty can be helpful. Before settling on your final forest plot simulation, it is recommended to understand pros and cons of the different methods provided by NMsim as described in [`NMsim-ParamUncertain.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-ParamUncertain.html).
+* Configuration of NMsim so user can succesfully do simulation using `NMsim()`.
+* Familiarity with methods to simulate with parameter uncertainty can be helpful. Before settling on your final forest plot simulation, it is recommended to understand pros and cons of the different methods provided by NMsim as described in [`NMsim-ParamUncertain.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-ParamUncertain.html).
 
 ## Background
 
@@ -95,6 +95,10 @@ library(NMdata)
 library(NMcalc)  ## Optional. Used to calculate AUC.
 library(coveffectsplot) ## used for plotting
 library(knitr) ## for printing tables with knitr::kable
+library(ggplot2)
+library(ggstance)
+
+theme_set(theme_bw())
 
 NMdataConf(
     path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
@@ -225,16 +229,16 @@ only need variability on the fixed effects (THETA's). Multiple methods
 are available in `NMsim` to do this.  We use `NMsim_NWPRI` - which automates simulation using the Nonmem NWPRI subroutine to sample the parameter sets. This simulation method excels in being fast to execute because it simulates all the parameter sets sequentially in one Nonmem run. It is important to run this with `typical=TRUE`. If between-subject variability is desired, please refer to [`NMsim-ParamUncertain.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-ParamUncertain.html).
 
 
-```{r sim-nwpri,eval=FALSE}
+```{r NMsim-nwpri,eval=FALSE}
 simres.forest.nwpri <- NMsim(file.mod # path to NONMEM model
-                      ,data=dt.sim.covs, # simulation dataset
-                      ,name.sim="forest_nwpri" # output name suffix
-                      ,method.sim=NMsim_NWPRI # sampling with mvrnorm
-                      ,subproblems=500 ## number of parameter sets sampled
-                      ,typical=TRUE # FALSE to include BSV
-                      ,table.vars=cc(PRED,IPRED) # output table variables
-                      ,seed.R=342 # seed for reproducibility
-                       )
+                            ,data=dt.sim.covs, # simulation dataset
+                            ,name.sim="nwpri_forest" # output name suffix
+                            ,method.sim=NMsim_NWPRI # sampling with NWPRI
+                            ,subproblems=1000 ## number of parameter sets sampled
+                            ,typical=TRUE # FALSE to include BSV
+                            ,table.vars=cc(PRED,IPRED) # output table variables
+                            ,seed.R=342 # seed for reproducibility
+                             )
 ```
 
 <details>
@@ -248,27 +252,27 @@ and it is robust.
 
 
 
-```{r sim-mvrnorm,eval=FALSE}
+```{r NMsim-mvrnorm,eval=FALSE}
 simres.forest.mvrnorm <- NMsim(file.mod # path to NONMEM model
-                      ,data=dt.sim.covs, # simulation dataset
-                      ,name.sim="forest_mvrnorm" # output name suffix
-                      ,method.sim=NMsim_VarCov # sampling with mvrnorm
-                      ,nsims=500
-                      ,typical=TRUE # FALSE to include BSV
-                      ,table.vars=cc(PRED,IPRED) # output table variables
-                      ,seed.R=342 # seed for reproducibility
-                      ,sge=TRUE # TRUE if submitting to a cluster
-                      ,nc=1
-                       )
+                              ,data=dt.sim.covs, # simulation dataset
+                              ,name.sim="mvrnorm_forest" # output name suffix
+                              ,method.sim=NMsim_VarCov # sampling with mvrnorm
+                              ,nsims=1000
+                              ,typical=TRUE # FALSE to include BSV
+                              ,table.vars=cc(PRED,IPRED) # output table variables
+                              ,seed.R=342 # seed for reproducibility
+                              ,sge=TRUE # TRUE if submitting to a cluster
+                              ,nc=1
+                               )
 ```
 
-```{r, echo=FASLE}
+```{r, echo=FALSE}
 ### Read simulation results
 simres <- NMreadSim("simres-forest/xgxr134_forest_nwpri_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
 ## Check how many models returned simulation results
 
 as.data.table(simres)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP")]|>
-        melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
+    melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
 ```
 
 
@@ -278,43 +282,106 @@ as.data.table(simres)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP"
 <details>
 <summary>Simulation using simpar for parameter sampling</summary>
 
-```{r,eval=FALSE,include=TRUE}
-ext <- sampleParsSimpar(file.mod=file.mod,nsim=500,seed.R=6789)
+```{r NMsim-simpar,eval=FALSE,include=TRUE}
+## load_all("~/wdirs/NMsim")
+
+ext.simpar <- sampleParsSimpar(file.mod=file.mod,nsim=1000,seed.R=6789,as.fun="data.table")
+## source("~/wdirs/NMdata/R/addBlocks.R")
+## ext.simpar <- addBlocks(ext.simpar)[]
 
 simres.forest.simpar <- NMsim(file.mod # path to NONMEM model
-                      ,data=dt.sim.covs, # simulation dataset
-                      ,name.sim="forest_simpar" # output name suffix
-                      ,method.sim=NMsim_VarCov # sampling with mvrnorm
-                      ,ext=ext
-                      ,typical=TRUE # FALSE to include BSV
-                      ,table.vars=cc(PRED,IPRED) # output table variables
-                      ,seed.R=342 # seed for reproducibility
-                      ,sge=TRUE # TRUE if submitting to a cluster
-                      ,nc=1
-                       )
+                             ,data=dt.sim.covs, # simulation dataset
+                             ,name.sim="simpar_forest" # output name suffix
+                             ,method.sim=NMsim_VarCov # sampling with mvrnorm
+                             ,ext=ext.simpar
+                             ,typical=TRUE # FALSE to include BSV
+                             ,table.vars=cc(PRED,IPRED) # output table variables
+                             ,seed.R=342 # seed for reproducibility
+                             ,sge=TRUE # TRUE if submitting to a cluster
+                             ,nc=1
+                              )
+
+
+
+## source("~/wdirs/NMdata/R/addBlocks.R")
+## ext.simpar <- addBlocks(ext.simpar)[]
+## load_all("~/wdirs/NMdata")
+## load_all("~/wdirs/NMsim")
+## NMdataConf(
+##     path.nonmem = "/opt/NONMEM/nm75/run/nmfe75", ## path to NONMEM executable
+##     dir.sims="simtmp-forest", ## where to store temporary simulation results
+##     dir.res="simres-forest"   ## where to store final simulation results
+## )
+
+
+## simres.forest.simpar <- NMsim(file.mod # path to NONMEM model
+##                              ,data=dt.sim.covs, # simulation dataset
+##                              ,name.sim="simpar_forest_tmp" # output name suffix
+##                              ,method.sim=NMsim_VarCov # sampling with mvrnorm
+##                              ,ext=ext.simpar[model<=5]
+##                              ,typical=TRUE # FALSE to include BSV
+##                              ,table.vars=cc(PRED,IPRED) # output table variables
+##                              ,seed.R=342 # seed for reproducibility
+##                              ,sge=FALSE # TRUE if submitting to a cluster
+##                              ## ,nc=1
+##                               )
 
 ```
 </details>
 
 
+<details>
+<summary>Simulation using bootstrap for parameter sampling</summary>
+
 ```{r bootstrap,include=FALSE,eval=FALSE}
 dat.bs <- NMscanInput(file.mod,apply.filters = T)
-load_all("~/wdirs/NMdata")
-load_all("~/wdirs/NMsim")
-load_all("~/wdirs/NMwork")
+## library(devtools)
+## load_all("~/wdirs/NMdata")
+## load_all("~/wdirs/NMsim")
+## load_all("~/wdirs/NMwork")
+
 
 ## NMwriteData(as.data.table(dat.bs),file="NMsim-forest-models/xgxr2covs_bs.csv")
 NMwriteData(dat.bs,file="NMsim-forest-models/xgxr2covs_bs.csv")
 newmod <- newModel(file.mod=file.mod,newfile=fnAppend(file.mod,"bs"),description="Bootstrap",
-         modify=list(TABLE="",COV="")
-         )
+                   modify=list(TABLE="",COV="")
+                   )
 NMreplaceDataFile(files=newmod,path.data="xgxr2covs_bs.csv")
 system(sprintf("cd NMsim-forest-models ; execute %s",basename(fnAppend(file.mod,"bs"))))
 
 system("cd NMsim-forest-models ;
-nsamples=250 ; bootstrap -run_on_sge -samples=$nsamples -threads=250 -dir=xgxr134_bs_N$nsamples -seed=99521 xgxr134_bs.mod")
+nsamples=1000 ; bootstrap -run_on_sge -samples=$nsamples -threads=1000 -dir=xgxr134_bs_N$nsamples -seed=99521 xgxr134_bs.mod ",wait=FALSE)
+```
+
+
+```{r NMsim-boot,eval=FALSE,include=TRUE}
+## dir.bs <- "NMsim-forest-models/xgxr134_bs_N250/modelfit_dir1/"
+dir.bs <- "NMsim-forest-models/xgxr134_bs_N1000/modelfit_dir1/"
+lsts.bs <- list.files(dir.bs,pattern=".+\\.lst$",recursive=T,full.names = TRUE)
+## fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","boot\\1",file)
+fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","\\1",file) |>
+                         as.integer()
+##fun.name(lsts.bs)
+ext.boot <- NMreadExt(lsts.bs,modelname=identity,as.fun="data.table")
+ext.boot[,model:=fun.name(model)]
+
+simres.forest.boot <- NMsim(file.mod # path to NONMEM model
+                           ,data=dt.sim.covs, # simulation dataset
+                           ,name.sim="boot_forest" # output name suffix
+                           ,method.sim=NMsim_VarCov # sampling with mvrnorm
+                           ,ext=ext.boot
+                           ,typical=TRUE # FALSE to include BSV
+                           ,table.vars=cc(PRED,IPRED) # output table variables
+                           ,seed.R=342 # seed for reproducibility
+                           ,sge=TRUE # TRUE if submitting to a cluster
+                           ,nc=1
+                            )
 
 ```
+
+</details>
+
+
 
 If you encounter issues with samples that do not run, consider whether any of your uncertainty estimates on `THETA`'s could lead to sampled `THETA`'s that could make the model be undefined. This would often be absorption parameters, clearences, volumes or any other strictly positive parameter which is estimated with poor precision. If this happens, you may want to go back and estimate that `THETA` on the log scale to make sure all sampled values will be positive. 
 
@@ -350,10 +417,10 @@ funs.exposure <- list(
 )
 
 sum.uncertain <- summarizeCovs(simres,
-                                 funs.exposure = funs.exposure,
-                                 by=cc(period),
-                                 cover.ci=.95
-                                 )
+                               funs.exposure = funs.exposure,
+                               by=cc(period),
+                               cover.ci=.95
+                               )
 ```
 
 # Plotting 
@@ -425,7 +492,7 @@ Notice, the code below consists of snippets from the
 `NMsim::summarizeCovs()` function. The code is not intended to be
 used on its own. 
 
-```{r,eval=FALSE}
+```{r step-by-step,eval=FALSE}
 ### use only simulated samples
 simres <- as.data.table(data)[EVID==2]
 
@@ -459,3 +526,38 @@ sum.uncertain <- sum.res.model[
 
 ```
 
+```{r sumAll}
+simres.forest.nwpri <- NMreadSim(c("simres-forest/xgxr134_nwpri_forest_MetaData.rds"),as.fun="data.table")
+simres.forest.mvrnorm <- NMreadSim(c("simres-forest/xgxr134_mvrnorm_forest_MetaData.rds"),as.fun="data.table")
+simres.forest.simpar <- NMreadSim(c("simres-forest/xgxr134_simpar_forest_MetaData.rds"),wait=TRUE,as.fun="data.table")
+simres.forest.boot <- NMreadSim(c("simres-forest/xgxr134_boot_forest_MetaData.rds"),wait=T,as.fun="data.table")
+
+
+simres.forest.all <- rbind(simres.forest.nwpri[,method:="NWPRI"],
+                           simres.forest.mvrnorm[,method:="mvrnorm"],
+                           simres.forest.boot[,method:="Bootstrap"]
+                          ,simres.forest.simpar[,method:="Simpar"]
+                           ,fill=T
+                           )
+
+as.data.table(simres.forest.all)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP"),by=method]|>
+    melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
+
+## load_all("~/wdirs/NMsim")
+sum.uncertain <- summarizeCovs(simres.forest.all,
+                               funs.exposure = funs.exposure,
+                               by=cc(method,period),
+                               cover.ci=.95,
+                               as.fun="data.table"
+                               )
+
+
+ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
+    geom_rect(aes(xmin=predml,xmax=predmu,ymin=covvalf,ymax=covvalf),position=ggstance::position_dodgev(height=0.3))+
+    geom_point(position=ggstance::position_dodgev(height=0.3))+
+    facet_grid(covlabel~metric.var,scales="free_y",switch="y")+
+    geom_vline(xintercept=1,linetype=2)+
+    labs(y="",x="Relative Covariate Effect")
+    
+
+```

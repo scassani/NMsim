@@ -430,7 +430,7 @@ We will use the R package `coveffectsplot` for plotting. `coveffectsplot::forest
 equivalence is included.
 
 
-```{r,fig.width=10,warning=FALSE}
+```{r plot1,fig.width=10,warning=FALSE}
 setDT(sum.uncertain)
 setnames(sum.uncertain,
          cc(covvalf,predmm,predml,predmu,metric.var),
@@ -459,11 +459,11 @@ fun.plot <- function(data,...){
         facet_space = "free_y",
         xy_facet_text_bold = FALSE, 
         plot_table_ratio = 1.7, 
-        ## table_text_size = 3,
-        ## x_label_text_size = textsize,
-        ## y_label_text_size = textsize, 
-        ## x_facet_text_size = textsize, 
-        ## y_facet_text_size = textsize,
+        table_text_size = 3,
+        x_label_text_size = textsize,
+        y_label_text_size = textsize, 
+        x_facet_text_size = textsize, 
+        y_facet_text_size = textsize,
         base_size=textsize,
         strip_placement = "outside",
         table_position = "right",
@@ -480,6 +480,47 @@ fun.plot <- function(data,...){
 forest.day1 <- fun.plot(sum.uncertain[period=="Day 1"])
 forest.ss <- fun.plot(sum.uncertain[period=="Steady-State"])
 ```
+
+<details>
+<summary>How to sample multiple endpoints</summary>
+
+```{r sumAll}
+simres.forest.nwpri <- NMreadSim(c("simres-forest/xgxr134_nwpri_forest_MetaData.rds"),as.fun="data.table")
+simres.forest.mvrnorm <- NMreadSim(c("simres-forest/xgxr134_mvrnorm_forest_MetaData.rds"),as.fun="data.table")
+simres.forest.simpar <- NMreadSim(c("simres-forest/xgxr134_simpar_forest_MetaData.rds"),wait=TRUE,as.fun="data.table")
+simres.forest.boot <- NMreadSim(c("simres-forest/xgxr134_boot_forest_MetaData.rds"),wait=T,as.fun="data.table")
+
+
+simres.forest.all <- rbind(simres.forest.nwpri[,method:="NWPRI"],
+                           simres.forest.mvrnorm[,method:="mvrnorm"],
+                           simres.forest.boot[,method:="Bootstrap"]
+                          ,simres.forest.simpar[,method:="Simpar"]
+                           ,fill=T
+                           )
+
+as.data.table(simres.forest.all)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP"),by=method]|>
+    melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
+
+## load_all("~/wdirs/NMsim")
+sum.uncertain <- summarizeCovs(simres.forest.all,
+                               funs.exposure = funs.exposure,
+                               by=cc(method,period),
+                               cover.ci=.95,
+                               as.fun="data.table"
+                               )
+
+
+ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
+    geom_rect(aes(xmin=predml,xmax=predmu,ymin=covvalf,ymax=covvalf),position=ggstance::position_dodgev(height=0.3))+
+    geom_point(position=ggstance::position_dodgev(height=0.3))+
+    facet_grid(covlabel~metric.var,scales="free_y",switch="y")+
+    geom_vline(xintercept=1,linetype=2)+
+    labs(y="",x="Relative Covariate Effect")
+    
+
+```
+
+</details>
 
 
 # Post-processing step-by-step
@@ -523,41 +564,5 @@ sum.uncertain <- sum.res.model[
    ,setNames(as.list(quantile(predm/val.exp.ref,probs=c((1-cover.ci)/2,.5,1-(1-cover.ci)/2))),
              c("predml","predmm","predmu"))
    ,by=c(allby,"metric.var")]
-
-```
-
-```{r sumAll}
-simres.forest.nwpri <- NMreadSim(c("simres-forest/xgxr134_nwpri_forest_MetaData.rds"),as.fun="data.table")
-simres.forest.mvrnorm <- NMreadSim(c("simres-forest/xgxr134_mvrnorm_forest_MetaData.rds"),as.fun="data.table")
-simres.forest.simpar <- NMreadSim(c("simres-forest/xgxr134_simpar_forest_MetaData.rds"),wait=TRUE,as.fun="data.table")
-simres.forest.boot <- NMreadSim(c("simres-forest/xgxr134_boot_forest_MetaData.rds"),wait=T,as.fun="data.table")
-
-
-simres.forest.all <- rbind(simres.forest.nwpri[,method:="NWPRI"],
-                           simres.forest.mvrnorm[,method:="mvrnorm"],
-                           simres.forest.boot[,method:="Bootstrap"]
-                          ,simres.forest.simpar[,method:="Simpar"]
-                           ,fill=T
-                           )
-
-as.data.table(simres.forest.all)[,lapply(.SD,uniqueN),.SDcols=c("model","model.sim","NMREP"),by=method]|>
-    melt(measure.vars=c("model","model.sim","NMREP"),variable.name="Column",value.name="Unique values")
-
-## load_all("~/wdirs/NMsim")
-sum.uncertain <- summarizeCovs(simres.forest.all,
-                               funs.exposure = funs.exposure,
-                               by=cc(method,period),
-                               cover.ci=.95,
-                               as.fun="data.table"
-                               )
-
-
-ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
-    geom_rect(aes(xmin=predml,xmax=predmu,ymin=covvalf,ymax=covvalf),position=ggstance::position_dodgev(height=0.3))+
-    geom_point(position=ggstance::position_dodgev(height=0.3))+
-    facet_grid(covlabel~metric.var,scales="free_y",switch="y")+
-    geom_vline(xintercept=1,linetype=2)+
-    labs(y="",x="Relative Covariate Effect")
-    
 
 ```

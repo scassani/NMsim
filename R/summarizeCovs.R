@@ -43,7 +43,7 @@
 ##' @export
 
 
-
+### forestDefineCovs
 summarizeCovs <- function(data,funs.exposure,cover.ci=0.95,by,as.fun){
     . <- NULL
     EVID <- NULL

@@ -180,7 +180,7 @@ data.ref <- NMdata::NMscanData(file.mod,quiet=TRUE)
 covs <- expandCovs(
     AGE=list(ref=55,values=c(35,45,65,75),label="Age (years)"), ## Age by specific values
     ## notice, values OR quantiles can be provided
-    WEIGHTB=list(ref=median, quantiles=c(10,25,75,90)/100, label="Bodyweigt (kg)"), ## Bodyweight by quantiles
+    WEIGHTB=list(ref=median, quantiles=c(10,25,75,90)/100, label="Bodyweight (kg)"), ## Bodyweight by quantiles
     MALEN=list(ref=c(Female=0), values=c(Male=1), label="Sex"), ## Sex is treated categorical
     data=data.ref,
     as.fun="data.table"
@@ -469,6 +469,8 @@ simres.forest.all <- rbind(simres.forest.nwpri[,method:="NWPRI"],
                           ,simres.forest.simpar[,method:="Simpar"]
                            ,fill=T
                            )
+## simres.forest.all[,.N,by=covlabel]
+simres.forest.all[covlabel=="Bodyweigt (kg)",covlabel:="Bodyweight (kg)"]
 
 unique(simres.forest.all[,.(method,model.sim,NMREP)])[,.N,by=.(method)]
 
@@ -483,7 +485,7 @@ sum.uncertain <- summarizeCovs(simres.forest.all,
 
 
 ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
-    geom_rect(aes(xmin=.8,xmax=1.2,ymin=-Inf,ymax=Inf,colour=NULL),alpha=.1)+
+    geom_rect(aes(xmin=.8,xmax=1.2,ymin=-Inf,ymax=Inf,colour=NULL),fill="grey90")+
     ## geom_segment(aes(x=predml,xend=predmu,y=covvalf,yend=covvalf),
     ##           position=ggstance::position_dodgev(height=0.5))+
     geom_rect(aes(xmin=predml,xmax=predmu,ymin=covvalf,ymax=covvalf),
@@ -491,7 +493,8 @@ ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
     geom_point(position=ggstance::position_dodgev(height=0.5))+
     facet_grid(covlabel~metric.var,scales="free_y",switch="y")+
     geom_vline(xintercept=1,linetype=2)+
-    labs(y="",x="Relative Covariate Effect")
+    labs(y="",x="Relative Covariate Effect",colour="Simulation Method")+
+    theme(legend.position="bottom")
     
 
 ```

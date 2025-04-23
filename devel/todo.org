@@ -420,7 +420,7 @@ col.id=NA will drop ID if there is only one set of doses (one set of cov values)
 
 *** DONE Change name to NMsample()
 
-*** TODO [#A] Support DV
+*** DONE [#A] Support DV
 If DV is not NA or 0, set MDV=0
 
 *** DONE Argument to set EVID value

@@ -395,6 +395,11 @@ sum.uncertain <- summarizeCovs(simres,
                                )
 ```
 
+```{r typofix}
+sum.uncertain[covlabel=="Bodyweigt (kg)",covlabel:="Bodyweight (kg)"]
+
+```
+
 # Plotting 
 
 
@@ -407,8 +412,6 @@ setDT(sum.uncertain)
 setnames(sum.uncertain,
          cc(covvalf,predmm,predml,predmu,metric.var),
          cc(label,mid,lower,upper,paramname)
-         ##cc(predmm,predml,predmu,metric.var),
-         ##cc(mid,lower,upper,paramname)
          )
 
 sum.uncertain[,MEANVAL:=mid]
@@ -485,7 +488,7 @@ sum.uncertain <- summarizeCovs(simres.forest.all,
 
 
 ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
-    geom_rect(aes(xmin=.8,xmax=1.2,ymin=-Inf,ymax=Inf,colour=NULL),fill="grey90")+
+    geom_rect(aes(xmin=.8,xmax=1.2,ymin=-Inf,ymax=Inf,colour=NULL),fill="grey600")+
     ## geom_segment(aes(x=predml,xend=predmu,y=covvalf,yend=covvalf),
     ##           position=ggstance::position_dodgev(height=0.5))+
     geom_rect(aes(xmin=predml,xmax=predmu,ymin=covvalf,ymax=covvalf),

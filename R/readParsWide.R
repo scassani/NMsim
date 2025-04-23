@@ -6,26 +6,28 @@
 ##'
 ##' @param data A data.frame or a path to a delimited file to be read
 ##'     using `data.table::fread`.
-##' @param col.model Name of the model counter, default is "model". If
-##'     the provided name is not found in data, it will be created as
-##'     a row counter. Why needed? Each row in data represents a set
-##'     of parameters, i.e. a model. In the long format result, each
-##'     model will have multiple rows. Hence, a model identifier is
-##'     needed to distinguish between models in results.
+##' @param col.model Column containing name of the original model. By
+##'     default a column called "model" will contain "Model1".
+##' @param col.model.sim Name of the model counter, default is
+##'     "model.sim". If the provided name is not found in data, it
+##'     will be created as a row counter. Why needed? Each row in data
+##'     represents a set of parameters, i.e. a model. In the long
+##'     format result, each model will have multiple rows. Hence, a
+##'     model identifier is needed to distinguish between models in
+##'     results.
 ##' @param strings.par.type Defines how column names get associated
 ##'     with THETA, OMEGA, and SIGMA. Default is to look for "T", "O",
 ##'     or "S" as starting letter. If customizing, make sure each no
 ##'     column name will be matched by more than one criterion.
 ##' @param as.fun The default is to return data as a data.frame. Pass
-##'     a function (say \code{tibble::as_tibble}) in as.fun to convert to
-##'     something else. If data.tables are wanted, use
+##'     a function (say \code{tibble::as_tibble}) in as.fun to convert
+##'     to something else. If data.tables are wanted, use
 ##'     as.fun="data.table". The default can be configured using
 ##'     NMdataConf.
 ##' @return a long-format data.frame of model parameters
-##' @details
-##'     The wide data format read by `readParsWide` is not a Nonmem
-##'     format. It is used to bridge output from other tools such as
-##'     simpar, and potentially PSN. 
+##' @details The wide data format read by `readParsWide` is not a
+##'     Nonmem format. It is used to bridge output from other tools
+##'     such as simpar, and potentially PSN.
 ##'
 ##' This function reads a data that is "wide" in parameters - it has a
 ##'     column for each parameter, and one row per parameter set or
@@ -57,7 +59,7 @@
 ##' }
 ##' @export
 
-readParsWide <- function(data,col.model=NULL,strings.par.type=c(THETA="^T.*",OMEGA="^O.*",SIGMA="^S."),as.fun){
+readParsWide <- function(data,col.model,col.model.sim,strings.par.type=c(THETA="^T.*",OMEGA="^O.*",SIGMA="^S."),as.fun){
 
 
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
@@ -76,39 +78,54 @@ readParsWide <- function(data,col.model=NULL,strings.par.type=c(THETA="^T.*",OME
 ###  Section end: Dummy variables, only not to get NOTE's in pacakge checks
     
     
-    if(!is.data.frame(data)){
+    if(is.data.frame(data)){
+        data <- as.data.table(data)
+    } else {
         data <- fread(data)
     }
-    setDT(data)
+
 
     ## if col.model is null, create one
-    if(is.null(col.model)){
+    if( missing(col.model) || is.null(col.model) ){
         col.model <- "model"
     }
-    if(!col.model%in%colnames(data)){
-        data[,(col.model):=.I]
+    if( missing(col.model.sim) || is.null(col.model.sim)){
+        col.model.sim <- "model.sim"
     }
+    if(!col.model%in%colnames(data)){
+        data[,(col.model):="Model1"]
+    }
+    cols.mod <- col.model
+    if(col.model%in%colnames(data)){
+        cols.mod <- c(col.model,cols.mod)
+    }
+    
     ## as.fun
     if(missing(as.fun)) as.fun <- NULL
     as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)
 
+    data[,(col.model.sim):=.I]
     
 ### convert to long format    
-    pars.l <- melt(data,id.vars=col.model,variable.name="name.wide",value.name="value")
+    pars.l <- melt(data,id.vars=c(col.model,col.model.sim),variable.name="name.wide",value.name="value")
     
     ## assign par.type
 ### id.model.par is unique across models x parameter
-    pars.l[,id.model.par:=.I]
     ## dt.match is w
-    dt.match <- pars.l[,lapply(strings.par.type,grepl,x=name.wide),by=c(col.model,"id.model.par")]
-    dt.match.l <- melt(dt.match,id.vars=c(col.model,"id.model.par"),variable.name="par.type")[value==TRUE]
+    dt.match <- pars.l[,lapply(strings.par.type,grepl,x=name.wide),by=c(col.model,col.model.sim,"name.wide")]
+    dt.match.l <- melt(dt.match,id.vars=c(col.model,col.model.sim,"name.wide"),variable.name="par.type")[value==TRUE]
 
     ## TODO check that only one was matched
     
-    ## assign parameter
-    pars.l <- mergeCheck(pars.l,dt.match.l[,.(id.model.par,par.type)],by="id.model.par",quiet=TRUE)
+    ## assign parameter type. This could be done by merging a data.table with unique names and types instead of merging for all the sim models.
+   
+    pars.l <- mergeCheck(
+        pars.l
+       ,
+        dt.match.l[,c(col.model.sim,"par.type","name.wide"),with=FALSE]
+       ,by=c(col.model.sim,"name.wide"),quiet=TRUE)
 
-
+    
     
     ##  extract the index numbers i,j from digits in the string
     deriveCols <- function(x,n){
@@ -117,7 +134,7 @@ readParsWide <- function(data,col.model=NULL,strings.par.type=c(THETA="^T.*",OME
         found <- as.numeric(found[[1]])
         as.list(c(found,rep(NA,n-length(found))))
     }
-    pars.l[,(c("i","j")):=deriveCols(name.wide,n=2),by=.(id.model.par)]
+    pars.l[,(c("i","j")):=deriveCols(name.wide,n=2),by=c(col.model,col.model.sim,"name.wide")]
 
     
     ## Assign Nonmem style name THETA1, OMEGA(1,1) etc. Notice the
@@ -140,8 +157,13 @@ readParsWide <- function(data,col.model=NULL,strings.par.type=c(THETA="^T.*",OME
         dt[,parameter]
     }
     pars.l[,parameter:=NMparIdxNames(.SD)]
+    ## if("id.model.par"%in%colnames(pars.l)) {
+    ##     pars.l[,id.model.par:=NULL]
+    ## }
 
-    setcolorder(pars.l,cc(id.model.par,model,par.type,i,j,value,parameter,name.wide))
+    cols.order <- c(col.model,col.model.sim,cc(par.type,i,j,value,parameter,name.wide))
+    cols.order <- intersect(cols.order,colnames(pars.l))
+    setcolorder(pars.l,cols.order)
 
     as.fun(pars.l)
 

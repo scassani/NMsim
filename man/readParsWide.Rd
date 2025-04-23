@@ -6,7 +6,8 @@
 \usage{
 readParsWide(
   data,
-  col.model = NULL,
+  col.model,
+  col.model.sim,
   strings.par.type = c(THETA = "^T.*", OMEGA = "^O.*", SIGMA = "^S."),
   as.fun
 )
@@ -15,12 +16,16 @@ readParsWide(
 \item{data}{A data.frame or a path to a delimited file to be read
 using `data.table::fread`.}
 
-\item{col.model}{Name of the model counter, default is "model". If
-the provided name is not found in data, it will be created as
-a row counter. Why needed? Each row in data represents a set
-of parameters, i.e. a model. In the long format result, each
-model will have multiple rows. Hence, a model identifier is
-needed to distinguish between models in results.}
+\item{col.model}{Column containing name of the original model. By
+default a column called "model" will contain "Model1".}
+
+\item{col.model.sim}{Name of the model counter, default is
+"model.sim". If the provided name is not found in data, it
+will be created as a row counter. Why needed? Each row in data
+represents a set of parameters, i.e. a model. In the long
+format result, each model will have multiple rows. Hence, a
+model identifier is needed to distinguish between models in
+results.}
 
 \item{strings.par.type}{Defines how column names get associated
 with THETA, OMEGA, and SIGMA. Default is to look for "T", "O",
@@ -28,8 +33,8 @@ or "S" as starting letter. If customizing, make sure each no
 column name will be matched by more than one criterion.}
 
 \item{as.fun}{The default is to return data as a data.frame. Pass
-a function (say \code{tibble::as_tibble}) in as.fun to convert to
-something else. If data.tables are wanted, use
+a function (say \code{tibble::as_tibble}) in as.fun to convert
+to something else. If data.tables are wanted, use
 as.fun="data.table". The default can be configured using
 NMdataConf.}
 }
@@ -42,9 +47,9 @@ data.table. This is the same format as returned by NMreadExt()
 which can be used by NMsim.
 }
 \details{
-The wide data format read by `readParsWide` is not a Nonmem
-    format. It is used to bridge output from other tools such as
-    simpar, and potentially PSN. 
+The wide data format read by `readParsWide` is not a
+    Nonmem format. It is used to bridge output from other tools
+    such as simpar, and potentially PSN.
 
 This function reads a data that is "wide" in parameters - it has a
     column for each parameter, and one row per parameter set or

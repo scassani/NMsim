@@ -17,4 +17,10 @@ test_that("basic",{
 
     expect_equal_to_reference(res,fileRef)
     
+
+    if(F){
+        head(res)
+        head(readRDS(fileRef))
+    }
+
 })

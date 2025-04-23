@@ -42,6 +42,7 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
     iblock <- NULL
     j <- NULL
     FIX <- NULL
+    GRP <- NULL
     fn.sim <- NULL
     NMREP <- NULL
     parameter <- NULL
@@ -50,7 +51,7 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
     ROW <- NULL
     run.sim <- NULL
     submodel <- NULL
-    SUBMODEL <- NULL
+    model.sim <- NULL
     value <- NULL
 
 ### Section end: Dummy variables, only not to get NOTE's in package checks 
@@ -67,6 +68,7 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
     run.sim.0 <- fnExtension(basename(path.sim.0),"")
     rm(file.sim)
 
+    
 
     if(missing(ext)) ext <- NULL
     if(missing(nsims)) nsims <- NULL
@@ -76,7 +78,10 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
         simulatePars <- TRUE
     } else {
         if(!is.null(nsims)) stop("nsims not supported in combination with ext")
-        nsims <- ext[,.N]
+        if(!is.data.table(ext)){
+            ext <- as.data.table(ext)
+        }
+        ## nsims <- ext[,.N]
         simulatePars <- FALSE
     }
 
@@ -91,7 +96,7 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
         newpars <- round(newpars,8)
 ### as.list first is because without it, this will fail for
 ### nsims=1. This is because a single-column data.table would be
-### created in that case, and then SUBMODEL and further steps
+### created in that case, and then model.sim and further steps
 ### become wrong and will fail.
         if(nsims==1){
             newpars <- as.data.table(as.list(newpars))
@@ -99,15 +104,15 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
             newpars <- as.data.table(newpars)
         }
         
-        newpars[,SUBMODEL:=.I]
+        newpars[,model.sim:=.I]
 
         newpars <- mergeCheck(
-            melt(newpars,id.vars="SUBMODEL",variable.name="parameter")
+            melt(newpars,id.vars="model.sim",variable.name="parameter")
            ,
             ests
            ,by="parameter",quiet=TRUE)
 
-        ## newpars <- mergeCheck(newpars,dt.sims,by="SUBMODEL")
+        ## newpars <- mergeCheck(newpars,dt.sims,by="model.sim")
         ## if the parameter was fixed, reset it to the estimate
         newpars[FIX==1,value:=est]
         ## if OMEGA or SIGMA diagonal elements are <0 set to 0.
@@ -123,28 +128,41 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
         setDT(newpars)
         
         
-        ## newpars[,SUBMODEL:=.GRP,by=.(model)]
-        setnames(newpars,"model","SUBMODEL")
+        ## newpars[,model.sim:=.GRP,by=.(model)]
+        ##setnames(newpars,"model","model.sim")
     }
 
 ### Section end: Parameter from provided table
+
     
     newpars[,ROW:=.I]
-    length.num.char <- newpars[,ceiling(log10(uniqueN(SUBMODEL)+1))]
-    newpars[,submodel:=sprintf(fmt=paste0("%0",length.num.char,"d"),.GRP),by=.(SUBMODEL)]
+    ## length.num.char <- newpars[,ceiling(log10(uniqueN(model.sim)-1))+1]
+    ndigs <- function(x) {
+        x <- abs(x)
+        y <- x
+        y[x<=1] <- 1
+        y[x>1] <- ceiling(log10(x[x>1]+1))
+        y
+    }
+
+    bycols <- intersect(c("model","model.sim"),colnames(newpars))
+    length.num.char <-
+        newpars[,.GRP,by=bycols][,max(ndigs(GRP))]
+    newpars[,submodel:=sprintf(fmt=paste0("%0",length.num.char,"d"),.GRP),by=bycols]
     newpars[,path.sim:=fnAppend(path.sim.0,submodel),by=.(ROW)]
     newpars[,fn.sim:=basename(path.sim)]
     newpars[,run.sim:=fnExtension(fn.sim,"")]
 
 
     if(!all(c("iblock","blocksize")%in%newpars)){
-        newpars <- addBlocks(newpars,col.model="SUBMODEL")
+        newpars <- addBlocks(newpars,col.model="submodel")
     }
 
     
     if(!is.null(write.ext)){
         saveRDS(newpars,file=write.ext)
     }
+
     
 ### create control streams one by one
     res <- newpars[,
@@ -153,7 +171,7 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
                                  ,newfile=unique(path.sim)
                                  ,inits=.SD
                                  ,quiet=TRUE)
-                  ,by="SUBMODEL"]
+                  ,by="submodel"]
 
 
 ### output tables.
@@ -161,8 +179,8 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
     sec.0 <- NMreadSection(file=path.sim.0,section="TABLE")
     newpars[,{
         sec.new <- gsub(run.sim.0,unique(run.sim),x=sec.0)
-        NMwriteSection(files=path.sim,section="TABLE",newlines=sec.new,quiet=TRUE)
-    },by=.(SUBMODEL)]
+        NMwriteSection(files=path.sim,section="TABLE",newlines=sec.new,quiet=TRUE,backup=FALSE)
+    },by=.(submodel)]
 
 
     invisible(unique(newpars$path.sim))

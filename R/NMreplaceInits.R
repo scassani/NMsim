@@ -24,15 +24,18 @@ NMreplaceInits <- function(inits,fix=FALSE,...){
     
     
     ## create THETA section
+    inits <- copy(inits)
+    setDT(inits)
     if(!"FIX"%in%colnames(inits)) {
-        ## inits[,FIX:=0]
-        inits$FIX <- 0
+        inits[,FIX:=0]
+        ##inits$FIX <- 0
     }
     thetas <- inits[par.type=="THETA"]
     setorder(thetas,i)
-
     
-    thetas[,str.fix:=fifelse(as.logical(FIX)," FIX","")]
+    ## thetas[,str.fix:=fifelse(as.logical(FIX)," FIX","")]
+    thetas[,str.fix:=""]
+    thetas[as.logical(FIX)==TRUE,str.fix:=" FIX"]
     lines.theta <- c("$THETA",
                      thetas[,paste0(value,str.fix)]
                      )

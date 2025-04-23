@@ -1,6 +1,9 @@
+##' Add blocking info to parameter set
 ##' @param pars The parameter, as returned by `NMreadExt()`
 ##' @param col.model Name of the model name column.
 ##' @keywords internal
+
+## From NMdata. To be released as an internal function in NMdata 0.2.1.
 
 addBlocks <- function(pars,col.model="model"){
 

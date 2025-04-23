@@ -13,7 +13,9 @@
   `NMaddSamples()` will include that value in the `DV` column and by
   default use `EVID=0` and `MDV=0`. An example where this is useful is
   when generating datasets for `$DESIGN` where `DV=0` is often used.
-  
+
+* `samplePars`
+
 * `simPopEtas()` by default does not overwrite an existing `.phi`
   file. `simPopEtas()` is used to generate sampled `ETA`s for use in
   future model simulations with the same synthetic population

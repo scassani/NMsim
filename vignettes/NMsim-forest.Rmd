@@ -37,14 +37,15 @@ interval. NMsim provides highly automated methods for simulation of Nonmem model
 This short demonstration of generation of simulation-based forest plots using NMsim is intended to make the user ready to perform the following steps.
 
 * Generate simulation data sets designed for forest plot simulations
-* Dosing and sampling scheme using `NMcreateDoses()` 
-* Specify covariates to simulate using `forestDefineCovs()`
+  * Dosing and sampling scheme using `NMcreateDoses()` 
+  * Define covariates to simulate using `forestDefineCovs()`
 * Simulate with parameter uncertainty by one of
-* Based on $COV using `NMsim_NWPRI()` or `NMsim_VarCov()`
-* Using an existent bootstrap estimation (e.g. from PSN)
+  * Based on `$COV` using `NMsim_NWPRI()` 
+  * Based on `$COV` using `NMsim_VarCov()`
+  * Using an existent bootstrap estimation (e.g. from PSN)
 * Postprocess simulation for plotting/tabulation
-* Define end-points, such as an AUC, Cmax or any simulation-based endpoint
-* Summarize covariate effect estimates with confidence intervals, using `forestSummarize()`
+  * Define end-points, such as an AUC, Cmax or any simulation-based endpoint
+  * Summarize covariate effect estimates with confidence intervals, using `forestSummarize()`
 * Plot the summary as a forest plot
 
 Each step is facilitated with efficient interfaces (R functions) and automated execution. Essentially, each step above is one function call. 
@@ -166,7 +167,7 @@ example, that would be `analyte`.
 
 </details>
 
-## Specify covariates to analyze
+## Define covariates to analyze
 `NMsim::forestDefineCovs()` can be used to construct a set of covariate value combinations needed to derive a forest plot. It varies one covariate at a time, keeping all other covariates at their reference value. It can derive references and quantiles from a data set.
 
 For reference values we use median in the observed population for continuous covariates and manually select "Female" as the reference for sex. Here is a short example:

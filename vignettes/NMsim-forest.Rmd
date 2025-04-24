@@ -230,7 +230,7 @@ setorder(dt.sim.covs,ID,TIME,EVID)
 ```
 
 ```{r NMsim-singlesubjs,eval=FALSE,include=TRUE}
-simres <- NMsim(file.mod=file.mod,
+simres.typ <- NMsim(file.mod=file.mod,
                 data=dt.sim.covs,
                 name.sim="singlesubj_covs",
                 table.vars=c("PRED"),
@@ -240,9 +240,9 @@ simres <- NMsim(file.mod=file.mod,
 
 ```{r plot-singlesubjs,include=TRUE}
 simres.typ <- NMreadSim("simres-forest/xgxr134_singlesubj_covs_MetaData.rds",as.fun="data.table")
-simres.ref <- simres[type=="ref"]
+simres.ref <- simres.typ[type=="ref"]
 
-all.plots <- split(simres[type=="value"],by="covvar")|>
+all.plots <- split(simres.typ[type=="value"],by="covvar")|>
     lapply(
         function(x){
             covvar.this <- x[,unique(covvar)]

@@ -48,7 +48,7 @@ This short demonstration of generation of simulation-based forest plots using NM
   * Summarize covariate effect estimates with confidence intervals, using `forestSummarize()`
 * Plot the summary as a forest plot
 
-Each step is facilitated with efficient interfaces (R functions) and automated execution. Essentially, each step above is one function call. 
+Each step is facilitated with efficient interfaces (R functions) and automated execution. Essentially, each step above is one function call. The results from all methods are compared in one plot.
 
 Plotting is includied in the example using the `coveffectsplot` package. Other packages or user's own scripts can be used for plotting. 
 
@@ -57,9 +57,9 @@ We shall focus the main example to be simple and general. Hopefully, the user wi
 ## Prerequisites
 
 * An estimated Nonmem model - at least, input control stream and `.ext` file.
-* If simulating based on `$COVARIANCE`, the `.cov` file.
-* If simulating based on  bootstrap, either a summary of or all the `.ext` files from the boot strap estimations must be available.
-* If references and/or covariate quantile values are to be calculated by NMsim (easiest option), ideally all output (`$TABLE`) data sets and the input data set used for the estimation are available.
+  * If simulating based on `$COVARIANCE`, the `.cov` file.
+  * If simulating based on  bootstrap, either a summary of or all the `.ext` files from the boot strap estimations must be available.
+  * If references and/or covariate quantile values are to be calculated by NMsim (easiest option), ideally all output (`$TABLE`) data sets and the input data set used for the estimation are available.
 * Familiarity with [`NMsim-intro.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-intro.html), at least including "A first simulation with `NMsim()`".
 * Configuration of NMsim so user can succesfully do simulation using `NMsim()`.
 * Familiarity with methods to simulate with parameter uncertainty can be helpful. Before settling on your final forest plot simulation, it is recommended to understand pros and cons of the different methods provided by NMsim as described in [`NMsim-ParamUncertain.html`](https://NMautoverse.github.io/NMsim/articles/NMsim-ParamUncertain.html).
@@ -126,7 +126,7 @@ simulate daily dosing of 30 mg. `col.id=NA` to omit a subject id in `doses` as w
 
 
 ```{r}
-doses <- NMcreateDoses(TIME=0,AMT=30,ADDL=29,II=24)
+doses <- NMcreateDoses(TIME=0,AMT=30,ADDL=30,II=24)
 doses
 ```
 
@@ -157,6 +157,12 @@ There is only one analyte in this data set. If for instance, you have a parent a
 ```{r}
 dt.sim.parent.metab <-
     addEVID2(doses,TIME=time.sim,CMT=data.frame(analyte=c("parent","metabolite"),CMT=c(2,3)))
+```
+
+We also add "Time after previous dose" which is helpful for plotting. This is done using `NMdata::TAPD()`
+
+```{r tapd}
+dt.sim <- addTAPD(dt.sim)
 ```
 
 We used the `period` column to distinguish time intervals for the
@@ -205,9 +211,15 @@ covs
 
 We now have all combinations of covariates in the object called `covs`. Notice the `type` column which distinguishes the reference combination in contrast to the other simulations where one covariate is being varied at a time. 
 
+
+
+
+<details>
+<summary>Plots of Typical-Subject Simulations</summary>
+
 ```{r,dt.sim.covs}
 ## repeating the doses for all combinations of covariates. Using NMdata::egdt()
-dt.sim.noid <- dt.sim[,!("ID")]
+dt.sim.noid <- as.data.table(dt.sim)[,!("ID")]
 dt.sim.covs <- egdt(dt.sim.noid,covs)
 ### same thing, the data.table way
 ## dt.sim.covs <- covs[,dt.sim.noid[],by=covs]
@@ -216,6 +228,37 @@ dt.sim.covs <- egdt(dt.sim.noid,covs)
 ##   cross_join(covs)
 setorder(dt.sim.covs,ID,TIME,EVID)
 ```
+
+```{r NMsim-singlesubjs,eval=FALSE,include=TRUE}
+simres <- NMsim(file.mod=file.mod,
+                data=dt.sim.covs,
+                name.sim="singlesubj_covs",
+                table.vars=c("PRED"),
+                typical=TRUE,
+                as.fun="data.table")
+```
+
+```{r plot-singlesubjs,include=TRUE}
+simres.typ <- NMreadSim("simres-forest/xgxr134_singlesubj_covs_MetaData.rds",as.fun="data.table")
+simres.ref <- simres[type=="ref"]
+
+all.plots <- split(simres[type=="value"],by="covvar")|>
+    lapply(
+        function(x){
+            covvar.this <- x[,unique(covvar)]
+            simres.ref[,covvalc:=paste(get(covvar.this),"(Reference)")]
+            all <- rbind(x,simres.ref)
+            ggplot(all,aes(TAPD,PRED,colour=covvalc))+
+                geom_line()}+
+        facet_wrap(~period)
+    )
+
+
+patchwork::wrap_plots(all.plots,ncol=1)
+```
+
+</details>
+
 
 
 # Simulation With Parameter Uncertainty
@@ -245,7 +288,7 @@ simres.forest.nwpri <- NMsim(file.mod # path to NONMEM model
 ```
 
 
-```{r, echo=FALSE}
+```{r read-nwpri, echo=FALSE}
 ### Read simulation results
 simres <- NMreadSim("simres-forest/xgxr134_forest_nwpri_MetaData.rds",wait=TRUE,rm.tmp=TRUE)
 ## Check how many models returned simulation results
@@ -266,7 +309,7 @@ If you encounter issues with samples that do not run, consider whether any of yo
 
 
 A quick way to look for this is by combining parameter estimates (from the `.ext` file) and the automatic labeling of the parameters using `NMdata::NMrelate()`.
-```{r,echo=TRUE}
+```{r checkRSE,echo=TRUE}
 NMdata::NMreadExt(file.mod,as.fun="data.table")[par.type=="THETA",.(RSE=se/value),by=.(par.name,FIX)] |>
     NMdata::mergeCheck(NMdata::NMrelate(file.mod,par.type="THETA",as.fun="data.table")[,.(par.name,code)],by="par.name",quiet=TRUE) 
 ```
@@ -416,6 +459,7 @@ simres.forest.simpar <- NMsim(file.mod # path to NONMEM model
 <summary>Simulation using bootstrap for parameter sampling</summary>
 
 ```{r bootstrap,include=FALSE,eval=FALSE}
+if(F){
 dat.bs <- NMscanInput(file.mod,apply.filters = T)
 
 ## NMwriteData(as.data.table(dat.bs),file="NMsim-forest-models/xgxr2covs_bs.csv")
@@ -428,6 +472,7 @@ system(sprintf("cd NMsim-forest-models ; execute %s",basename(fnAppend(file.mod,
 
 system("cd NMsim-forest-models ;
 nsamples=1000 ; bootstrap -run_on_sge -samples=$nsamples -threads=1000 -dir=xgxr134_bs_N$nsamples -seed=99521 xgxr134_bs.mod ",wait=FALSE)
+}
 ```
 
 
@@ -456,11 +501,18 @@ simres.forest.boot <- NMsim(file.mod # path to NONMEM model
 
 </details>
 
-
-
+## Comparison of different simulation methods
+The forest were simulated with all the methods mentioned above. As
+expected, the forest plots are very similar for NWPRI, mvrnorm, and
+simpar. This is expected because they all sample THETAs from the
+multivariate normal distribution. Among these, `NMsim_NWPRI` is the
+fasted to execute. A bootstrap may be desired or needed for a
+non-parametric approach. Remember that this is a very simple model,
+and similarities in the results based on the parametric models and
+bootstrap cannot be generalized based on this.
 
 <details>
-<summary>Comparison of different simulation methods</summary>
+<summary>Collecting, Summarizing, and Plotting all Results</summary>
 
 ```{r sumAll}
 simres.forest.nwpri <- NMreadSim(c("simres-forest/xgxr134_nwpri_forest_MetaData.rds"),as.fun="data.table")
@@ -486,9 +538,11 @@ sum.uncertain <- forestSummarize(simres.forest.all,
                                  as.fun="data.table"
                                  )
 
+```
 
+```{r plot-compare}
 
-ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
+plot.compare <- ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
     geom_rect(aes(xmin=.8,xmax=1.2,ymin=-Inf,ymax=Inf,colour=NULL),fill="grey85")+
     ## geom_segment(aes(x=predml,xend=predmu,y=covvalf,yend=covvalf),
     ##           position=ggstance::position_dodgev(height=0.5))+
@@ -500,11 +554,13 @@ ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
     labs(y="",x="Relative Covariate Effect",colour="Simulation Method")+
     theme(legend.position="bottom")
 
-
 ```
 
 </details>
 
+```{r show-plot-compare,echo=FALSE}
+plot.compare
+```
 
 # Post-processing step-by-step
 We are including the code from the main steps in the post processing function, `NMsim::forestSummarize()`. It is important that the scientist understands that what the forest plots derived in this document represent is the relative effect of the covariate on the exposure metric. This is derived by `NMsim::forestSummarize()` as quantiles of the exposure relative to the reference subject. The confidence interval hence expresses the uncertainty on the covariate effect for a subject with other covariates at reference values.

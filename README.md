@@ -107,10 +107,10 @@ methods are currently provided:
 In addition, `NMsim` provides other features to further modify the
 simulation control stream
 
--   Simulation of typical subjects with all ETAs equal 0
-    (`typical=TRUE`)
--   Custom modification of control stream sections (`modify.sections`
+-   Simulate of typical subjects with all ETAs equal 0 (`typical=TRUE`)
+-   Specify parameter values, other than final estimates (`inits`
     argument)
+-   Custom modification of control stream sections (`modify` argument)
 
 To learn how to run these simulations on your Nonmem models, get started
 with
@@ -128,18 +128,13 @@ simulation (or other job) you want to automate using `NMsim`.
 
 Many features are available. Prominent ones are:
 
--   Can update and edit parameter values using the `inits` argument.
--   Can very flexibly modify the simulation control stream on the fly
-    through the simple `modify.model` argument.
+-   Efficient simulation data set creation functions
 -   Provides a simple interface `NMreadSim()` to read previously
-    performed simulation results. Automatically stores results in a
-    compressed format that can be separated from intermediate results
-    files.
+    performed simulation results.
 -   Results on file can be reused if available using
     `reuse.results=TRUE`.
 -   Can use submit jobs to clusters. It can wait for the simulations to
-    be done and automatically collect the results like in the example
-    above.
+    be done and automatically collect the results.
 -   Simulation replicates using Nonmem `SUBPROBLEMS` feature avaible
     through the `subproblems` argument
 -   Simulations of models on transformed observations can be

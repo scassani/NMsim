@@ -14,7 +14,14 @@
   default use `EVID=0` and `MDV=0`. An example where this is useful is
   when generating datasets for `$DESIGN` where `DV=0` is often used.
 
-* `samplePars`
+* `samplePars()` is a new function that replaces
+  `sampleParsSimpar()`. `samplePars()` takes the `method` argument
+  which can be used to switch between multivariate normal distribution
+  `method="mvrnorm"` and using the `simpar` package to get use
+  Inverse-Wishart distribution for `$OMEGA` and `$SIGMA`
+  parameters. Notice, both methods are fully automated in NMsim - all
+  you need to write is the path to a control stream and the number
+  (`nsims`) of parameter sets wanted.
 
 * `simPopEtas()` by default does not overwrite an existing `.phi`
   file. `simPopEtas()` is used to generate sampled `ETA`s for use in

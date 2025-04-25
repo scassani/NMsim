@@ -368,7 +368,7 @@ simres.typ <- NMsim(file.mod=file.mod,data=data.sim,
 ```
 
 
-```{r,typsubj,include=FALSE}
+```{r,typsubj,include=FALSE,eval=FALSE}
 ### typical subject 
 simres.typ <- NMsim(
     file.mod=file.mod,

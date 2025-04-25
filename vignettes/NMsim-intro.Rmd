@@ -160,7 +160,8 @@ library(NMsim)
 
 NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
            ## path.nonmem = "/opt/nonmem/nm751/run/nmfe75"
-          ,dir.sims="~/NMsim_vignette/simtmp/simtmp-intro"
+          ## ,dir.sims="~/NMsim_vignette/simtmp/simtmp-intro"
+          ,dir.sims="simtmp-intro"
           ,dir.res="simres-intro"
            )
 
@@ -368,7 +369,7 @@ simres.typ <- NMsim(file.mod=file.mod,data=data.sim,
 ```
 
 
-```{r,typsubj,include=FALSE,eval=FALSE}
+```{r,typsubj,include=FALSE,eval=TRUE}
 ### typical subject 
 simres.typ <- NMsim(
     file.mod=file.mod,

@@ -160,7 +160,7 @@ library(NMsim)
 
 NMdataConf(path.nonmem = "/opt/NONMEM/nm75/run/nmfe75"
            ## path.nonmem = "/opt/nonmem/nm751/run/nmfe75"
-          ,dir.sims="simtmp-intro"
+          ,dir.sims="~/NMsim_vignette/simtmp/simtmp-intro"
           ,dir.res="simres-intro"
            )
 
@@ -212,19 +212,24 @@ For more information on this and how to test the configuration, see [`NMsim-conf
 # A first simulation with `NMsim()`
 
 ```{r,eval=TRUE,include=FALSE}
+## Point to the model to estimate
 file.mod <- system.file("examples/nonmem/xgxr021.mod",
                         package="NMsim")
-data.sim <- read.csv(system.file("examples/derived/dat_sim1.csv",
-                                 package="NMsim"))
+## Easily create a basic simulation data set
+data.sim <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),ADDL=c(0,5),II=c(0,24),CMT=1)|>
+    NMaddSamples(TIME=0:(24*7),CMT=2)
 ```
 
 When providing a simulation data set, the default `NMsim()` behavior is to sample a new subject (ETA's).
 
 ```{r,sim-simple,eval=!reuse.results,echo=TRUE}
+## Point to the model to estimate
 file.mod <- system.file("examples/nonmem/xgxr021.mod",
                         package="NMsim")
-data.sim <- read.csv(system.file("examples/derived/dat_sim1.csv",
-                                 package="NMsim"))
+## Easily create a muliple-dose simulation data set with a loading dose
+data.sim <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),ADDL=c(0,5),II=c(0,24),CMT=1)|>
+    NMaddSamples(TIME=0:(24*7),CMT=2)
+## Simulate
 simres <- NMsim(file.mod=file.mod,data=data.sim)
 ```
 

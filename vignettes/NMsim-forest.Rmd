@@ -414,7 +414,6 @@ software installed, other than Nonmem.
 
 
 ```{r NMsim-mvrnorm,eval=FALSE}
-## load_all("~/wdirs/NMsim")
 ext.mvrnorm <- samplePars(file.mod=file.mod,nsim=1000,method="mvrnorm",seed.R=6789)
 
 simres.forest.mvrnorm <- NMsim(file.mod # path to NONMEM model
@@ -477,13 +476,9 @@ nsamples=1000 ; bootstrap -run_on_sge -samples=$nsamples -threads=1000 -dir=xgxr
 
 
 ```{r NMsim-boot,eval=FALSE,include=TRUE}
-dir.bs <- "NMsim-forest-models/xgxr134_bs_N1000/modelfit_dir1/"
-lsts.bs <- list.files(dir.bs,pattern=".+\\.lst$",recursive=T,full.names = TRUE)
-## fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","boot\\1",file)
-fun.name <- function(file)sub(".*/NM_run([0-9]+)/psn....","\\1",file)  |>
-                         as.integer()
-
-ext.boot <- NMreadExt(lsts.bs,modelname=fun.name,as.fun="data.table")
+dir.bs <- "NMsim-forest-models/xgxr134_bs_N1000/m1"
+exts.bs <- list.files(dir.bs,pattern=".+\\.ext$",recursive=T,full.names = TRUE)
+ext.boot <- NMreadExt(exts.bs,as.fun="data.table")
 
 simres.forest.boot <- NMsim(file.mod # path to NONMEM model
                            ,data=dt.sim.covs, # simulation dataset

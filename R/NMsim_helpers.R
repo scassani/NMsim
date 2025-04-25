@@ -122,7 +122,7 @@ file.psn <- function(dir.psn,file.psn){
 }
 
 ##' Simplify file paths by dropping .. and //
-##' @param single or multiple file or dir paths as strings.
+##' @param path single or multiple file or dir paths as strings.
 ##' @examples
 ##' \dontrun{
 ##' path <- c("ds/asf.t","gege/../jjj.r")

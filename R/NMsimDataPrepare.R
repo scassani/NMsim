@@ -62,7 +62,8 @@ NMsimDataPrepare <- function(data,auto.dv,order.columns){
     }
     all.names <- unique(unlist(lapply(data,colnames)))
     col.row <- tmpcol(names=all.names,base="NMROW")
-    data <- lapply(data,function(d)d[,(col.row):=(1:.N)/1000])
+    ## data <- lapply(data,function(d)d[,(col.row):=(1:.N)/1000])
+    data <- lapply(data,function(d)d[,(col.row):=(1:.N)])
     if(order.columns) data <- lapply(data,NMorderColumns,col.row=col.row)
 
     

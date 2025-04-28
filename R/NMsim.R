@@ -476,7 +476,7 @@ NMsim <- function(file.mod,data,
                   name.sim,
                   table.vars,
                   table.options,
-                  table.format,
+                  table.format="s1PE16.9",
                   carry.out=TRUE,
                   method.sim=NMsim_default,
                   typical=FALSE,
@@ -1169,21 +1169,35 @@ NMsim <- function(file.mod,data,
                 warning(paste0("Not all variables in `carry.out` found in (all) data set(s):\n",paste(not.found,collapse=" ")))
             }
         }
-
+        
         dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
         dt.data.tmp[,tmprow:=.I]
-        dt.data.tmp[,{NMwriteData(data$data[[DATAROW]]
-                                 ,file=path.data
-                                 ,genText=T
-                                 ,formats.write=c("csv",format.data.complete)
-                                  ## if NMsim is not controlling $DATA, we don't know what can be dropped.
-                                  ,csv.trunc.as.nm=TRUE
-                                 ,script=script
-                                 ,quiet=TRUE)
-### returning a sctring because NMwriteData wit genText may return incompatible results
-                                 ##"OK"
-        },
-        by=tmprow]
+        
+        null <- lapply(split(dt.data.tmp,by="tmprow"),function(datrow){
+            with(datrow,NMwriteData(data$data[[DATAROW]]
+                       ,file=path.data
+                       ,genText=T
+                       ,formats.write=c("csv",format.data.complete)
+                        ## if NMsim is not controlling $DATA, we don't know what can be dropped.
+                        
+                                 ##,csv.trunc.as.nm=TRUE
+                       ,script=script
+                       ,quiet=TRUE)
+        )})
+        
+##         dt.data.tmp[,{NMwriteData(data$data[[DATAROW]]
+##                                  ,file=path.data
+##                                  ,genText=T
+##                                  ,formats.write=c("csv",format.data.complete)
+##                                   ## if NMsim is not controlling $DATA, we don't know what can be dropped.
+
+##                                  ##,csv.trunc.as.nm=TRUE
+##                                  ,script=script
+##                                  ,quiet=TRUE)
+## ### returning a sctring because NMwriteData wit genText may return incompatible results
+##                                  ##"OK"
+##         },
+##         by=tmprow]
     }
     
     

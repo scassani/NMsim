@@ -17,7 +17,8 @@
 ##' @export
 
 sampleParsSimpar <- function(file.mod,nsim,format="ext",seed.R,as.fun){
-    
+
+    warning("sampleParsSimpar is deprecated. Please use `samplePars()` with `method=\"simpar\" instead.`")
     
     if(packageVersion("NMdata")<"0.1.7.905"){
         stop("sampleParsSimpar requires NMdata 0.1.8 or later.")

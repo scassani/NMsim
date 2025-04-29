@@ -1,7 +1,7 @@
 Package: NMsim
 Type: Package
 Title: Seamless 'Nonmem' Simulation Platform
-Version: 0.2.1
+Version: 0.2.1.901
 Authors@R: c(person("Philip", "Delff", email = "philip@delff.dk",role = c("aut","cre")),
   person("Brian", "Reilly", email = "reilly.brian.m@gmail.com",role = c("ctb")),
   person("Sanaya","Shroff",email="sanaya.n.shroff@gmail.com",role = c("ctb")),
@@ -28,10 +28,11 @@ Suggests:
   patchwork,
   tracee,
   tidyvpc,
-  simpar,
   kableExtra,
   coveffectsplot,
   NMcalc
+Enhances:
+  simpar
 Encoding: UTF-8
 Additional_repositories: https://mpn.metworx.com/snapshots/stable/2024-09-23
 BugReports: https://github.com/NMautoverse/NMsim/issues

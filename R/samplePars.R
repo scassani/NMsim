@@ -21,6 +21,7 @@
 ##'     Philip Delff for sampling using `simpar`. It has since been
 ##'     generalized to support sampling with `mvrnorm()` too.
 ##' @import NMdata
+##' @import data.table
 ##' @return A table with sampled model parameters
 ##' @export
 

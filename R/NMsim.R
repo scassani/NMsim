@@ -54,9 +54,11 @@
 ##'     \code{table.vars} the default is to add two options,
 ##'     \code{NOAPPEND} and \code{NOPRINT}. You can modify that with
 ##'     \code{table.options}. Do not try to modify output filename -
-##'     \code{NMsim} takes care of that.
+##'     \code{NMsim} takes care of that. See `table.format` too.
 ##' @param table.format A format for `$TABLE`. Only used if
-##'     `table.vars` is provided.
+##'     `table.vars` is provided. Default is "s1PE16.9". NMsim needs a
+##'     high-resolution format. The Nonmem default "s1PE11.4" is
+##'     insufficient for simulation data sets of 1e5 rows or more.
 ##' @param carry.out Variables from input data that should be included
 ##'     in results. Default is to include everything. If working with
 ##'     large data sets, it may be wanted to provide a subset of the
@@ -1173,6 +1175,8 @@ NMsim <- function(file.mod,data,
         dt.data.tmp <- unique(dt.models[,.(DATAROW,path.data)])
         dt.data.tmp[,tmprow:=.I]
         
+        ## NMwriteData is run in lapply because genText=T may return
+        ## incompatible objects - do not run as dt[,NMwriteData(),by]
         null <- lapply(split(dt.data.tmp,by="tmprow"),function(datrow){
             with(datrow,NMwriteData(data$data[[DATAROW]]
                        ,file=path.data

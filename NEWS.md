@@ -1,3 +1,13 @@
+# NMsim 0.2.2
+## Bugfixes
+* There was a bug introduced in version 0.2.1 leading `NMsim()` to
+throw an error saving some data sets. The issue is fixed.
+
+* The default Nonmem `$TABLE` format is insufficient with NMsim's way
+  to create row counters when simulating 1e5 rows or more. NMsim is
+  now by default using a format with a much higher resolution. Thanks
+  to Sanaya Shroff for helping debugging this.
+
 # NMsim 0.2.1
 ## New Features
 * `NMaddSamples()` replaces the `addEVID2()` function. `addEVID2()`

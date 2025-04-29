@@ -758,7 +758,7 @@ NMsim <- function(file.mod,data,
         }
     }
 
-    if(missing(table.format)) table.format <- NULL
+    ## if(missing(table.format)) table.format <- NULL
     
 
 ### fast.tables is true if table.vars is provided and table.options are untouched.

@@ -2,10 +2,10 @@ url: https://NMautoverse.github.io/NMsim/
 template:
   bootstrap: 5
   includes:
+    in_header: "meta-google-verify.html"
     after_body: |-
       <script data-goatcounter="https://nmsim.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
-  in_header: "meta-google-verify.html"
   assets: |
     assets/NMsim_general_html.Rmd
     assets/NMsim_general_web.pdf

@@ -5,6 +5,7 @@ template:
     after_body: |-
       <script data-goatcounter="https://nmsim.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+  in_header: "meta-google-verify.html"
   assets: |
     assets/NMsim_general_html.Rmd
     assets/NMsim_general_web.pdf

@@ -1,8 +1,9 @@
 url: https://NMautoverse.github.io/NMsim/
 template:
   bootstrap: 5
+  params:
+    google_site_verification: -8n-8OfzJii_lVruWfxXOhzUATKSgMdiSxMhOQoscu4
   includes:
-    in_header: "meta-google-verify.html"
     after_body: |-
       <script data-goatcounter="https://nmsim.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>

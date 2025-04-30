@@ -21,6 +21,12 @@ author:
 
 ```{r,setup-hide,include=FALSE}
 library(knitr)
+knitr::opts_hooks$set(function(options) {
+  if (is.null(options$fig.alt) && !is.null(options$fig.cap)) {
+    options$fig.alt <- options$fig.cap
+  }
+  options
+})
 ```
 
 <img src='../man/figures/NMsimlogo240.png' align="right" height="120" alt="NMsim" />

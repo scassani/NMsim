@@ -21,6 +21,12 @@ pkgdown:
 
 ```{r,setup-hide,include=FALSE}
 library(knitr)
+knitr::opts_hooks$set(function(options) {
+  if (is.null(options$fig.alt) && !is.null(options$fig.cap)) {
+    options$fig.alt <- options$fig.cap
+  }
+  options
+})
 ```
 
 <img src='../man/figures/NMsimlogo240.png' align="right" height="120" alt="NMsim" />
@@ -539,8 +545,6 @@ sum.uncertain <- forestSummarize(simres.forest.all,
 
 plot.compare <- ggplot(sum.uncertain[period=="Steady-State"],aes(predmm,covvalf,colour=method))+
     geom_rect(aes(xmin=.8,xmax=1.2,ymin=-Inf,ymax=Inf,colour=NULL),fill="grey85")+
-    ## geom_segment(aes(x=predml,xend=predmu,y=covvalf,yend=covvalf),
-    ##           position=ggstance::position_dodgev(height=0.5))+
     geom_rect(aes(xmin=predml,xmax=predmu,ymin=covvalf,ymax=covvalf),
               position=ggstance::position_dodgev(height=0.5))+
     geom_point(position=ggstance::position_dodgev(height=0.5))+

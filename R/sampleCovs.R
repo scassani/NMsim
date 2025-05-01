@@ -86,8 +86,7 @@ sampleCovs <- function(data,
     }
     
 ### calcs
-    dt.covs <- data.covs  |>
-        findCovs(by=c(col.id.covs),as.fun="data.table")
+    dt.covs <- findCovs(data.covs  ,by=c(col.id.covs),as.fun="data.table")
     dt.covs <- dt.covs[,c(col.id.covs,covs),with=FALSE]
     setnames(dt.covs,col.id.covs,"IDCOVS")
     dt.ids <- data.table(ID=1:Nsubjs)

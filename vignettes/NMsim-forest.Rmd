@@ -118,7 +118,8 @@ NMdataConf(
 A model is selected. 
 
 ```{r}
-file.mod <- "NMsim-forest-models/xgxr134.mod"
+## file.mod <- "NMsim-forest-models/xgxr134.mod"
+file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMsim")
 ```
 
 

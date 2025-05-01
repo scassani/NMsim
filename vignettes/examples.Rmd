@@ -1,0 +1,32 @@
+---
+title: "NMsim Examples"
+output:
+rmarkdown::html_document:
+    toc: true
+    code_folding: show
+Suggests: markdown
+VignetteBuilder: knitr
+vignette: >
+  %\VignetteIndexEntry{Typical}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+header-includes:
+- \usepackage{ae}
+---
+
+
+<img src='../man/figures/NMsimlogo240.png' align="right" height="120" />
+
+
+
+[**NMsim - Seamless NONMEM Simulation Platform in R**](NMsim-intro.html)  
+Authors: **Philip Delff**  
+Configuration  
+Simulation of new subjects  
+Simulation of typical subjects  
+Creation of Simulation data sets  
+Simulate multiple models  
+Reuse Emperical Bayes' Estimates (known ETAs)  
+Prediction intervals  
+Read previously generated simulations 
+

@@ -1,6 +1,7 @@
 # NMsim 0.2.2
 ## New features
-* `sampleCovs`
+* `sampleCovs()` is a new function to conveniently sample
+  subject-level covariates from an existing data set.
 
 ## Bugfixes
 * There was a bug introduced in version 0.2.1 leading `NMsim()` to

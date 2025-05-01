@@ -12,7 +12,7 @@ test_that("basic",{
 
         fileRef <- "testReference/sampleParsSimpar_01.rds"
 
-        pars <- sampleParsSimpar(file.mod,nsim=10,format="wide",as.fun="data.table",seed.R=23)
+        pars <- expect_warning(sampleParsSimpar(file.mod,nsim=10,format="wide",as.fun="data.table",seed.R=23))
 
         expect_equal_to_reference(pars,fileRef)
 

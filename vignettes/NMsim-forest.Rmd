@@ -2,21 +2,21 @@
 title: "Simulation-Based Forest Plots with NMsim"
 author: 
   - name: "Philip Delff, Boris Grinshpun"
-    date: '`r format(Sys.Date(), "%B %d, %Y")`'
-    toctitle: "Contents"
-    output:
-      html_document:
-        toc: true
-        toc_depth: 4
-        toc_float: true
-        number_sections: false
-        df_print: kable
-        editor_options:
-          chunk_output_type: inline
-          code_folding: show
-          bibliography: [packages.bib]
-          pkgdown:
-            as_is: true
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+toctitle: "Contents"
+output:
+    html_document:
+      toc: true
+      toc_depth: 4
+      toc_float: true
+      number_sections: false
+      df_print: kable
+      editor_options:
+        chunk_output_type: inline
+        code_folding: show
+bibliography: [packages.bib]
+pkgdown:
+  as_is: true
 ---
 
 ```{r,setup-hide,include=FALSE}

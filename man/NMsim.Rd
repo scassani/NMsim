@@ -14,7 +14,7 @@ NMsim(
   name.sim,
   table.vars,
   table.options,
-  table.format,
+  table.format = "s1PE16.9",
   carry.out = TRUE,
   method.sim = NMsim_default,
   typical = FALSE,
@@ -129,10 +129,12 @@ provided. If constructing a new output table with
 \code{table.vars} the default is to add two options,
 \code{NOAPPEND} and \code{NOPRINT}. You can modify that with
 \code{table.options}. Do not try to modify output filename -
-\code{NMsim} takes care of that.}
+\code{NMsim} takes care of that. See `table.format` too.}
 
 \item{table.format}{A format for `$TABLE`. Only used if
-`table.vars` is provided.}
+`table.vars` is provided. Default is "s1PE16.9". NMsim needs a
+high-resolution format. The Nonmem default "s1PE11.4" is
+insufficient for simulation data sets of 1e5 rows or more.}
 
 \item{carry.out}{Variables from input data that should be included
 in results. Default is to include everything. If working with

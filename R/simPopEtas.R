@@ -54,7 +54,6 @@ simPopEtas <- function(file,N,seed.R,pars,file.phi,overwrite=FALSE,as.fun,file.m
 
     ## seed deprecated with NMsim 0.1.6 2025-01-29 
     if(missing(seed)) seed <- NULL
-    if(missing(seed.R)) seed.R <- NULL
     if(!is.null(seed)){
         if(!is.null(seed.R)){
             stop("`seed.R` and `seed` supplied. Use `seed.R` and not the deprecated seed. ")

@@ -1,4 +1,7 @@
 # NMsim 0.2.2
+## New features
+* `sampleCovs`
+
 ## Bugfixes
 * There was a bug introduced in version 0.2.1 leading `NMsim()` to
 throw an error saving some data sets. The issue is fixed.

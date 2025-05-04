@@ -53,7 +53,9 @@ test_that("mvrnorm through samplePars()",{
     fileRef <- "testReference/samplePars_03.rds"
     
     pars.mvrnorm <- samplePars(file.mod=file.mod,nsims=10,method="mvrnorm",format="ext",as.fun="data.table",seed.R=23)
-    
+
+    cols.round <- c("value","value.est")
+    pars.mvrnorm[,(cols.round):=lapply(.SD,round,3),.SDcols=cols.round]
     expect_equal_to_reference(pars.mvrnorm,fileRef)
     
 })

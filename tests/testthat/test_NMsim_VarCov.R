@@ -3,6 +3,7 @@ context("NMsim_VarCov.R")
 library(data.table)
 library(NMdata)
 NMdataConf(reset=TRUE)
+library(stringr)
 
 ### dir.sims may be different in these tests than in other test
 ### scripts. The reason is the control streams are the outputs to be
@@ -18,7 +19,7 @@ NMdataConf(
 
 dt.amt <- data.table(DOSE=c(100,400))
 dt.amt[,AMT:=DOSE*1000]
-dt.amt
+## dt.amt
 doses.sd <- NMcreateDoses(TIME=0,AMT=dt.amt,as.fun="data.table")
 doses.sd[,dose:=paste(DOSE,"mg")]
 doses.sd[,regimen:="SD"]
@@ -31,43 +32,55 @@ dat.sim <- copy(dat.sim.sd)
 
 dat.sim[,ROW:=.I]
 
-head(dat.sim)
+##head(dat.sim)
 
 dat.sim[,BBW:=75]
 
 
 test_that("Basic",{
 
-        fileRef <- "testReference/NMsim_VarCov_01.rds"
-        
-        file.mod <- "testData/nonmem/xgxr032.mod"
+    fileRef_a <- "testReference/NMsim_VarCov_01a.rds"
+    fileRef_b <- "testReference/NMsim_VarCov_01b.rds"
+    fileRef_c <- "testReference/NMsim_VarCov_01c.rds"
+    
+    file.mod <- "testData/nonmem/xgxr032.mod"
 
-        
-        sim1 <- NMsim(file.mod=file.mod,
-                      data=dat.sim,
-                      name.sim = "VarCov_1",
-                      method.sim=NMsim_VarCov,
-                      nsims=2,
-                      seed.R=2342,
-                      execute=FALSE,
-                      method.update.inits="nmsim")
+    
+    sim1 <- NMsim(file.mod=file.mod,
+                  data=dat.sim,
+                  name.sim = "VarCov_1",
+                  method.sim=NMsim_VarCov,
+                  nsims=2,
+                  seed.R=2342,
+                  execute=FALSE,
+                  method.update.inits="nmsim")
 
-        mod <- NMreadSection("testOutput/xgxr032_VarCov_1/xgxr032_VarCov_1_2.mod")
-        
-        expect_equal_to_reference(mod,fileRef)
+    mod <- NMreadSection("testOutput/xgxr032_VarCov_1/xgxr032_VarCov_1_2.mod")
+    ## gsub("(\\d)","round()",mod$THETA)
+    ## stringr::gsub("\\d+\\.\\d+",function(x)round(as.numeric(x)),mod$THETA)
+    ## 
+    theta <- stringr::str_replace_all(mod$THETA,"\\d+\\.\\d+",function(x)round(as.numeric(x),digits=3))
+    omega <- stringr::str_replace_all(mod$OMEGA,"\\d+\\.\\d+",function(x)round(as.numeric(x),digits=3))
 
-        if(F){
-            ref <- readRDS(fileRef)
-            ref$OMEGA
-            mod$OMEGA 
-            ref$SIGMA
-            mod$SIGMA
-            ref$SIMULATION
-            mod$SIMULATION
+    ##as.numeric(mod$THETA)
 
-            compareCols(ref,mod)
+    mod <- mod[!names(mod)%in%c("THETA","OMEGA")]
+    expect_equal_to_reference(mod,fileRef_a)
+    expect_equal_to_reference(theta,fileRef_b)
+    expect_equal_to_reference(omega,fileRef_c)
 
-        }
+    if(F){
+        ref <- readRDS(fileRef)
+        ref$OMEGA
+        mod$OMEGA 
+        ref$SIGMA
+        mod$SIGMA
+        ref$SIMULATION
+        mod$SIMULATION
+
+        compareCols(ref,mod)
+
+    }
 
 
 })

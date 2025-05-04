@@ -2,7 +2,7 @@
 % Please edit documentation in R/sampleCovs.R
 \name{sampleCovs}
 \alias{sampleCovs}
-\title{Sample covariates from an existing data set to generate new subjects}
+\title{Sample subject-level covariates from an existing data set}
 \usage{
 sampleCovs(
   data,
@@ -50,7 +50,7 @@ studied population.
 \examples{
 library(NMdata)
 data.covs <- NMscanData(system.file("examples/nonmem/xgxr134.mod",package="NMsim"))
-data.sim.1 <- NMcreateDoses(TIME=0,AMT=100) |>
-NMaddSamples(TIME=c(1,4),CMT=2)
+dos.1 <- NMcreateDoses(TIME=0,AMT=100) 
+data.sim.1 <- NMaddSamples(dos.1,TIME=c(1,4),CMT=2)
 sampleCovs(data=data.sim.1,Nsubjs=3,col.id.covs="ID",data.covs=data.covs,covs=c("WEIGHTB","eff0"))
 }

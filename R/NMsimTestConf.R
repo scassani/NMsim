@@ -91,6 +91,13 @@ NMsimTestConf <- function(path.nonmem,dir.psn,method.execute,must.work=FALSE,sys
     ## if(test.exec){
     ## }
 
+## prioritized order
+    res <- res[c("method.execute",
+                   "path.nonmem", "exists.path.nonmem",
+                   "dir.psn", "exists.dir.psn", "exists.psn.execute"
+                 , "sysname", "system.type"
+                 , "version.NMsim", "version.NMdata")
+             ]
     res
 
 }

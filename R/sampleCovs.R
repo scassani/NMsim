@@ -1,4 +1,4 @@
-##' Sample covariates from an existing data set to generate new subjects
+##' Sample subject-level covariates from an existing data set 
 ##'
 ##' Repeats a data set with just one subject by sampling covariates
 ##' from subjects in an existing data set. This can conveniently be
@@ -23,8 +23,8 @@
 ##' @examples
 ##' library(NMdata)
 ##' data.covs <- NMscanData(system.file("examples/nonmem/xgxr134.mod",package="NMsim"))
-##' data.sim.1 <- NMcreateDoses(TIME=0,AMT=100) |>
-##' NMaddSamples(TIME=c(1,4),CMT=2)
+##' dos.1 <- NMcreateDoses(TIME=0,AMT=100) 
+##' data.sim.1 <- NMaddSamples(dos.1,TIME=c(1,4),CMT=2)
 ##' sampleCovs(data=data.sim.1,Nsubjs=3,col.id.covs="ID",data.covs=data.covs,covs=c("WEIGHTB","eff0"))
 ##' @import data.table
 ##' @import NMdata
@@ -86,8 +86,7 @@ sampleCovs <- function(data,
     }
     
 ### calcs
-    dt.covs <- data.covs  |>
-        findCovs(by=c(col.id.covs),as.fun="data.table")
+    dt.covs <- findCovs(data.covs  ,by=c(col.id.covs),as.fun="data.table")
     dt.covs <- dt.covs[,c(col.id.covs,covs),with=FALSE]
     setnames(dt.covs,col.id.covs,"IDCOVS")
     dt.ids <- data.table(ID=1:Nsubjs)

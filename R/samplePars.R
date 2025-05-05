@@ -27,6 +27,7 @@
 
 
 samplePars <- function(file.mod,nsims,method,seed.R,format="ext",as.fun){
+
     
     if(missing(as.fun)) as.fun <- NULL
     as.fun <- NMdata:::NMdataDecideOption("as.fun",as.fun)

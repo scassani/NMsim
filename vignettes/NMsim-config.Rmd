@@ -95,6 +95,17 @@ binary.
 psn -nm_versions
 ```
 
+If you need to execute scripts on systems with different Nonmem installation paths, you can select between a prioritized set of paths like this, taking the first one found:
+
+```{r, eval=FALSE}
+paths.nm <- c("/opt/NONMEM/nm75/run/nmfe75",
+              "/opt/nonmem/nm751/run/nmfe75",
+              "C:/nm75g64/run/nmfe75.bat")
+path.nonmem <- paths.nm[min(which(file.exists(paths.nm)))]
+
+NMdataConf(path.nonmem=path.nonmem)
+```
+
 ### Specify the PSN installation path
 If PSN is available, and you can run `execute` and `update_inits` in a
 terminal, you don't need to configure how NMsim finds PSN. If you have PSN

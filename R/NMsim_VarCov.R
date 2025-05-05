@@ -68,8 +68,6 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
     run.sim.0 <- fnExtension(basename(path.sim.0),"")
     rm(file.sim)
 
-    
-
     if(missing(ext)) ext <- NULL
     if(missing(nsims)) nsims <- NULL
     
@@ -84,7 +82,6 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
         ## nsims <- ext[,.N]
         simulatePars <- FALSE
     }
-
 
 #### Section start: sampling new parameters from COV matrix ####
     if(simulatePars){

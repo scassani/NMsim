@@ -1,17 +1,22 @@
 ---
 title: "Simulate Known Subjects Using Emperical Bayes Estimates (Etas/Phis)"
+author: 
+  - name: "Philip Delff"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+toctitle: "Contents"
 output:
-rmarkdown::html_vignette:
-    toc: true
-    code_folding: show
-Suggests: markdown
-VignetteBuilder: knitr
-vignette: >
-  %\VignetteIndexEntry{Known}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-header-includes:
-- \usepackage{ae}
+    html_document:
+      toc: true
+      toc_depth: 4
+      toc_float: true
+      number_sections: false
+      df_print: kable
+      editor_options:
+        chunk_output_type: inline
+        code_folding: show
+bibliography: [packages.bib]
+pkgdown:
+  as_is: true
 ---
 
 ```{r,include = FALSE}
@@ -45,10 +50,15 @@ library(tracee)
 ## library(tidyr)
 library(fst)
 library(knitr)
-NMdataConf(path.nonmem="/opt/NONMEM/nm75/run/nmfe75")
-## NMdataConf(path.nonmem="/opt/nonmem/nm751/run/nmfe75")
-## NMdataConf(dir.psn=NULL)
+paths.nm <- c("/opt/NONMEM/nm75/run/nmfe75",
+              "/opt/nonmem/nm751/run/nmfe75")
+path.nonmem <- paths.nm[min(which(file.exists(paths.nm)))]
 
+NMdataConf(
+    path.nonmem = path.nonmem, ## path to NONMEM executable
+    dir.sims="simtmp-known", ## where to store temporary simulation results
+    dir.res="simres-known"   ## where to store final simulation results
+)
 theme_set(theme_bw())
 this.script <- "NMsim-methods.Rmd"
 writeOutput <- TRUE
@@ -76,37 +86,39 @@ This vignettes aims at enabling you to use `NMsim` for the following purposes
 
 
 ## Prerequisites
-You should have configured `NMsim` with the path to the Nonmem
-installation and maybe also PSN (optional). See
-[`NMsim-config.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-config.html). Don't
-worry - it is very easy. 
+Simulation with known ETA values is only possible through NMsim's internal Nonmem execution method. That means, we need to provide the path to the Nonmem executable.
+
+```{r,eval=TRUE}
+NMdataConf(path.nonmem="/opt/NONMEM/nm75/run/nmfe75")
+```
+More information on configuration and test of configuration at
+[`NMsim-config.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-config.html). 
 
 You should be familiar with basic `NMsim` arguments as described in
 [`NMsim-intro.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-intro.html). In
 that vignette you should have learned to use the default simulation
-method. This vignette will be using the same model and simulation
-input data to demonstrate how to use additional methods and features of `NMsim`.
+method. While the default simulation method samples new subjects (using the `$OMEGA` metrix). This vignette provides various examples on how the `NMsim_EBE` simulation method can be used to simulate known subjects.
 
 
 ## Simulation of known subjects 
-We sometimes want to simulate the already observed subjects. This
-means we want to reuse the estimated random effects (ETA's) given the
+We sometimes want to simulate the observed subjects, i.e. the subjects we included in the estimation data. We want to reuse the estimated random effects (ETA's) given the
 subject ID's. `NMsim` has a method for this called `NMsim_EBE`. The restriction is that
 all subjects (values of `ID`) in the simulation input data must have
 been used in the estimation input data.
 
-Let's think about that one more time before we go on. For
+For
 `NMsim_EBE` to work, `ID` values in the simulation data set must be
-identical to `ID` values used in the estimation. This is how
-`NMsim_EBE` will find the EBE's (ETAs) that define the subject. For
-models estimated with FOCEI, `NMsim_EBE` will take the ETAs from the
-`.phi` file produced by Nonmem. For SAEM/IMP-based estimation this
-file cannot be used, and the user must have stored the ETAs in output
+identical to `ID` values used in the estimation.  For
+models estimated with FOCEI, the ETAs are stored in the
+`.phi` file produced by Nonmem. This file must be available, and NMsim will automatically use it if applicable.
+
+For SAEM/IMP-based estimation NMsim cannot use the `.phi` file, and the user must have stored the ETAs in output
 table files for the method to work. It does not matter where in the
 table files they are, they just all need to be there. You can write
 all of them like it is done in the example model provided with `NMsim`
 called `xgxr032.mod`.
 
+If using SAEM/IMP, remember to explicitly write ETAs to an output table in the Nonmem control stream:
 ```
 $TABLE ETAS(1:LAST) NOAPPEND NOPRINT FILE=xgxr032_etas.txt
 ```
@@ -115,6 +127,64 @@ So a "subject" essentially means a set of ETAs. Covariates must still
 be provided in the input data set and can be modified if
 wanted. Notice, `NMsim_EBE` does nothing to restore covariates - you
 must define covariates in input data as needed.
+
+
+## Simulate known subjects on a new dosing regimen and new sample schedule
+The following code takes an already created simulation data set with a
+single ID, and merges all other columns than `ID` onto the observed
+`ID`s. That gives the same simulation data for all subjects. 
+
+First thing, we decide on a model (an input control stream of an estimated model) to use for the example:
+```{r}
+file.mod <- system.file("examples/nonmem/xgxr134.mod",package="NMsim")
+```
+
+We generate a simulation data set with a loading dose (300 mg) followed by 6 doses (150 mg) every 24 hours. For smoothness plotted curves we use hourly sampling.
+
+```{r,datacreate}
+doses <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),ADDL=5,II=24,CMT=1)
+## Now we add the sample records using `addEVID2()`. 
+dat.sim <- NMaddSamples(doses,TIME=0:(24*7),CMT=2)
+```
+
+```{r,eval=FALSE}
+## read model results just to extract the observed ID's. Notice, if
+## your model uses covariates, those should be retrieved too.
+res.mod <- NMscanData(file.mod,quiet=TRUE)
+ids <- unique(res.mod[,c("ID","WEIGHTB","AGE","MALEN")])
+
+## Repeat the simulation data set for each ID and order accordingly
+
+## we will merge with all the observed subjects in stead of the single
+## ID in the original data set.
+dat.sim$ID <- NULL
+dat.sim.known <- egdt(ids,
+                       dat.sim
+                       )
+setorder(dat.sim.known,ID,TIME,EVID)
+## check data
+NMcheckData(dat.sim.known,type.data="sim")
+
+simres.known <- NMsim(file.mod=file.mod,
+                      data=dat.sim.known,
+                      method.sim=NMsim_EBE,
+                      table.vars="PRED IPRED CL V2 KA",
+                      name.sim="known1"
+                      )
+```
+
+```{r,include=FALSE,eval=TRUE}
+simres.known <- NMreadSim("simres-known/xgxr134_known1_MetaData.rds")
+```
+
+And the simulation results are plotted for each subject.
+```{r,eval=TRUE}
+ggplot(subset(simres.known,EVID==2),aes(TIME,IPRED,colour=factor(ID)))+
+    geom_line()+
+    theme(legend.position="none")
+```
+
+<!-- Show a plot of the individual parameters in estimate and in sim -->
 
 ## Individual dosing history, sample times or both
 Individual simulations are useful for several purposes. Examples
@@ -143,64 +213,6 @@ Individual simulations are useful for several purposes. Examples
   use of `NMsim_EBE` is on the todo list tog get it's own vignette
   [here](https://nmautoverse.github.io/NMsim/articles/NMsim-ReuseSimSubjects.html).
 
-## Simulate known subjects on a new dosing regimen and new sample schedule
-The following code takes an already created simulation data set with a
-single ID, and merges all other columns than `ID` onto the observed
-`ID`s. That gives the same simulation data for all subjects. 
-
-First thing, we decide on a model (an input control stream of an estimated model) to use for the example:
-```{r}
-file.mod <- system.file("examples/nonmem/xgxr021.mod",package="NMsim")
-```
-
-Simulation with known ETA values is only possible through NMsim's internal Nonmem execution method. That means, we need to provide the path to the Nonmem executable.
-
-```{r,eval=TRUE}
-NMdataConf(path.nonmem="/opt/NONMEM/nm75/run/nmfe75")
-```
-
-For a simulation data set we are using the multiple dose simulation data set with a loading dose generated in the [Creation of Simulation Data Sets](https://nmautoverse.github.io/NMsim/articles/NMsim-DataCreate.html).
-
-
-```{r,eval=FALSE}
-## read model results just to extract the observed ID's. Notice, if
-## your model uses covariates, those should be retrieved too.
-res.mod <- NMscanData(file.mod,quiet=TRUE)
-ids <- data.frame(ID=unique(res.mod$ID))
-
-## Repeat the simulation data set for each ID and order accordingly
-dat.sim <- read.csv(system.file("examples/derived/dat_sim1.csv",package="NMsim"))
-## we will merge with all the observed subjects in stead of the single
-## ID in the original data set.
-dat.sim$ID <- NULL
-dat.sim.known <- merge(ids,
-                       dat.sim
-                       )
-setorder(dat.sim.known,ID,TIME,EVID)
-## check data
-NMcheckData(dat.sim.known,type.data="sim")
-
-simres.known <- NMsim(file.mod=file.mod,
-                      data=dat.sim.known,
-                      method.sim=NMsim_EBE,
-                      table.vars="PRED IPRED CL V2 KA",
-                      name.sim="known1"
-                      )
-```
-
-```{r,include=FALSE,eval=TRUE}
-file.fst <- "simulate-results/xgxr021_known1_paths.rds"
-simres.known <- NMreadSim(file.fst)
-```
-
-And the simulation results are plotted for each subject.
-```{r,eval=TRUE}
-ggplot(subset(simres.known,EVID==2),aes(TIME,IPRED,colour=factor(ID)))+
-    geom_line()+
-    theme(legend.position="none")
-```
-
-<!-- Show a plot of the individual parameters in estimate and in sim -->
 
 ### Simulate individual dosing history at new individual sampling times for a PK/PD dataset
 We want to plot some PD data angainst

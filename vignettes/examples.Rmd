@@ -28,3 +28,14 @@ Simulate multiple models
 Reuse Emperical Bayes' Estimates (known ETAs)  
 Read previously generated simulations  
 
+
+NMsim-speed.Rmd
+NMsim-known.Rmd
+NMsim-config.Rmd
+NMsim-ParamUncertain.Rmd  
+NMsim-varyPars.Rmd
+NMsim-DataCreate.Rmd
+NMsim-VPC.Rmd
+NMsim-forest.Rmd
+NMsim-ResidVar.Rmd
+NMsim-ReuseSimSubjects.Rmd

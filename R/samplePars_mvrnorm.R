@@ -26,7 +26,7 @@ samplePars_mvrnorm <- function(file.mod,nsims,format,as.fun){
     covmat <- NMdata::NMreadCov(file.mod)
     ests <- NMreadExt(file.mod,as.fun="data.table")[NMREP==1,.(model,parameter,par.type,i,j,value.est=value,FIX,iblock,blocksize)]
     ests <- ests[par.type%in%c("THETA","SIGMA","OMEGA")]
-    ests <- ests[match(ests$parameter,colnames(covmat))]
+    ests <- ests[match(colnames(covmat),parameter)]
     newpars <- mvrnorm(n=nsims,Sigma=covmat,mu=ests$value.est)
     newpars <- round(newpars,8)
 ### as.list first is because without it, this will fail for

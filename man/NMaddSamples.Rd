@@ -92,6 +92,9 @@ configured using `NMdataConf()`.}
 }
 \value{
 A data.frame with dosing records
+only using column names in covs.data (from data) that are not in TIME.
+
+All rows in TIME get reused for all matches by column names common with covs.data - the identified subject-level covariates (and col.id). This is with the exception of the TIME column itself, because in case of single dose, TIME would be carried over.
 }
 \description{
 Adds simulation events to all subjects in a data set. Copies over

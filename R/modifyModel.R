@@ -10,6 +10,11 @@
 
 modifyModel <- function(modify,dt.models=NULL,list.ctl=NULL){
 
+    if(!length(modify)) {
+        if(!is.null(dt.models)) return(dt.models)
+        return(list.ctl)
+    }
+
     ##
     modifyModelOne <- function(modify,dt.models=dt.models,list.ctl=list.ctl){
         . <- NULL
@@ -42,12 +47,9 @@ modifyModel <- function(modify,dt.models=NULL,list.ctl=NULL){
         result
     }
 
-    ## for(Nmodif in 1:length(modify)){
-    ##     modifyModelOne(modify[Nmodif],dt.models)
-    ## }
     for(Nmodif in 1:length(modify)){
         list.ctl <- modifyModelOne(modify[Nmodif],dt.models=dt.models,list.ctl=list.ctl)
     }
     
- list.ctl
+    list.ctl
 }

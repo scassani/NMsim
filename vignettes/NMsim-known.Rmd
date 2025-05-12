@@ -2,21 +2,21 @@
 title: "Simulate Known Subjects Using Emperical Bayes Estimates (Etas/Phis)"
 author: 
   - name: "Philip Delff"
-date: '`r format(Sys.Date(), "%B %d, %Y")`'
-toctitle: "Contents"
-output:
-    html_document:
-      toc: true
-      toc_depth: 4
-      toc_float: true
-      number_sections: false
-      df_print: kable
-      editor_options:
-        chunk_output_type: inline
-        code_folding: show
-bibliography: [packages.bib]
-pkgdown:
-  as_is: true
+    date: '`r format(Sys.Date(), "%B %d, %Y")`'
+    toctitle: "Contents"
+    output:
+      html_document:
+        toc: true
+        toc_depth: 4
+        toc_float: true
+        number_sections: false
+        df_print: kable
+        editor_options:
+          chunk_output_type: inline
+          code_folding: show
+          bibliography: [packages.bib]
+          pkgdown:
+            as_is: true
 ---
 
 ```{r,include = FALSE}
@@ -52,7 +52,12 @@ library(fst)
 library(knitr)
 paths.nm <- c("/opt/NONMEM/nm75/run/nmfe75",
               "/opt/nonmem/nm751/run/nmfe75")
-path.nonmem <- paths.nm[min(which(file.exists(paths.nm)))]
+found.nm <- which(file.exists(paths.nm))
+if(length(found.nm)){
+    path.nonmem <- paths.nm[min(found.nm)]
+} else {
+    path.nonmem <- NULL
+}
 
 NMdataConf(
     path.nonmem = path.nonmem, ## path to NONMEM executable
@@ -159,8 +164,8 @@ ids <- unique(res.mod[,c("ID","WEIGHTB","AGE","MALEN")])
 ## ID in the original data set.
 dat.sim$ID <- NULL
 dat.sim.known <- egdt(ids,
-                       dat.sim
-                       )
+                      dat.sim
+                      )
 setorder(dat.sim.known,ID,TIME,EVID)
 ## check data
 NMcheckData(dat.sim.known,type.data="sim")
@@ -190,28 +195,28 @@ ggplot(subset(simres.known,EVID==2),aes(TIME,IPRED,colour=factor(ID)))+
 Individual simulations are useful for several purposes. Examples
 
 * Reuse individual dosing history and use a new common sample
-  scheme. This could be for homogeneous evaluation of exposure metrics
-  such as Cmax, AUC, or just to show concentration-time profiles at
-  identical sampling times based on a model estimated on data with
-  heterogeneos sampling. Currently, there is no example of this in
-  this vignette but see the other examples, and it should be pretty
-  clear how to do this.
+scheme. This could be for homogeneous evaluation of exposure metrics
+such as Cmax, AUC, or just to show concentration-time profiles at
+identical sampling times based on a model estimated on data with
+heterogeneos sampling. Currently, there is no example of this in
+this vignette but see the other examples, and it should be pretty
+clear how to do this.
 
 * Reuse dosing history and use individual sampling scheme from a
-  different data set, e.g. PD.
+different data set, e.g. PD.
 
 * Simulate a new common dosing and sampling scheme to simulate already
-  observed subjects on a new regimen. This is sometimes done if for
-  one reason or the other the model is not considered reliable for
-  simulation of new subjects but the individual parameter estimates
-  are trusted. 
-  
+observed subjects on a new regimen. This is sometimes done if for
+one reason or the other the model is not considered reliable for
+simulation of new subjects but the individual parameter estimates
+are trusted. 
+
 * Reuse a simulated population. One may prefer to reuse the same
-  simulated subjects in multiple simulations for reproducibility and to have all difference
-  between say simulation results of different regimens be driven by
-  differences in the regimen, and not in the populations. This
-  use of `NMsim_EBE` is on the todo list tog get it's own vignette
-  [here](https://nmautoverse.github.io/NMsim/articles/NMsim-ReuseSimSubjects.html).
+simulated subjects in multiple simulations for reproducibility and to have all difference
+between say simulation results of different regimens be driven by
+differences in the regimen, and not in the populations. This
+use of `NMsim_EBE` is on the todo list tog get it's own vignette
+[here](https://nmautoverse.github.io/NMsim/articles/NMsim-ReuseSimSubjects.html).
 
 
 ### Simulate individual dosing history at new individual sampling times for a PK/PD dataset

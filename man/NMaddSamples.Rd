@@ -18,7 +18,8 @@ NMaddSamples(
   quiet = FALSE,
   as.fun,
   doses,
-  time.sim
+  time.sim,
+  extras.are.covs
 )
 }
 \arguments{
@@ -56,18 +57,32 @@ unique subject identifier.}
 
 \item{args.NMexpandDoses}{Only relevant - and likely not needed -
 if data contains ADDL and II columns. If those columns are
-included, `NMaddSamples()` will use `NMdata::NMexpanDoses()` to
-evaluate the time of each dose. Other than the `data`
-argument, `NMaddSamples()` relies on the default `NMexpanDoses()`
-argument values. If this is insufficient, you can specify
-other argument values in a list, or you can call
-`NMdata::NMexpanDoses()` manually before calling `NMaddSamples()`.}
+included, `NMaddSamples()` will use `NMdata::NMexpanDoses()`
+to evaluate the time of each dose. Other than the `data`
+argument, `NMaddSamples()` relies on the default
+`NMexpanDoses()` argument values. If this is insufficient, you
+can specify other argument values in a list, or you can call
+`NMdata::NMexpanDoses()` manually before calling
+`NMaddSamples()`.}
 
 \item{unique}{If `TRUE` (default), events are reduced to unique
 time points before insertion. Sometimes, it's easier to
 combine sequences of time points that overlap (maybe across
-`TIME` and `TAPD`), and let `NMaddSamples()` clean them. If you
-want to keep your duplicated events, use `unique=FALSE`.}
+`TIME` and `TAPD`), and let `NMaddSamples()` clean them. If
+you want to keep your duplicated events, use `unique=FALSE`.}
+
+\item{by}{If \code{TIME} and/or `TAPD` are `data.frame`s and
+contain other columns than `TIME` and/or `TAPD`, those will by
+default follow the `TIME`/`TAPD` records. Think of them as
+record-level variables, like `VISIT`. The exception is
+`col.id` - if the subject identifier is present, it will be
+merged by. If additional columns should be used to merge by,
+you can use the `by` argument. This is useful to generate
+differentiated sampling schemes for subsets of subjects (like
+regimen="SAD" and regimen="MAD"). If no columns in `TIME`
+and/or `TAPD` should not be merged by, use `by=FALSE`. You can
+also specify selected `by` variables like `by="ID"` or
+`by=c("ID","regimen")` See examples.}
 
 \item{quiet}{Suppress messages? Default is `FALSE`.}
 
@@ -81,14 +96,7 @@ configured using `NMdataConf()`.}
 
 \item{time.sim}{Deprecated. Use `TIME`.}
 
-\item{extras.are.covs}{If \code{TIME} and/or `TAPD` are `data.frame`s
-and contain other columns than `TIME` and/or `TAPD`, those are
-by default assumed to be subject-level covariates to be merged with
-data. More specifically, they will be merged by when the
-sample times are added. If `extras.are.covs=FALSE`, they will
-not be merged by. Instead, they will be kept as
-additional columns with specified values, aligned with the
-sample times. See examples.}
+\item{extras.are.covs}{Deprecated. Use `by`.}
 }
 \value{
 A data.frame with dosing records
@@ -124,8 +132,8 @@ seq.time.md <- data.frame(regimen="MD",TIME=c(0,12,24))
 seq.time <- rbind(seq.time.sd,seq.time.md)
 NMaddSamples(dt.doses,TIME=seq.time,CMT=2)
 
-## All subjects get all samples (extras.are.covs=FALSE)
-NMaddSamples(dt.doses,TIME=seq.time,extras.are.covs=FALSE,CMT=2)
+## All subjects get all samples (by=FALSE)
+NMaddSamples(dt.doses,TIME=seq.time,by=FALSE,CMT=2)
 
 ## an observed sample scheme and additional simulation times
 df.doses <- NMcreateDoses(TIME=0,AMT=50,addl=list(ADDL=2,II=24))

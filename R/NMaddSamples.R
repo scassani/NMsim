@@ -32,31 +32,37 @@
 ##'     unique subject identifier.
 ##' @param args.NMexpandDoses Only relevant - and likely not needed -
 ##'     if data contains ADDL and II columns. If those columns are
-##'     included, `NMaddSamples()` will use `NMdata::NMexpanDoses()` to
-##'     evaluate the time of each dose. Other than the `data`
-##'     argument, `NMaddSamples()` relies on the default `NMexpanDoses()`
-##'     argument values. If this is insufficient, you can specify
-##'     other argument values in a list, or you can call
-##'     `NMdata::NMexpanDoses()` manually before calling `NMaddSamples()`.
+##'     included, `NMaddSamples()` will use `NMdata::NMexpanDoses()`
+##'     to evaluate the time of each dose. Other than the `data`
+##'     argument, `NMaddSamples()` relies on the default
+##'     `NMexpanDoses()` argument values. If this is insufficient, you
+##'     can specify other argument values in a list, or you can call
+##'     `NMdata::NMexpanDoses()` manually before calling
+##'     `NMaddSamples()`.
 ##' @param unique If `TRUE` (default), events are reduced to unique
 ##'     time points before insertion. Sometimes, it's easier to
 ##'     combine sequences of time points that overlap (maybe across
-##'     `TIME` and `TAPD`), and let `NMaddSamples()` clean them. If you
-##'     want to keep your duplicated events, use `unique=FALSE`.
-##' @param extras.are.covs If \code{TIME} and/or `TAPD` are `data.frame`s
-##'     and contain other columns than `TIME` and/or `TAPD`, those are
-##'     by default assumed to be subject-level covariates to be merged with
-##'     data. More specifically, they will be merged by when the
-##'     sample times are added. If `extras.are.covs=FALSE`, they will
-##'     not be merged by. Instead, they will be kept as
-##'     additional columns with specified values, aligned with the
-##'     sample times. See examples.
+##'     `TIME` and `TAPD`), and let `NMaddSamples()` clean them. If
+##'     you want to keep your duplicated events, use `unique=FALSE`.
+##' @param by If \code{TIME} and/or `TAPD` are `data.frame`s and
+##'     contain other columns than `TIME` and/or `TAPD`, those will by
+##'     default follow the `TIME`/`TAPD` records. Think of them as
+##'     record-level variables, like `VISIT`. The exception is
+##'     `col.id` - if the subject identifier is present, it will be
+##'     merged by. If additional columns should be used to merge by,
+##'     you can use the `by` argument. This is useful to generate
+##'     differentiated sampling schemes for subsets of subjects (like
+##'     regimen="SAD" and regimen="MAD"). If no columns in `TIME`
+##'     and/or `TAPD` should not be merged by, use `by=FALSE`. You can
+##'     also specify selected `by` variables like `by="ID"` or
+##'     `by=c("ID","regimen")` See examples.
 ##' @param quiet Suppress messages? Default is `FALSE`.
 ##' @param as.fun The default is to return data as a
 ##'     `data.frame`. Pass a function (say `tibble::as_tibble`) in
 ##'     as.fun to convert to something else. If data.tables are
 ##'     wanted, use `as.fun="data.table"`. The default can be
 ##'     configured using `NMdataConf()`.
+##' @param extras.are.covs Deprecated. Use `by`.
 ##' @param doses Deprecated. Use `data`.
 ##' @param time.sim Deprecated. Use `TIME`.
 ##' @details The resulting data set is ordered by ID, TIME, and
@@ -77,10 +83,10 @@
 ##' seq.time.sd <- data.frame(regimen="SD",TIME=seq(0,3))
 ##' seq.time.md <- data.frame(regimen="MD",TIME=c(0,12,24))
 ##' seq.time <- rbind(seq.time.sd,seq.time.md)
-##' NMaddSamples(dt.doses,TIME=seq.time,CMT=2)
+##' NMaddSamples(dt.doses,TIME=seq.time,CMT=2,by="regimen")
 ##'
-##' ## All subjects get all samples (extras.are.covs=FALSE)
-##' NMaddSamples(dt.doses,TIME=seq.time,extras.are.covs=FALSE,CMT=2)
+##' ## All subjects get all samples
+##' NMaddSamples(dt.doses,TIME=seq.time,by=FALSE,CMT=2)
 ##'
 ##' ## an observed sample scheme and additional simulation times
 ##' df.doses <- NMcreateDoses(TIME=0,AMT=50,addl=list(ADDL=2,II=24))
@@ -109,12 +115,14 @@
 ##' NMaddSamples(df.doses,TAPD=seq.time,CMT=2,DV=0)
 ##' @import data.table
 ##' @import NMdata
+##' @export
 ##' @return A data.frame with dosing records
-##' @export 
+
 
 
 NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDoses,unique=TRUE,
-                     extras.are.covs=TRUE,quiet=FALSE,as.fun,doses,time.sim){
+                         by,quiet=FALSE,as.fun,doses,time.sim,extras.are.covs){
+
     
 #### Section start: Dummy variables, only not to get NOTE's in pacakge checks ####
 
@@ -137,11 +145,18 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
     if(missing(args.NMexpandDoses)) args.NMexpandDoses <- NULL
 
     if(missing(CMT)) CMT <- NULL
+
+    if(missing(by)) by <- NULL
+    ## if(!is.null(by) && is.na(by)) by <- FALSE
+    if(is.null(by)) by <- col.id
+    if(isFALSE(by)) by <- NULL
     
     if("CMT"%in%colnames(data) && is.null(CMT)) {
         stop("`CMT` column is present in `data`. In this case, the `CMT` argument must be provided.")
     }
 
+    if(!missing(extras.are.covs) && !is.null(extras.are.covs)) warning("extras.are.covs have been deprecated and is not working. Use `by` instead.")
+    
     col.evid <- "EVID"
     col.time <- "TIME"
     
@@ -154,7 +169,7 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
         data <- doses
     }
     if(!quiet && !is.null(time.sim)){
-        message("Argument time.sim is deprecated. Use TIME instead.")
+        message("Argument time.sim is deprecated. Use TIME and/or TAPD instead.")
         TIME <- time.sim
     }
 
@@ -176,64 +191,90 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
         data <- as.data.table(data)
     }
 
+    ## adds
+    ##' only using column names in covs.data (from data) that are not in TIME.
+    ##' 
+    ##' All rows in TIME get reused for all matches by column names common with covs.data - the identified subject-level covariates (and col.id). This is with the exception of the TIME column itself, because in case of single dose, TIME would be carried over.
     
-    to.use <- setdiff(colnames(data),c("TIME",col.evid,"CMT","AMT","RATE","MDV","SS","II","ADDL","DV"))
-    covs.data <- findCovs(data[,to.use,with=FALSE],by=col.id,as.fun="data.table")
-
-    dt.obs <- NULL
-### handle time
-    if(!is.null(TIME)){
+    cols.not.by <- c( col.evid,"AMT","RATE","CMT","DV","MDV","SS","ADDL","II")
+    
+    augment.covs <- function(TIME,col.time,covs.data,cols.time=c("TIME","TAPD")){
+        
+        if(is.null(TIME)) return(TIME)
+        
         if(!is.data.frame(TIME)){
-            TIME <- data.table(TIME=TIME)
+            TIME <- as.data.table(setNames(list(TIME),col.time))
+            ## TIME <- data.table(col.time=TIME)
             ## dt.obs <- egdt(dt.obs,covs.data,quiet=TRUE)
         }
 
-        if(!"TIME"%in%colnames(TIME)) stop("When TIME is a data.frame, it must contain a column called TIME.")
+        if(!col.time%in%colnames(TIME)) stop(sprintf("When %s is a data.frame, it must contain a column called %s.",col.time,col.time))
         TIME <- as.data.table(TIME)
-
         
-        if(extras.are.covs){
-            cols.by <- intersect(colnames(TIME),colnames(covs.data))
 
-            if(length(cols.by) == 0){
-                dt.obs <- egdt(TIME,covs.data,quiet=TRUE)
-            } else {
+        ## if(extras.are.covs){
+        ## if(!isFALSE(by)){
+        ## merge by extra columns
+        cols.by <- by
+### merge by common cols by default
+        ## if(is.null(by)){
+        ##     cols.by <- intersect(colnames(TIME),colnames(covs.data))
+        ##     cols.by <- setdiff(cols.by,cols.not.by)
+        ## }
+### merge by col.id by default
+        cols.common <- intersect(colnames(TIME),colnames(covs.data))
+        cols.by <- intersect(cols.by,cols.common)
+        cols.by <- setdiff(cols.by,cols.not.by)
+        
 
-                dt.obs <-
-                    ## merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
-                    merge(covs.data,TIME,by=cols.by,allow.cartesian = TRUE)
-                if(!quiet && !nrow(dt.obs)) message("No samples added. Covariates were found in sample time specifications but no matches found in `data`. Notice that extra columns (covariates) in `TIME` and `TAPD` must be matched in `data` for respective time values to be added.")
-            }
+        if(length(cols.by) == 0){
 
+            covs.data.add <- covs.data
+            if(length(cols.common)){
+                covs.data.add <- covs.data[,setdiff(colnames(covs.data),cols.common),with=FALSE]
+                ##dt.obs <- egdt(TIME,covs.data[,setdiff(colnames(covs.data),cols.common),with=FALSE],quiet=TRUE)
+                ##dt.obs <- merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
+            } ##else {
+            
+            dt.obs <- egdt(TIME,covs.data.add,quiet=TRUE)
+            ##}
         } else {
-##### Check that no 
-            dt.obs <- egdt(TIME,covs.data[,setdiff(colnames(covs.data),colnames(TIME)),with=FALSE],quiet=TRUE)
+            dt.obs <-
+                ## merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
+                ## merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
+                merge(covs.data,TIME,by=cols.by,allow.cartesian = TRUE)
+            if(!quiet && !nrow(dt.obs)) {
+                message("No samples added. Covariates were found in sample time specifications but no matches found in `data`. Notice that extra columns (covariates) in `TIME` and `TAPD` must be matched in `data` for respective time values to be added.")
+            }
         }
+        return(dt.obs)
+        ##}
         
+        ## cols.by <- intersect(colnames(TIME),colnames(covs.data))
         
-
+        ## cols.by <- intersect(colnames(TIME),col.id)
+        ## cols.by <- setdiff(cols.by,c(cols.not.by,cols.time))
+        ## cols.covs <- setdiff(colnames(covs.data),c(cols.time,setdiff(colnames(TIME),cols.by)))
+        ## covs.data <- covs.data[,cols.covs,with=FALSE]
+        ## if(length(cols.by) == 0){
+        ##     dt.time <- egdt(TIME,covs.data,quiet=TRUE)
+        ## } else {
+        ##     dt.time <- merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
+        ## }
+        ## dt.time
     }
 
-#### handle TAPD - add to time
+    
+    cols.covs.try <- setdiff(colnames(data),c("TIME",cols.not.by))
+    covs.data <- findCovs(data[,cols.covs.try,with=FALSE],by=col.id,as.fun="data.table")
+    dt.obs <- augment.covs(TIME,col.time="TIME",covs.data=covs.data)
+
+
+    dt.tapd <- augment.covs(TAPD,col.time="TAPD",covs.data=covs.data)
+
+
     if(!is.null(TAPD)){
-        
-        if(!is.data.frame(TAPD)){
-            TAPD <- data.table(TAPD=TAPD)
-        }
-        
-        if(!"TAPD"%in%colnames(TAPD)) stop("When TAPD is a data.frame, it must contain a column called TAPD.")
-        TAPD <- as.data.table(TAPD)
-        ## TODO - TAPD cannot be a covariate
-        cols.by <- setdiff(intersect(colnames(TAPD),colnames(covs.data)),"TAPD")
-        covs.data <- covs.data[,setdiff(colnames(covs.data),"TAPD"),with=FALSE]
-        if(length(cols.by) == 0){
-            
-            dt.tapd <- egdt(TAPD,covs.data,quiet=TRUE)
-            ##dt.tapd <- TAPD
-        } else {
-            dt.tapd <- merge(TAPD,covs.data,all.x=TRUE,allow.cartesian = TRUE)
-        }
-        
+
         if(is.null(args.NMexpandDoses)) args.NMexpandDoses <- list()
         args.NMexpandDoses$data <- data[get(col.evid)%in%c(1,4)]
 
@@ -241,10 +282,6 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
             message(!quiet && "No doses in data. `TAPD` is ignored.")
             TAPD <- NULL
         }
-
-    }
-
-    if(!is.null(TAPD)){
 
         if(is.null(args.NMexpandDoses$quiet)) args.NMexpandDoses$quiet <- TRUE
         doses.tmp <- do.call(NMexpandDoses,args.NMexpandDoses)
@@ -266,9 +303,9 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
         dt.obs.2[,(col.evidorder):=match(get(col.evid),table=order.evid)]
 
         ## have to include covariates in sorting
-        cols.by.all <- intersect(c(colnames(TIME),colnames(TAPD)),colnames(covs.data))
+        cols.common.not.time <- intersect(c(colnames(TIME),colnames(TAPD)),colnames(covs.data))
         
-        setorderv(dt.obs.2,c(cols.by.all,col.time,col.evidorder))
+        setorderv(dt.obs.2,c(cols.common.not.time,col.time,col.evidorder))
         dt.obs.2[,(col.evidorder):=NULL]
         
         dt.obs.2[,PDOSN:=nafill(PDOSN,type="locf"),by=col.id]
@@ -285,6 +322,7 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
         dt.obs <- unique(dt.obs)
     }
 
+    
     dt.obs[
        ,(col.evid):=..EVID][
        ,MDV:=1]
@@ -295,7 +333,11 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
            ,MDV:=0]
     }
 
-    
+    if(!is.null(dt.obs$DV)){
+        dt.obs[,MDV:=0]
+    }
+
+
 ### add CMT
     if(!is.null(CMT)){
         dt.obs <- dt.obs[,setdiff(colnames(dt.obs),colnames(CMT)),with=FALSE]
@@ -308,12 +350,12 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
         
         dt.obs <- egdt(dt.obs,CMT,quiet=TRUE)
     }
-    
+
     dat.sim <- rbind(data,dt.obs,fill=T)
 
 #### not sure how to allow flexible sorting. For now, NB order is naive.
-
-    setorderv(dat.sim,cols=c(col.id,"TIME",col.evid))
+    c.times <- intersect(c("TIME","TAPD"),colnames(dat.sim))
+    setorderv(dat.sim,cols=c(col.id,c.times,col.evid))
 
     as.fun(dat.sim)
 }

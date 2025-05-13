@@ -358,7 +358,7 @@ test_that("Unmatched are not covs",{
     res <- NMsim::addEVID2(dt.dos,
                            TIME =dt.time
                           ,
-                           extras.are.covs=FALSE)
+                           by=FALSE)
 
     ## res
     expect_equal_to_reference(res,fileRef)

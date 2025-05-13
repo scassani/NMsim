@@ -14,7 +14,7 @@ NMaddSamples(
   col.id = "ID",
   args.NMexpandDoses,
   unique = TRUE,
-  extras.are.covs = TRUE,
+  by,
   quiet = FALSE,
   as.fun,
   doses,
@@ -69,15 +69,6 @@ combine sequences of time points that overlap (maybe across
 `TIME` and `TAPD`), and let `NMaddSamples()` clean them. If you
 want to keep your duplicated events, use `unique=FALSE`.}
 
-\item{extras.are.covs}{If \code{TIME} and/or `TAPD` are `data.frame`s
-and contain other columns than `TIME` and/or `TAPD`, those are
-by default assumed to be subject-level covariates to be merged with
-data. More specifically, they will be merged by when the
-sample times are added. If `extras.are.covs=FALSE`, they will
-not be merged by. Instead, they will be kept as
-additional columns with specified values, aligned with the
-sample times. See examples.}
-
 \item{quiet}{Suppress messages? Default is `FALSE`.}
 
 \item{as.fun}{The default is to return data as a
@@ -89,6 +80,15 @@ configured using `NMdataConf()`.}
 \item{doses}{Deprecated. Use `data`.}
 
 \item{time.sim}{Deprecated. Use `TIME`.}
+
+\item{extras.are.covs}{If \code{TIME} and/or `TAPD` are `data.frame`s
+and contain other columns than `TIME` and/or `TAPD`, those are
+by default assumed to be subject-level covariates to be merged with
+data. More specifically, they will be merged by when the
+sample times are added. If `extras.are.covs=FALSE`, they will
+not be merged by. Instead, they will be kept as
+additional columns with specified values, aligned with the
+sample times. See examples.}
 }
 \value{
 A data.frame with dosing records

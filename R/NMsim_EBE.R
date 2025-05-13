@@ -75,7 +75,7 @@ NMsim_EBE <- function(file.sim,file.mod,data.sim,file.phi,return.text=FALSE){
     
 ### generate new phi file
     data.sim[,rowtmp:=.I]
-    dt.id.order <- data.sim[,.SD[1],by=.(ID=as.character(ID)),.SDcols=cc(rowtmp)]
+    dt.id.order <- data.sim[,.SD[1],keyby=.(ID=as.character(ID)),.SDcols=cc(rowtmp)]
 
 #### try to read phi file to see if it reads and has ETAs
     etasFromTabs <- FALSE

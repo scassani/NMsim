@@ -80,14 +80,8 @@ path.candidates <- c(## metworx
    ,"c:/nm75g64/run/nmfe75.bat"
 )
 
-##' function to pick first path that works
-pickPath <- function(paths){
-    paths <- paths[sapply(paths,file.exists)]
-    if(!length(paths)) stop("no paths valid")
-    paths[1]
-}
 
-(path.nonmem <- pickPath(path.candidates))
+(path.nonmem <- NMsim:::prioritizePaths(path.candidates))
 
 
 #### need a function to drop NMsimVersion and NMsimTime from table
@@ -129,7 +123,7 @@ test_that("basic - default",{
                     name.sim="default_01"
                     )
     
-
+    
     simres.nometa <- copy(simres)
     unNMsimRes(simres.nometa)
 
@@ -137,7 +131,7 @@ test_that("basic - default",{
     if(F){
         ref.nometa <- readRDS(fileRef.noMeta)
         simres.nometa
-        ref.nometa        
+        ref.nometa
     }
     
     ## attributes(NMreadSim("testOutput/NMsim_xgxr021_default_01_paths.rds"))

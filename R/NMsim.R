@@ -810,7 +810,7 @@ NMsim <- function(file.mod,data,
             }
             text.table <- paste(paste(table.vars,collapse=" "),paste(table.options,collapse=" "))
         } else {
-            if(!is.null(table.format)){
+            if(!missing(table.format)){
                 message("`table.format` is ignored. Only used when `table.vars` is supplied.")
             }
         }
@@ -1184,7 +1184,7 @@ NMsim <- function(file.mod,data,
                        ,formats.write=c("csv",format.data.complete)
                         ## if NMsim is not controlling $DATA, we don't know what can be dropped.
                         
-                                 ##,csv.trunc.as.nm=TRUE
+                        ,csv.trunc.as.nm=TRUE
                        ,script=script
                        ,quiet=TRUE)
         )})
@@ -1269,9 +1269,13 @@ NMsim <- function(file.mod,data,
         dt.models[,{
             data.this <- data$data[[DATAROW]]
             rewrite.data.section <- TRUE
-            nmtext <- NMgenText(data.this,file=relative_path(path.data,dirname(path.sim)),quiet=TRUE)
-            NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = nmtext["INPUT"],backup=FALSE,quiet=TRUE)
-            NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = nmtext["DATA"],backup=FALSE,quiet=TRUE)    
+            nmtext <- NMgenText(data.this,file=relative_path(path.data,dirname(path.sim)),
+                                col.flagn=col.flagn,
+                                quiet=TRUE)
+            NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = nmtext["INPUT"],
+                                       backup=FALSE,quiet=TRUE)
+            NMdata:::NMwriteSectionOne(file0=path.sim,list.sections = nmtext["DATA"],
+                                       backup=FALSE,quiet=TRUE)    
             
         },by=.(ROWMODEL)]
     }    

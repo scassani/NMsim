@@ -21,21 +21,24 @@ header-includes:
 
 [**NMsim - Seamless NONMEM Simulation Platform in R**](NMsim-intro.html)  
 Authors: **Philip Delff**  
-Configuration  
-Simulation of typical subjects and new subjects
-Creation of Simulation data sets  
-Simulate multiple models  
-Reuse Emperical Bayes' Estimates (known ETAs)  
-Read previously generated simulations  
+ - Configuration  
+ - Simulation of typical subjects and new subjects  
+ - Creation of Simulation data sets  
+ - Simulate multiple models  
+ - Reuse Emperical Bayes' Estimates (known ETAs)  
+ - Read previously generated simulations  
 
 
-NMsim-speed.Rmd
-NMsim-known.Rmd
-NMsim-config.Rmd
+NMsim-speed.Rmd  
+NMsim-known.Rmd  
+NMsim-config.Rmd  
 NMsim-ParamUncertain.Rmd  
-NMsim-varyPars.Rmd
-NMsim-DataCreate.Rmd
-NMsim-VPC.Rmd
-NMsim-forest.Rmd
-NMsim-ResidVar.Rmd
+NMsim-varyPars.Rmd  
+NMsim-DataCreate.Rmd  
+NMsim-VPC.Rmd  
+
+[**Simulation-Based Forest Plots with NMsim**](NMsim-forest.html)  
+Authors: **Philip Delff, Boris Grinshpun**  
+
+NMsim-ResidVar.Rmd  
 NMsim-ReuseSimSubjects.Rmd

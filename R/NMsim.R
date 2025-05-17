@@ -197,8 +197,7 @@
 ##'     cluster. Waiting for them means that the results will be read
 ##'     when simulations are done. If not waiting, path(s) to `rds`
 ##'     files to read will be returned. Pass them through
-##'     `NMreadSim()` (which also supports waiting for the simulations
-##'     to finish).
+##'     `NMreadSim()`. Conveniently, NMreadSim() also takes the `wait` argument too, allowing flexibility to run Nonmem in the background, and then read the results, still waiting for Nonmem to finish.
 ##' @param method.execute Specify how to call Nonmem. Options are
 ##'     "psn" (PSN's execute), "nmsim" (an internal method similar to
 ##'     PSN's execute), and "direct" (just run Nonmem directly and
@@ -1561,7 +1560,7 @@ NMsim <- function(file.mod,data,
         }
 
         if(is.null(nmquiet)){
-            nmquiet <- !(dt.models[,.N]==1 && !do.pb && !quiet)
+            nmquiet <- !wait || !(dt.models[,.N]==1 && !do.pb && !quiet)
         }
         
         if(do.pb){

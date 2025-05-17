@@ -418,6 +418,7 @@ col.id=NA will drop ID if there is only one set of doses (one set of cov values)
 
 ** addEVID2
 
+*** TODO [#A] merge in from 6a22e88
 *** DONE Change name to NMsample()
 
 *** DONE [#A] Support DV

@@ -96,7 +96,9 @@ test_that("time with covariates",{
     seq.time.md <- data.table(regimen="MD",TIME=c(0,4,12,24))
     seq.time <- rbind(seq.time.sd,seq.time.md)
     
-    res <- addEVID2(dt.doses,time.sim=seq.time,CMT=2,by="regimen")
+    res <- expect_message(
+        addEVID2(dt.doses,time.sim=seq.time,CMT=2)
+        )
 
     ## dt.doses
     ## res
@@ -322,7 +324,7 @@ test_that("Unmatched covariates",{
     TIME
 
     res <- expect_message(
-        NMaddSamples(dt.dos,TIME,by=setdiff(intersect(colnames(dt.dos),colnames(TIME)),"TIME"))
+        addEVID2(dt.dos,TIME)
     )
 
     expect_equal_to_reference(res,fileRef)
@@ -343,7 +345,7 @@ test_that("Unmatched covariates",{
     dt.time <- data.frame(TIME=c(1,4,8), TSTRAT=c(1,2,3))
 
     res <- expect_message(
-        NMsim::addEVID2(dt.dos,TIME = dt.time,by="TSTRAT"
+        NMsim::addEVID2(dt.dos,TIME = dt.time
                         ## data.frame(TIME=c(1,4,8), TSTRAT=seq(1:length(samp.times)), 
                         ##            TMIN=rep(0.01,length(samp.times)),
                         ##            TMAX=rep(200,length(samp.times)))
@@ -367,10 +369,10 @@ test_that("Unmatched are not covs",{
     dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0, TMIN=0, TMAX=200),AMT=70,CMT=NA)
     dt.time <- data.frame(TIME=c(1,4,8), TSTRAT=c(1,2,3))
     
-    res <- NMsim::addEVID2(dt.dos,
+    res <- expect_message(NMsim::addEVID2(dt.dos,
                            TIME =dt.time
-                          ,
-                           by=FALSE)
+                          ,extras.are.covs=FALSE))
+
 
     ## res
     expect_equal_to_reference(res,fileRef)

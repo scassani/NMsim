@@ -130,9 +130,9 @@ dt.doses <- NMcreateDoses(TIME=data.frame(regimen=c("SD","MD","MD"),TIME=c(0,0,1
 seq.time.sd <- data.frame(regimen="SD",TIME=seq(0,3))
 seq.time.md <- data.frame(regimen="MD",TIME=c(0,12,24))
 seq.time <- rbind(seq.time.sd,seq.time.md)
-NMaddSamples(dt.doses,TIME=seq.time,CMT=2)
+NMaddSamples(dt.doses,TIME=seq.time,CMT=2,by="regimen")
 
-## All subjects get all samples (by=FALSE)
+## All subjects get all samples
 NMaddSamples(dt.doses,TIME=seq.time,by=FALSE,CMT=2)
 
 ## an observed sample scheme and additional simulation times

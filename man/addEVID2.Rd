@@ -2,16 +2,145 @@
 % Please edit documentation in R/addEVID2.R
 \name{addEVID2}
 \alias{addEVID2}
-\title{Add simulation (sample) records to dosing records (see `NMaddSamples()`)}
+\title{Add simulation records to dosing records}
 \usage{
-addEVID2(...)
+addEVID2(
+  data,
+  TIME,
+  TAPD,
+  CMT,
+  EVID,
+  DV,
+  col.id = "ID",
+  args.NMexpandDoses,
+  unique = TRUE,
+  extras.are.covs = TRUE,
+  as.fun,
+  doses,
+  time.sim
+)
 }
 \arguments{
-\item{...}{Passed to `NMaddSamples()`}
+\item{data}{Nonmem-style data set. If using `TAPD` an `EVID`
+column must contain 1 for dosing records.}
+
+\item{TIME}{A numerical vector with simulation times. Can also be
+a data.frame in which case it must contain a `TIME` column and
+is merged with `data`.}
+
+\item{TAPD}{A numerical vector with simulation times, relative to
+previous dose. When this is used, `data` must contain rows
+with `EVID=1` events and a `TIME` column. `TAPD` can also be a
+data.frame in which case it must contain a `TAPD` column and
+is merged with `data`.}
+
+\item{CMT}{The compartment in which to insert the EVID=2
+records. Required if `CMT` is a column in `data`. If longer
+than one, the records will be repeated in all the specified
+compartments. If a data.frame, covariates can be specified.}
+
+\item{EVID}{The value to put in the `EVID` column for the created
+rows. Default is 2 but 0 may be prefered even for simulation.}
+
+\item{DV}{Optionally provide a single value to be assigned to the
+`DV` column. The default is to assign nothing which will
+result in `NA` as samples are stacked (`rbind`) with
+`data`. If you assign a different value in `DV`, the default
+value of `EVID` changes to `0`, and `MDV` will be `0` instead
+of `1`. An example where this is useful is when generating
+datasets for `$DESIGN` where `DV=0` is often used.}
+
+\item{col.id}{The name of the column in `data` that holds the
+unique subject identifier.}
+
+\item{args.NMexpandDoses}{Only relevant - and likely not needed -
+if data contains ADDL and II columns. If those columns are
+included, `addEVID2()` will use `NMdata::NMexpanDoses()` to
+evaluate the time of each dose. Other than the `data`
+argument, `addEVID2()` relies on the default `NMexpanDoses()`
+argument values. If this is insufficient, you can specify
+other argument values in a list, or you can call
+`NMdata::NMexpanDoses()` manually before calling `addEVID2()`.}
+
+\item{unique}{If `TRUE` (default), events are reduced to unique
+time points before insertion. Sometimes, it's easier to
+combine sequences of time points that overlap (maybe across
+`TIME` and `TAPD`), and let `addEVID2()` clean them. If you
+want to keep your duplicated events, use `unique=FALSE`.}
+
+\item{extras.are.covs}{If `TIME` and/or `TAPD` are `data.frame`s
+and contain other columns than `TIME` and/or `TAPD`, those are
+by default assumed to be covariates to be merged with
+data. More specifically, they will be merged by when the
+sample times are added. If `extras.are.covs=FALSE`, they will
+not be merged by. Instead, they will just be kept as
+additional columns with specified values, aligned with the
+sample times.}
+
+\item{as.fun}{The default is to return data as a
+`data.frame`. Pass a function (say `tibble::as_tibble`) in
+as.fun to convert to something else. If data.tables are
+wanted, use `as.fun="data.table"`. The default can be
+configured using `NMdataConf()`.}
+
+\item{doses}{Deprecated. Use `data`.}
+
+\item{time.sim}{Deprecated. Use `TIME`.}
 }
 \value{
-A data.frame
+A data.frame with dosing records
 }
 \description{
-Add simulation (sample) records to dosing records (see `NMaddSamples()`)
+Deprecated, use `NMaddSampples()`. Adds simulation events to all
+subjects in a data set. Copies over columns that are not varying
+at subject level (i.e. non-variying covariates). Can add
+simulation events relative to previous dosing time.
+}
+\details{
+The resulting data set is ordered by ID, TIME, and
+    EVID. You may have to reorder for your specific needs.
+}
+\examples{
+(doses1 <- NMcreateDoses(TIME=c(0,12,24,36),AMT=c(2,1)))
+addEVID2(doses1,TIME=seq(0,28,by=4),CMT=2)
+
+## two named compartments
+dt.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+seq.time <- c(0,4,12,24)
+dt.cmt <- data.frame(CMT=c(2,3),analyte=c("parent","metabolite"))
+res <- addEVID2(dt.doses,TIME=seq.time,CMT=dt.cmt)
+
+## Separate sampling schemes depending on covariate values
+dt.doses <- NMcreateDoses(TIME=data.frame(regimen=c("SD","MD","MD"),TIME=c(0,0,12)),AMT=10,CMT=1)
+
+seq.time.sd <- data.frame(regimen="SD",TIME=seq(0,6))
+seq.time.md <- data.frame(regimen="MD",TIME=c(0,4,12,24))
+seq.time <- rbind(seq.time.sd,seq.time.md)
+addEVID2(dt.doses,TIME=seq.time,CMT=2)
+
+## an observed sample scheme and additional simulation times
+df.doses <- NMcreateDoses(TIME=0,AMT=50,addl=list(ADDL=2,II=24))
+dense <- c(seq(1,3,by=.1),4:6,seq(8,12,by=4),18,24)
+trough <- seq(0,3*24,by=24)
+sim.extra <- seq(0,(24*3),by=2)
+time.all <- c(dense,dense+24*3,trough,sim.extra)
+time.all <- sort(unique(time.all))
+dt.sample <- data.frame(TIME=time.all)
+dt.sample$isobs <- as.numeric(dt.sample$TIME\%in\%c(dense,trough))
+dat.sim <- addEVID2(dt.doses,TIME=dt.sample,CMT=2)
+
+## TAPD - time after previous dose
+df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+seq.time <- c(0,4,12,24)
+addEVID2(df.doses,TAPD=seq.time,CMT=2)
+
+## TIME and TAPD
+df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+seq.time <- c(0,4,12,24)
+addEVID2(df.doses,TIME=seq.time,TAPD=3,CMT=2)
+
+## Using a custom DV value affects EVID and MDV 
+df.doses <- NMcreateDoses(TIME=c(0,12),AMT=10,CMT=1)
+seq.time <- c(4)
+addEVID2(df.doses,TAPD=seq.time,CMT=2,DV=0)
 }

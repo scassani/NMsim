@@ -1,9 +1,9 @@
 ##' Add simulation records to dosing records
 ##'
-##' Adds simulation events to all subjects in a data set. Copies over
-##' columns that are not varying at subject level (i.e. non-variying
-##' covariates). Can add simulation events relative to previous dosing
-##' time.
+##' Deprecated, use `NMaddSampples()`. Adds simulation events to all
+##' subjects in a data set. Copies over columns that are not varying
+##' at subject level (i.e. non-variying covariates). Can add
+##' simulation events relative to previous dosing time.
 ##' 
 ##' @param data Nonmem-style data set. If using `TAPD` an `EVID`
 ##'     column must contain 1 for dosing records.
@@ -108,6 +108,7 @@
 ##' @return A data.frame with dosing records
 ##' @export 
 
+## Deprecated since NMsim 0.2.1
 
 addEVID2 <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDoses,unique=TRUE,
                      extras.are.covs=TRUE,as.fun,doses,time.sim){

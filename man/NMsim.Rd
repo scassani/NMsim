@@ -359,8 +359,7 @@ simulations are run locally but not to if they are sent to the
 cluster. Waiting for them means that the results will be read
 when simulations are done. If not waiting, path(s) to `rds`
 files to read will be returned. Pass them through
-`NMreadSim()` (which also supports waiting for the simulations
-to finish).}
+`NMreadSim()`. Conveniently, NMreadSim() also takes the `wait` argument too, allowing flexibility to run Nonmem in the background, and then read the results, still waiting for Nonmem to finish.}
 
 \item{text.sim}{A character string to be pasted into
 $SIMULATION. This must not contain seed or SUBPROBLEM which

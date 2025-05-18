@@ -71,6 +71,9 @@ test_that("Basic",{
     ## expect_equal_to_reference(omega,fileRef_c)
 
     if(F){
+        ref_a <- readRDS(fileRef_a)
+        ref_a
+
         ref <- readRDS(fileRef)
         ref$OMEGA
         mod$OMEGA 

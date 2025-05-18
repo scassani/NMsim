@@ -22,6 +22,9 @@
 ##'     greater, multiple control streams will be generated.
 ##' @param ext Parameter values in long format as created by
 ##'     `readParsWide` and `NMdata::NMreadExt`.
+##' @param method.sample When `ext` is not used, parameters are
+##'     sampled, using `samplePars()`. `method` must be either
+##'     `mvrnorm` or `simpar`. Only used when `ext` is not provided.
 ##' @param write.ext If supplied, a path to an rds file where the
 ##'     parameter values used for simulation will be saved.
 ##' @param ... Additional arguments passed to `NMsim_default()`.
@@ -31,7 +34,7 @@
 ##' @return Character vector of simulation control stream paths
 ##' @export
 
-NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...){
+NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,method.sample="mvrnorm",ext,write.ext=NULL,...){
 
 #### Section start: Dummy variables, only not to get NOTE's in package checks ####
 
@@ -85,36 +88,10 @@ NMsim_VarCov <- function(file.sim,file.mod,data.sim,nsims,ext,write.ext=NULL,...
 
 #### Section start: sampling new parameters from COV matrix ####
     if(simulatePars){
-        covmat <- NMdata::NMreadCov(path.cov)
-        ests <- NMreadExt(path.ext,as.fun="data.table")[NMREP==1,.(parameter,par.type,i,j,est,FIX,iblock,blocksize)]
-        ests <- ests[par.type%in%c("THETA","SIGMA","OMEGA")]
-        ests <- ests[match(ests$parameter,colnames(covmat))]
-        newpars <- mvrnorm(n=nsims,Sigma=covmat,mu=ests$est)
-        newpars <- round(newpars,8)
-### as.list first is because without it, this will fail for
-### nsims=1. This is because a single-column data.table would be
-### created in that case, and then model.sim and further steps
-### become wrong and will fail.
-        if(nsims==1){
-            newpars <- as.data.table(as.list(newpars))
-        } else {
-            newpars <- as.data.table(newpars)
-        }
+        newpars <- samplePars(file.mod=file.mod,nsims=nsims,
+                              method=method.sample,format="ext",
+                              as.fun="data.table")
         
-        newpars[,model.sim:=.I]
-
-        newpars <- mergeCheck(
-            melt(newpars,id.vars="model.sim",variable.name="parameter")
-           ,
-            ests
-           ,by="parameter",quiet=TRUE)
-
-        ## newpars <- mergeCheck(newpars,dt.sims,by="model.sim")
-        ## if the parameter was fixed, reset it to the estimate
-        newpars[FIX==1,value:=est]
-        ## if OMEGA or SIGMA diagonal elements are <0 set to 0.
-        newpars[i==j&value<0,value:=0]
-
 ###  Section end: sampling new parameters from COV matrix
     }
 #### Section start: Parameter from provided table ####

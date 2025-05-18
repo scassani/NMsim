@@ -17,7 +17,7 @@ generate. Passed to `simpar`.}
 \item{method}{The sampling method. Options are "mvrnorm" and
 "simpar". Each have pros and cons. Notice that both methods
 are fully automated as long as ".ext" and ".cov" files are
-available.}
+available from model estimation.}
 
 \item{seed.R}{seed value passed to set.seed().}
 
@@ -38,7 +38,23 @@ A table with sampled model parameters
 Sample model parameters using `mvrnorm` or the `simpar` package
 }
 \details{
-This function was originally create by Sanaya Shroff and
-    Philip Delff for sampling using `simpar`. It has since been
-    generalized to support sampling with `mvrnorm()` too.
+samplePars() uses internal methods to sample using
+    mvrnorm or simpar. Also be aware of NMsim_NWPRI which is based
+    on the Nonmem-internal NWPRI subroutine. NMsim_NWPRI is much
+    faster to execute.  Simulation with paramater uncertainty on
+    variance components (`OMEGA` and `SIGMA`) is only reliable
+    starting from Nonmem 7.6.0.
+
+mvrorm: The multivariate normal distribution does not ensure
+non-negative variances. Negative variances are not allowed and can
+not be simulated. To avoid this, `method=mvrnorm` truncates negative variance diagonal
+elements at zero.
+
+simpar: simpar must be installed. 
+
+Please refer to publications and vignettes for more information on
+sampling methods.
+}
+\author{
+Sanaya Shroff, Philip Delff
 }

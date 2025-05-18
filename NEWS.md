@@ -1,3 +1,38 @@
+# NMsim 0.2.3
+
+Posters
+
+VPC - filters
+
+Streamlined sim with variability
+
+Forest plot vignette
+
+## New features
+NMaddSamples by
+
+addEVID2 back in
+
+Streamlining of NMsim_VarCov and samplePars
+
+samplePars() throws
+
+## Bugfixes
+NMsim_VarCov() sampling of OMEGA/SIGMA. Affects simulation with
+between-subject variability. Big thanks to Sanaya Shroff for reporting
+and fixing.
+
+## Other Improvements 
+* Improved defaults for whether to suppress Nonmem messages (`nmquiet`
+  argument). Particularly, when `NMsim` is not waiting on Nonmem runs,
+  it will by default suppress those messages. Basically, NMsim will
+  now by default only show Nonmem terminal messages if it is waiting,
+  and only one Nonmem model is executed. Notice, that `quiet=TRUE`
+  implies suppressing both `NMsim` and Nonmem messages and
+  `nmquiet=TRUE`.
+
+
+
 # NMsim 0.2.2
 ## New features
 * `sampleCovs()` is a new function to conveniently sample

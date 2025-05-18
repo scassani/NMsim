@@ -4,7 +4,16 @@
 \alias{NMsim_VarCov}
 \title{Simulate with parameter values sampled from a covariance step}
 \usage{
-NMsim_VarCov(file.sim, file.mod, data.sim, nsims, ext, write.ext = NULL, ...)
+NMsim_VarCov(
+  file.sim,
+  file.mod,
+  data.sim,
+  nsims,
+  method.sample = "mvrnorm",
+  ext,
+  write.ext = NULL,
+  ...
+)
 }
 \arguments{
 \item{file.sim}{The path to the control stream to be edited. This
@@ -19,6 +28,10 @@ used.}
 
 \item{nsims}{Number of replications wanted. The default is 1. If
 greater, multiple control streams will be generated.}
+
+\item{method.sample}{When `ext` is not used, parameters are
+sampled, using `samplePars()`. `method` must be either
+`mvrnorm` or `simpar`. Only used when `ext` is not provided.}
 
 \item{ext}{Parameter values in long format as created by
 `readParsWide` and `NMdata::NMreadExt`.}

@@ -22,7 +22,7 @@ samplePars_simpar <- function(file.mod,nsims,format="ext",seed.R,as.fun){
     
     loadres <- requireNamespace("simpar",quietly=TRUE)
     if(!loadres) {
-        message("simpar not found. Please install from github or MPN.")
+        message("simpar not found. Please install from github or MPN or use alternative sampling methods.")
         return(NULL)        
     }
 

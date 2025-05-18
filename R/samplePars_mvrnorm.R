@@ -1,3 +1,5 @@
+
+
 ##' @keywords internal
 
 samplePars_mvrnorm <- function(file.mod,nsims,format,as.fun){
@@ -47,12 +49,24 @@ samplePars_mvrnorm <- function(file.mod,nsims,format,as.fun){
         ests
        ,by="parameter",quiet=TRUE)
 
-    ## newpars <- mergeCheck(newpars,dt.sims,by="SUBMODEL")
+
     ## if the parameter was fixed, reset it to the estimate
     newpars[FIX==1,value:=value.est]
     ## if OMEGA or SIGMA diagonal elements are <0 set to 0.
+    ##    if(F){
+    newpars.invalid <- newpars[i==j&value<0]
+    
+    if(nrow(newpars.invalid )){
+        sum.invalid <- newpars.invalid[,.("No of truncations"=.N),keyby=.(parameter)]
+        message("Variance parameters have been truncated at 0 from their negative sampled values.")
+        message_dt(sum.invalid)
+        
+        warning("Variance parameters have been truncated.")
+    }
+    ##    }
     newpars[i==j&value<0,value:=0]
 
     as.fun(newpars)
 
 }
+

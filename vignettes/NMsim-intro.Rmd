@@ -277,7 +277,7 @@ The input data is a data.frame that
 * Can contain character variables (automatically carried to results)
 * Column order does not matter 
 
-As long as those requirements are met, there are no requirements to how the data sets are created. So if you already have a prefered way to do this, that's fine. NMsim provides convenient helper functions that can optionally be used. `NMcreateDoses()` creates just the dosing events, and `addEVID2()`
+As long as those requirements are met, there are no requirements to how the data sets are created. So if you already have a prefered way to do this, that's fine. NMsim provides convenient helper functions that can optionally be used. `NMcreateDoses()` creates just the dosing events, and `NMaddSamples()`
 adds the sampling events. By default, doses are indicated using
 `EVID=1` and samples by `EVID=2`.
 
@@ -285,7 +285,7 @@ adds the sampling events. By default, doses are indicated using
 ```{r,gen-data,echo=TRUE}
 doses <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),
                        addl=list(ADDL=c(0,5),II=c(0,24)),CMT=1)
-dat.sim <- addEVID2(doses,TIME=0:(24*7),CMT=2)
+dat.sim <- NMaddSamples(doses,TIME=0:(24*7),CMT=2)
 ```
 
 Notice, `NMcreateDoses()` has many flexible and convenient features. See
@@ -308,28 +308,28 @@ NMcreateDoses(TIME=c(0,12,24),AMT=data.table(AMT=c(2,1,4,2),DOSE=c(1,1,2,2)))
 ### Adding sampling times
 
 For adding sampling times to a set of doses and/or samples,
-`addEVID2()` provides a similarly flexible interface. It accepts
+`NMaddSamples()` provides a similarly flexible interface. It accepts
 data.frames with covariates allowing for different sampling schemes
 for different subject groups (say different dosing regimens), and
 dosing times can be supplied relative to previous dosing times.
 
 <details>
-<summary>Additional `addEVID2()` examples</summary>
-```{r,addEVID2-extra1,eval=TRUE}
+<summary>Additional `NMaddSamples()` examples</summary>
+```{r,NMaddSamples-extra1,eval=TRUE}
 ## a dosing data set with two doses
 dt.dos <- NMcreateDoses(TIME=c(0,12),AMT=c(1))
 ```
-```{r,addEVID2-extra2}
+```{r,NMaddSamples-extra2}
 ## sampling based on time since previous dose
-addEVID2(dt.dos,TAPD=1:2,CMT=2)
+NMaddSamples(dt.dos,TAPD=1:2,CMT=2)
 ```
-```{r,addEVID2-extra3}
+```{r,NMaddSamples-extra3}
 ## TIME and TAPD can be combined - adding a follow-up
-addEVID2(dt.dos,TAPD=1:2,TIME=96,CMT=2)
+NMaddSamples(dt.dos,TAPD=1:2,TIME=96,CMT=2)
 ```
-```{r,addEVID2-extra4}
+```{r,NMaddSamples-extra4}
 ## sampling two compartments - naming them
-addEVID2(dt.dos,TAPD=1:2,CMT=data.frame(CMT=2:3,DVID=c("Parent","Metabolite")))
+NMaddSamples(dt.dos,TAPD=1:2,CMT=data.frame(CMT=2:3,DVID=c("Parent","Metabolite")))
 ```
 </details>
 

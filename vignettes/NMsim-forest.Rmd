@@ -2,7 +2,7 @@
 title: "Simulation-Based Forest Plots with NMsim"
 author: 
   - name: "Philip Delff, Boris Grinshpun"
-date: '`r format(Sys.Date(), "%B %d, %Y")`'
+date: '`r format(Sys.Date(), "%B %d, %Y")` using NMsim `r packageVersion("NMsim")`'
 toctitle: "Contents"
 output:
     html_document:
@@ -145,7 +145,7 @@ time.sim <- c(
     seq(0,24,.25), ## Day 1
     seq(0,24,.25)+30*24 ## Steady-State
 )
-dt.sim <- addEVID2(doses,TIME=time.sim,CMT=2,as.fun="data.table")
+dt.sim <- NMaddSamples(doses,TIME=time.sim,CMT=2,as.fun="data.table")
 dt.sim[TIME<=24,period:="Day 1"]
 dt.sim[TIME>=30*24&TIME<=31*24,period:="Steady-State"]
 ```
@@ -163,7 +163,7 @@ There is only one analyte in this data set. If for instance, you have a parent a
 
 ```{r}
 dt.sim.parent.metab <-
-    addEVID2(doses,TIME=time.sim,CMT=data.frame(analyte=c("parent","metabolite"),CMT=c(2,3)))
+    NMaddSamples(doses,TIME=time.sim,CMT=data.frame(analyte=c("parent","metabolite"),CMT=c(2,3)))
 ```
 
 We also add "Time after previous dose" which is helpful for plotting. This is done using `NMdata::TAPD()`

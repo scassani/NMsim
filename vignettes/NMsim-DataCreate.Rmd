@@ -2,7 +2,7 @@
 title: "Data Set Creation with NMsim"
 author: 
   - name: "Philip Delff"
-date: '`r format(Sys.Date(), "%B %d, %Y")`'
+date: '`r format(Sys.Date(), "%B %d, %Y")` using NMsim `r packageVersion("NMsim")`'
 toctitle: "Contents"
 output:
     html_document:
@@ -72,20 +72,27 @@ NMdataConf(as.fun="data.table")
 ```
 
 Built `r Sys.Date()` using NMsim `r packageVersion("NMsim")`.
+<img src='../man/figures/NMsimlogo240.png' align="right" height="120" alt="NMsim" />
 
 ## Introduction
 
-The purpose of data sets of interest in this vignette is succesfull and meaningful simulation with `NMsim()`. 
+The purpose of data sets of interest in this vignette is succesfull
+and meaningful simulation with `NMsim()`.
 
-The data argument to NMsim() is essential to any simulation. For a simulation of new subjects, the `data` may be the only need argument In addition to a control stream file path.
+The data argument to NMsim() is essential to any simulation. For a
+simulation of new subjects, the `data` may be the only need argument
+In addition to a control stream file path.
 
 ```{r, eval=FALSE}
 simres <- NMsim(file.mod=file.mod,data=data.sim)
 ```
 
-`NMsim` and `NMdata` provide concise and feature-rich methods to create and check such data sets.
+`NMsim` and `NMdata` provide concise and feature-rich methods to
+create and check such data sets.
 
-NMsim() does not require simulation data sets to be created using NMsim functions. If already accustumed to other data set generation tools, you can most likely continue using those with `NMsim()`. 
+NMsim() does not require simulation data sets to be created using
+NMsim functions. If already accustumed to other data set generation
+tools, you can most likely continue using those with `NMsim()`.
 
 
 However created, The NMsim() `data` argument must

@@ -148,7 +148,7 @@ We generate a simulation data set with a loading dose (300 mg) followed by 6 dos
 
 ```{r,datacreate}
 doses <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),ADDL=5,II=24,CMT=1)
-## Now we add the sample records using `addEVID2()`. 
+## Now we add the sample records using `NMaddSamples()`. 
 dat.sim <- NMaddSamples(doses,TIME=0:(24*7),CMT=2)
 ```
 

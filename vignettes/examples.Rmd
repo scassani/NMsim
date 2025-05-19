@@ -28,13 +28,18 @@ Authors: **Philip Delff**
  - Reuse Emperical Bayes' Estimates (known ETAs)  
  - Read previously generated simulations  
 
+NMsim-known.Rmd  
+
+[**Data Set Creation with NMsim**](NMsim-DataCreate.Rmd)  
+Authors: **Philip Delff**  
+
 
 NMsim-speed.Rmd  
-NMsim-known.Rmd  
+
 NMsim-config.Rmd  
 NMsim-ParamUncertain.Rmd  
 NMsim-varyPars.Rmd  
-NMsim-DataCreate.Rmd  
+
 NMsim-VPC.Rmd  
 
 [**Simulation-Based Forest Plots with NMsim**](NMsim-forest.html)  

@@ -9,9 +9,8 @@ Streamlined sim with variability
 Forest plot vignette
 
 ## New features
-NMaddSamples by
+* `NMaddSamples()` gains a `by` argument. 
 
-addEVID2 back in
 
 Streamlining of NMsim_VarCov and samplePars
 
@@ -31,6 +30,13 @@ and fixing.
   implies suppressing both `NMsim` and Nonmem messages and
   `nmquiet=TRUE`.
 
+## Other Changes
+
+* The deprecated `addEVID2()` is kept as a snapshot of when
+  `NMsamples()` was introduced. The new `by` argument is not
+  compatible with the default behavior of the deprecated
+  `addEVID2()`. This is to ensure reproducibility of existing code on
+  the user side.
 
 
 # NMsim 0.2.2

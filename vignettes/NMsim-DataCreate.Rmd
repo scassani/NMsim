@@ -1,5 +1,5 @@
 ---
-title: "Creation of Simulation Data Sets"
+title: "Data Set Creation with NMsim"
 author: 
   - name: "Philip Delff"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
@@ -19,7 +19,15 @@ pkgdown:
   as_is: true
 ---
 
-```{r,include = FALSE}
+```{r setup-hide,include = FALSE}
+library(knitr)
+knitr::opts_hooks$set(function(options) {
+  if (is.null(options$fig.alt) && !is.null(options$fig.cap)) {
+    options$fig.alt <- options$fig.cap
+  }
+  options
+})
+
 ##knitr::opts_chunk$set(dev = "cairo_pdf")
 knitr::opts_chunk$set(
                       collapse = TRUE
@@ -65,11 +73,31 @@ NMdataConf(as.fun="data.table")
 
 Built `r Sys.Date()` using NMsim `r packageVersion("NMsim")`.
 
+## Introduction
+
+The purpose of data sets of interest in this vignette is succesfull and meaningful simulation with `NMsim()`. 
+
+The data argument to NMsim() is essential to any simulation. For a simulation of new subjects, the `data` may be the only need argument In addition to a control stream file path.
+
+```{r, eval=FALSE}
+simres <- NMsim(file.mod=file.mod,data=data.sim)
+```
+
+`NMsim` and `NMdata` provide concise and feature-rich methods to create and check such data sets.
+
+NMsim() does not require simulation data sets to be created using NMsim functions. If already accustumed to other data set generation tools, you can most likely continue using those with `NMsim()`. 
+
+
+However created, The NMsim() `data` argument must
+
+* be a `data.frame` 
+* its columns names are exact NONMEM `$DATA` variables 
+
+Checking the data set before running Nonmem can significantly simplify identification of data set issues. This vignette uses `NMdata::NMcheckData` for automated checks of several value types and other properties of data sets. Like `NMsim`, `NMdata::NMcheckData` does not depend on how the data set was created. 
 
 
 ### A basic simulation data set
 
-As long as a simulation data set is in a `data.frame` structure with columns and values compatible with the Nonmem model(s) to be simulated, it does not matter to `NMsim` how it was created. However, `NMsim` and `NMdata` do provide powerful methods to easily create such data sets.
 
 As an example we
 create a regimen with a loading dose of 300 mg followed by 150 QD for
@@ -86,14 +114,14 @@ doses <- transform(doses,trt="300 mg then 150 mg QD")
 doses
 ```
 
-Now we add the sample records using `addEVID2()`. 
+Now we add the sample records using `NMaddSamples()`. 
 
 ```{r}
 ## Add simulation records - longer for QD regimens
-dat.sim <- addEVID2(doses,time.sim=0:(24*7),CMT=2)
+dat.sim <- NMaddSamples(doses,TIME=0:(24*7),CMT=2)
 ```
 
-`dat.sim` is now a valid simulation data set with one subject. However, even though `addEVID2()` does try to order the data in a meaningful way, it is recommended to always manually order the data set. We use `data.table`'s `setorder()`. `dplyr::arrange` can just as well be used. A row identifier (counter) can make post-processing easier, so we add that too.
+`dat.sim` is now a valid simulation data set with one subject. However, even though `NMaddSamples()` does try to order the data in a meaningful way, it is recommended to always manually order the data set. We use `data.table`'s `setorder()`. `dplyr::arrange` can just as well be used. A row identifier (counter) can make post-processing easier, so we add that too.
 
 ```{r}
 ## sort data set 
@@ -136,6 +164,7 @@ Showing the top five rows for understanding what the data now looks like. Notice
 - Columns are not sorted in Nonmem-friendly style with non-numeric columns to the right
 
 
+
 ```{r,echo=FALSE}
 dat.sim[1:5,]
 ```
@@ -151,6 +180,8 @@ dat.sim[,DV:=NA_real_]
 NMdata::NMcheckData(dat.sim,type.data="sim")
 ```
 
+Be aware that `NMsim()` does _not_ reorder rows before simulation. The user is responsible for ordering the simulation data. 
+
 ### Add time after previous dose and related information
 
 Just like for preparation of data set with observed data, time after previous dose may be the relevant time to analyze the simulation results against. We use `NMdata::addTAPD()` to add this automatically.
@@ -160,7 +191,7 @@ dat.sim2 <- addTAPD(dat.sim)
 head(dat.sim2)
 ```
 
-Here is something important to decide for simulations. Notice `TAPD` for the sample at `TIME==0`.
+ Notice `TAPD` for the sample at `TIME==0`.
 `addTAPD` does not use the order of the data set to determine the time-order or the records. The default behavior of `addTAPD` is to treat a sample taken at the exact same time as a dose as a pre-dose. If instead we want them to be considered post-dose, we have to specify how to order `EVID` numbers.
 
 ```{r,addTAPD2}
@@ -174,15 +205,15 @@ head(dat.sim2)
 
 ### Multiple endpoints (e.g. parent and metabolite)
 
-Pass a data.frame to `addEVID2`'s CMT argument to include multiple endpoints. 
+Pass a data.frame to `NMaddSamples`'s CMT argument to include multiple endpoints. 
 
 ```{r}
-addEVID2(doses,CMT=data.frame(CMT=c(2,3),DVID=c("Parent","Metabolite")),time.sim=1:2)
+NMaddSamples(doses,CMT=data.frame(CMT=c(2,3),DVID=c("Parent","Metabolite")),TIME=1:2)
 ```
 
 
 ### Cohort-dependent or individual sampling schemes
-Same way as for the `CMT` argument, `time.sim` can also be a `data.frame`. If it contains a covariate found in the doses data, the added simulation times will be merged on accordingly. You can use say a cohort identifier, or it could be `ID` which allows you to reuse (all or parts of) the observed sample times.
+Same way as for the `CMT` argument, `TIME` can also be a `data.frame`. If it contains a covariate found in the doses data, the added simulation times will be merged on accordingly. You can use say a cohort identifier, or it could be `ID` which allows you to reuse (all or parts of) the observed sample times.
 
 ### Other features
 As the name implies the default of function is to use `EVID=2` (which means they are neither doses, samples, nor resetting events) for these records. Should you want to change that (maybe to `EVID=0`), use the `EVID` argument.

@@ -231,7 +231,7 @@ file.mod <- system.file("examples/nonmem/xgxr021.mod",
 data.sim <- NMcreateDoses(TIME=c(0,24),AMT=c(300,150),ADDL=c(0,5),II=c(0,24),CMT=1)|>
     NMaddSamples(TIME=0:(24*7),CMT=2)
 ## Simulate
-simres <- NMsim(file.mod=file.mod,data=data.sim)
+simres <- NMsim(file.mod=file.mod,data=data.sim,table.vars=c("PRED","IPRED","Y"))
 ```
 
 
@@ -247,7 +247,7 @@ data.frame. Plot of simulation results (click to button show code):
 ```{r,simple-sim-plot,eval=TRUE,echo=TRUE,results="hide"}
 
 datl <- as.data.table(simres) |>
-    melt(measure.vars=cc(PRED,IPRED,Y))
+    melt(measure.vars=c("PRED","IPRED","Y"))
 
 plot1 <- ggplot(datl,aes(TIME,value,colour=variable))+
     geom_line(data=function(x)x[variable!="Y"])+
@@ -400,7 +400,8 @@ file2.mod <- "models/xgxr114.mod"
 simres.typ2 <- NMsim(file.mod=c("2 compartments"=file.mod,
                                 "1 compartment"=file2.mod),
                      data=data.sim,
-                     typical=TRUE ## FIX all OMEGA's to zero
+                     typical=TRUE, ## FIX all OMEGA's to zero
+                     table.vars=c("PRED","IPRED","Y")
                      )
 ## The "model" column is used to distinguish the two models
 subset(simres.typ2,EVID==2) |>
@@ -418,7 +419,8 @@ simres.typ2 <- NMsim(
     name.sim="typsubj",
     nmquiet=TRUE, ## suppress terminal text from NONMEM
     ## quiet=TRUE, ## Suppress messages from NMsim
-    reuse.results=reuse.results ## Reuse results if already on file
+    reuse.results=reuse.results, ## Reuse results if already on file
+    table.vars=c("PRED","IPRED","Y")
 )
 
 subset(simres.typ2,EVID==2) |>
@@ -465,7 +467,8 @@ simres.ebe <- NMsim(file.mod,
                     data=data.sim.ind,
                     method.sim=NMsim_EBE,
                     name.sim="ebes",
-                    reuse.results=reuse.results
+                    reuse.results=reuse.results,
+                    table.vars=c("CL","V2","IPRED","PRED")
                     )
 ids <- unique(res$ID)[1:5]
 
@@ -546,7 +549,7 @@ dt.ids <- data.table(ID=1:Nsubjs)
 dt.covs <- NMscanData(file.mod,quiet=T,as.fun="data.table") |>
     findCovs(by=c("ID"))
 dt.ids[,IDEST:=sample(dt.covs[,ID],size=.N,replace=T)]
-dt.ids <- mergeCheck(dt.ids,dt.covs[,.(IDEST=ID,WEIGHTB)],by="IDEST")
+dt.ids <- mergeCheck(dt.ids,dt.covs[,.(IDEST=ID,WEIGHTB,trt=trtact)],by="IDEST")
 
 ## This is data.table-style repeating `data.sim` without `ID` for each
 ## row in dt.ids. This is an outer join, or a cartesian product. I

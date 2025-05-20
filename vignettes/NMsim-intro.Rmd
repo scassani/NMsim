@@ -364,7 +364,7 @@ It is also advised to plot the simulation data set. See [Creation of Simulation 
 ```{r,typsubj-show,echo=TRUE,eval=FALSE}
 simres.typ <- NMsim(file.mod=file.mod,data=data.sim,
                     typical=TRUE,  ## FIX all OMEGA's to zero
-                    name.sim="typical" ## simulation name - included in output
+                    name.sim="typical", ## simulation name - included in output
 )
 ```
 
@@ -376,7 +376,8 @@ simres.typ <- NMsim(
     data=data.sim,
     typical=TRUE,
     name.sim="typical",
-    reuse.results=reuse.results
+    reuse.results=reuse.results,
+    table.vars=c("PRED","IPRED","Y")
 )
 ```
 

@@ -196,7 +196,11 @@ This introduction to NMsim aims at enabling NONMEM users to
 
 # Configuration
 
-NMsim must be configured with the path to the NONMEM executable. This can be done for each `NMsim()` call using the `path.nonmem` argument, but more easily it can be configured globally the following way. Also including where NMsim will run NONMEM and store intermediate files (`dir.sims`) and where to store final results (`dir.res`).
+NMsim must be configured with the path to the NONMEM executable. This
+can be done for each `NMsim()` call using the `path.nonmem` argument,
+but more easily it can be configured globally the following way. Also
+including where NMsim will run NONMEM and store intermediate files
+(`dir.sims`) and where to store final results (`dir.res`).
 
 ```{r,echo=TRUE,eval=FALSE}
 library(NMdata)

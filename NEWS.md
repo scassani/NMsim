@@ -1,20 +1,23 @@
 # NMsim 0.2.3
 
-Posters
-
-VPC - filters
-
-Streamlined sim with variability
-
-Forest plot vignette
-
 ## New features
-* `NMaddSamples()` gains a `by` argument. 
+* `NMaddSamples()` gains a `by` argument. This makes `NMaddSamples()`
+  easy to use for generation of both nominal sampling schemes and
+  recreation of observed sampling schemes.
 
+* Streamlining of `NMsim_VarCov()` and
+  `samplePars()`. `NMsim_VarCov()` now always calls `samplePars()`
+  internally. `samplePars()` uses the `method` argument to switch
+  between `mvrnorm`(multivariate normal distribution) and `simpar`
+  (inverse Wishart distribution.
 
-Streamlining of NMsim_VarCov and samplePars
+* `NMsim_VarCov()` gains `method.sample` argument which is passed as
+  `method` to `samplePars()`. This means `NMsim_VarCov()` can be used
+  to simulated with parameter uncertainty using either `mvrnorm` or
+  `simpar`.
 
-samplePars() throws
+Messages have been implemented in samplePars() to summarize number of
+truncations in case `mvrnorm` results in negative variance parameters.
 
 ## Bugfixes
 NMsim_VarCov() sampling of OMEGA/SIGMA. Affects simulation with

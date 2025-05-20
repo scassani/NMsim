@@ -2,24 +2,33 @@
 title: "Simulate Known Subjects Using Emperical Bayes Estimates (Etas/Phis)"
 author: 
   - name: "Philip Delff"
-    date: '`r format(Sys.Date(), "%B %d, %Y")`'
-    toctitle: "Contents"
-    output:
-      html_document:
-        toc: true
-        toc_depth: 4
-        toc_float: true
-        number_sections: false
-        df_print: kable
-        editor_options:
-          chunk_output_type: inline
-          code_folding: show
-          bibliography: [packages.bib]
-          pkgdown:
-            as_is: true
+date: '`r format(Sys.Date(), "%B %d, %Y")` using NMsim `r packageVersion("NMsim")`'
+toctitle: "Contents"
+output:
+    html_document:
+      toc: true
+      toc_depth: 4
+      toc_float: true
+      number_sections: false
+      df_print: kable
+      editor_options:
+        chunk_output_type: inline
+        code_folding: show
+bibliography: [packages.bib]
+pkgdown:
+  as_is: true
 ---
 
-```{r,include = FALSE}
+
+```{r setup-hide,include = FALSE}
+library(knitr)
+knitr::opts_hooks$set(function(options) {
+  if (is.null(options$fig.alt) && !is.null(options$fig.cap)) {
+    options$fig.alt <- options$fig.cap
+  }
+  options
+})
+
 ##knitr::opts_chunk$set(dev = "cairo_pdf")
 knitr::opts_chunk$set(
                       collapse = TRUE
@@ -52,12 +61,7 @@ library(fst)
 library(knitr)
 paths.nm <- c("/opt/NONMEM/nm75/run/nmfe75",
               "/opt/nonmem/nm751/run/nmfe75")
-found.nm <- which(file.exists(paths.nm))
-if(length(found.nm)){
-    path.nonmem <- paths.nm[min(found.nm)]
-} else {
-    path.nonmem <- NULL
-}
+path.nonmem <- NMsim:::prioritizePaths(paths.nm)
 
 NMdataConf(
     path.nonmem = path.nonmem, ## path to NONMEM executable
@@ -80,8 +84,8 @@ NMdataConf(as.fun="data.table")
 dat.sim <- read.csv(system.file("examples/derived/dat_sim1.csv",package="NMsim"))
 ```
 
+<img src='../man/figures/NMsimlogo240.png' align="right" height="120" alt="NMsim" />
 
-Built `r Sys.Date()` using NMsim `r packageVersion("NMsim")`.
 
 
 ## Objectives
@@ -100,9 +104,14 @@ More information on configuration and test of configuration at
 [`NMsim-config.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-config.html). 
 
 You should be familiar with basic `NMsim` arguments as described in
-[`NMsim-intro.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-intro.html). In
-that vignette you should have learned to use the default simulation
-method. While the default simulation method samples new subjects (using the `$OMEGA` metrix). This vignette provides various examples on how the `NMsim_EBE` simulation method can be used to simulate known subjects.
+[`NMsim-intro.html`](https://nmautoverse.github.io/NMsim/articles/NMsim-intro.html).
+That vignette mostly talks about the default simulation method (new
+subjects). This vignette provides various examples on how the
+`NMsim_EBE` simulation method can be used to simulate "known"
+subjects. We shall explain in more detail what is meant by a "known
+subject". Briefly it means their ETAs are known. The most common
+example of this is resimulation of subjects that were in the
+estimation data set.
 
 
 ## Simulation of known subjects 
@@ -117,13 +126,13 @@ identical to `ID` values used in the estimation.  For
 models estimated with FOCEI, the ETAs are stored in the
 `.phi` file produced by Nonmem. This file must be available, and NMsim will automatically use it if applicable.
 
-For SAEM/IMP-based estimation NMsim cannot use the `.phi` file, and the user must have stored the ETAs in output
+For EM-based estimation methods such as SAEM or IMP, NMsim cannot use the `.phi` file, and the user must have stored the ETAs in output
 table files for the method to work. It does not matter where in the
 table files they are, they just all need to be there. You can write
 all of them like it is done in the example model provided with `NMsim`
 called `xgxr032.mod`.
 
-If using SAEM/IMP, remember to explicitly write ETAs to an output table in the Nonmem control stream:
+If using EM algorithms such as SAEM or IMP, remember to explicitly write ETAs to an output table in the Nonmem control stream:
 ```
 $TABLE ETAS(1:LAST) NOAPPEND NOPRINT FILE=xgxr032_etas.txt
 ```

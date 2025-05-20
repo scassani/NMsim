@@ -27,6 +27,13 @@ knitr::opts_chunk$set(
                      ,cache=FALSE
                   )
 
+knitr::opts_hooks$set(function(options) {
+  if (is.null(options$fig.alt) && !is.null(options$fig.cap)) {
+    options$fig.alt <- options$fig.cap
+  }
+  options
+})
+
 ## NMdataConf(dir.psn=NULL)
 NMdataConf(path.nonmem="/opt/NONMEM/nm75/run/nmfe75")
 NMdataConf(as.fun="data.table")

@@ -19,6 +19,14 @@ library(NMdata)
 library(fst)
 library(NMsim)
 ##knitr::opts_chunk$set(dev = "cairo_pdf")
+
+knitr::opts_hooks$set(function(options) {
+  if (is.null(options$fig.alt) && !is.null(options$fig.cap)) {
+    options$fig.alt <- options$fig.cap
+  }
+  options
+})
+
 knitr::opts_chunk$set(
                       collapse = TRUE
                      ,comment = "#>"

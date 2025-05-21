@@ -128,7 +128,7 @@ just some more text
 
 ```{r}
 
-x= "Here we have some code"
+x= "Here we have some code 2"
 
 
 ```

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">NMsim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.908</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +24,7 @@
     <li><a class="dropdown-item" href="../articles/NMsim-known.html">Simulate Known Subjects</a></li>
     <li><a class="dropdown-item" href="../articles/NMsim-ParamUncertain.html">Simulations with Parameter Uncertainty</a></li>
     <li><a class="dropdown-item" href="../articles/NMsim-forest.html">Simulation-based forest plots with NMsim</a></li>
-    <li><a class="dropdown-item" href="../articles/NMsim-DataCreate.html">Creation of Simulation Data Sets</a></li>
+    <li><a class="dropdown-item" href="../articles/NMsim-DataCreate.html">Data Set Creation with NMsim</a></li>
     <li><a class="dropdown-item" href="../articles/NMsim-ResidVar.html">Simulation with Residual Variability</a></li>
     <li><a class="dropdown-item" href="../articles/NMsim-varyPars.html">Simulate Models with Modifications</a></li>
     <li><a class="dropdown-item" href="../articles/NMsim-ReuseSimSubjects.html">Reuse Simulated Subjects</a></li>
@@ -50,7 +50,29 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.2" id="nmsim-022">NMsim 0.2.2<a class="anchor" aria-label="anchor" href="#nmsim-022"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.3" id="nmsim-023">NMsim 0.2.3<a class="anchor" aria-label="anchor" href="#nmsim-023"></a></h2><p class="text-muted">CRAN release: 2025-05-20</p>
+<div class="section level3">
+<h3 id="new-features-0-2-3">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-3"></a></h3>
+<ul><li><p><code><a href="../reference/NMaddSamples.html">NMaddSamples()</a></code> gains a <code>by</code> argument. This makes <code><a href="../reference/NMaddSamples.html">NMaddSamples()</a></code> easy to use for generation of both nominal sampling schemes and recreation of observed sampling schemes.</p></li>
+<li><p>Streamlining of <code><a href="../reference/NMsim_VarCov.html">NMsim_VarCov()</a></code> and <code><a href="../reference/samplePars.html">samplePars()</a></code>. <code><a href="../reference/NMsim_VarCov.html">NMsim_VarCov()</a></code> now always calls <code><a href="../reference/samplePars.html">samplePars()</a></code> internally. <code><a href="../reference/samplePars.html">samplePars()</a></code> uses the <code>method</code> argument to switch between <code>mvrnorm</code>(multivariate normal distribution) and <code>simpar</code> (inverse Wishart distribution.</p></li>
+<li><p><code><a href="../reference/NMsim_VarCov.html">NMsim_VarCov()</a></code> gains <code>method.sample</code> argument which is passed as <code>method</code> to <code><a href="../reference/samplePars.html">samplePars()</a></code>. This means <code><a href="../reference/NMsim_VarCov.html">NMsim_VarCov()</a></code> can be used to simulated with parameter uncertainty using either <code>mvrnorm</code> or <code>simpar</code>.</p></li>
+</ul><p>Messages have been implemented in samplePars() to summarize number of truncations in case <code>mvrnorm</code> results in negative variance parameters.</p>
+</div>
+<div class="section level3">
+<h3 id="bugfixes-0-2-3">Bugfixes<a class="anchor" aria-label="anchor" href="#bugfixes-0-2-3"></a></h3>
+<p>NMsim_VarCov() sampling of OMEGA/SIGMA. Affects simulation with between-subject variability. Big thanks to Sanaya Shroff for reporting and fixing.</p>
+</div>
+<div class="section level3">
+<h3 id="other-improvements-0-2-3">Other Improvements<a class="anchor" aria-label="anchor" href="#other-improvements-0-2-3"></a></h3>
+<ul><li>Improved defaults for whether to suppress Nonmem messages (<code>nmquiet</code> argument). Particularly, when <code>NMsim</code> is not waiting on Nonmem runs, it will by default suppress those messages. Basically, NMsim will now by default only show Nonmem terminal messages if it is waiting, and only one Nonmem model is executed. Notice, that <code>quiet=TRUE</code> implies suppressing both <code>NMsim</code> and Nonmem messages and <code>nmquiet=TRUE</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-changes-0-2-3">Other Changes<a class="anchor" aria-label="anchor" href="#other-changes-0-2-3"></a></h3>
+<ul><li>The deprecated <code><a href="../reference/addEVID2.html">addEVID2()</a></code> is kept as a snapshot of when <code>NMsamples()</code> was introduced. The new <code>by</code> argument is not compatible with the default behavior of the deprecated <code><a href="../reference/addEVID2.html">addEVID2()</a></code>. This is to ensure reproducibility of existing code on the user side.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.2" id="nmsim-022">NMsim 0.2.2<a class="anchor" aria-label="anchor" href="#nmsim-022"></a></h2><p class="text-muted">CRAN release: 2025-05-06</p>
 <div class="section level3">
 <h3 id="new-features-0-2-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-2"></a></h3>
 <ul><li>

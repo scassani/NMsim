@@ -506,11 +506,11 @@ sim.dupli.24h=sim.auc[TIME%%24==0 & TIME>0,.(ID
 sim.auc.final <- rbind(sim.auc
                        ,sim.dupli.24h) |> setorder(ID,DAY,TIME,time.step)
 
-sim.auc.trapez<-sim.auc.final[DAY<8,.(AUC=pracma::trapz(TIME,PRED))
+sim.auc.trapez<-sim.auc.final[DAY<8,.(AUC=NMcalc::trapez(TIME,PRED))
                              ,by=.(ID,DAY,time.step)]
 # stmp=sres1[EVID==2,.(ID,TIME,PRED)]
 # stmp[,DAY:=(TIME%/%24)+1]
-# sAUC<-stmp[,.(AUC=pracma::trapz(TIME,PRED)),by=.(ID,DAY)]
+# sAUC<-stmp[,.(AUC=NMcalc::trapez(TIME,PRED)),by=.(ID,DAY)]
 ```
 
 * at run time, with an `NMsim` modified script, on a course grid with evenly spaced time steps of `24` hours, labelled __AUC $DES__. Of note, this task requires additions to the control stream in multiple sections.

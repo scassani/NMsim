@@ -308,24 +308,59 @@ test_that("Providing DV",{
 
 })
 
-test_that("Unmatched covariates",{
+test_that("default - common columns are not merged by",{
     fileRef <- "testReference/NMaddSamples_17.rds"
+    samp.times <- c(1, 4, 8)
+    dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0),AMT=70,CMT=NA)
+
+    TIME <- data.table(TIME=c(1,4,8),
+                       TSTRAT=seq(1:length(samp.times)))
+
+if(FALSE){ ## Commented for non-interactive execution
+    dt.dos
+    TIME
+}
+res <- NMaddSamples(dt.dos,TIME)
+###  TSTRAT does not match, but samples added with own TSTRAT values
+    ## res
+
+    expect_equal_to_reference(res,fileRef)
+
+    if(F){
+        readRDS(fileRef)
+    }
+ 
+})
+    
+test_that("by unmatched (covariates)",{
 
     samp.times <- c(1, 4, 8)
-    dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0, TMIN=0, TMAX=200),AMT=70,CMT=NA)
+    dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0),AMT=70,CMT=NA,as.fun="data.table")
 
-    TIME <- data.frame(TIME=c(1,4,8), TSTRAT=seq(1:length(samp.times)), 
+    TIME <- data.table(TIME=c(1,4,8), TSTRAT=seq(1:length(samp.times)), 
                        TMIN=rep(0.01,length(samp.times)),
                        TMAX=rep(200,length(samp.times)))
 
-    dt.dos
-    TIME
+### TMIN and and TSTRAT does not match, so no samples added.
+    ## Result is dt.dos unmodified
+    if(FALSE){ ## Commented for non-interactive execution
+        dt.dos
+        TIME
+    }
 
     res <- expect_message(
-        NMaddSamples(dt.dos,TIME,by=setdiff(intersect(colnames(dt.dos),colnames(TIME)),"TIME"))
+### There is no simple way to match by all. This could be obtained with a `byAll` function that returns intersect of colnames of x and y.
+        ##    NMaddSamples(dt.dos,TIME,by=setdiff(intersect(colnames(dt.dos),colnames(TIME)),"TIME"))
+        NMaddSamples(dt.dos,TIME,by=cc(TSTRAT),as.fun=data.table)
+        
     )
 
-    expect_equal_to_reference(res,fileRef)
+    expect_equal(
+        dt.dos
+       ,
+        res[,colnames(dt.dos),with=FALSE]
+                 )
+    ## expect_equal_to_reference(res,fileRef)
 
     if(F){
         readRDS(fileRef)
@@ -334,22 +369,15 @@ test_that("Unmatched covariates",{
 })
 
 
-test_that("Unmatched covariates",{
-    fileRef <- "testReference/NMaddSamples_17.rds"
+test_that("Unmatched covariates not in by",{
+    fileRef <- "testReference/NMaddSamples_18.rds"
 
     samp.times <- c(1, 4, 8)
     dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0, TMIN=0, TMAX=200),AMT=70,CMT=NA)
 
-    dt.time <- data.frame(TIME=c(1,4,8), TSTRAT=c(1,2,3))
+    dt.time <- data.frame(TIME=samp.times, TSTRAT=c(1,2,3))
 
-    res <- expect_message(
-        NMsim::NMaddSamples(dt.dos,TIME = dt.time,by="TSTRAT"
-                        ## data.frame(TIME=c(1,4,8), TSTRAT=seq(1:length(samp.times)), 
-                        ##            TMIN=rep(0.01,length(samp.times)),
-                        ##            TMAX=rep(200,length(samp.times)))
-                        )
-    )
-
+    res <- NMaddSamples(dt.dos,TIME = dt.time )
 
     expect_equal_to_reference(res,fileRef)
 
@@ -361,16 +389,16 @@ test_that("Unmatched covariates",{
 
 
 test_that("Unmatched are not covs",{
-    fileRef <- "testReference/NMaddSamples_18.rds"
+    fileRef <- "testReference/NMaddSamples_19.rds"
 
     samp.times <- c(1, 4, 8)
     dt.dos <- NMsim::NMcreateDoses(TIME=data.frame(TIME=0, TSTRAT=0, TMIN=0, TMAX=200),AMT=70,CMT=NA)
     dt.time <- data.frame(TIME=c(1,4,8), TSTRAT=c(1,2,3))
     
     res <- NMsim::NMaddSamples(dt.dos,
-                           TIME =dt.time
-                          ,
-                           by=FALSE)
+                               TIME =dt.time
+                              ,
+                               by=FALSE)
 
     ## res
     expect_equal_to_reference(res,fileRef)
@@ -381,3 +409,9 @@ test_that("Unmatched are not covs",{
     }
 })
 
+### maybe this should not be needed if by is sufficiently tested above. 
+## context("NMaddSamples - Observed TIME")
+
+### EVID and CMT are overwritten by respective arguments.
+
+### IDs in time - not in data - are still used

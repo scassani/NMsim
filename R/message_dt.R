@@ -1,6 +1,7 @@
 ##' print a data.table
 ##'
-##' Notice, only data.tables supported
+##' @param dt a data.table or something to be converted to a data.table.
+
 
 ##' @keywords internal
 message_dt <- function(dt){

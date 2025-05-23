@@ -29,7 +29,7 @@ type <- NULL
                 text:=sprintf("%s(%s)",type,cond)
                 ]
     } else if (is.character(filters)){
-        filters <- paste(filters,collapse = " ")
+        filters <- list(text=paste(filters,collapse = " "))
     }
     
     ##newdata <- sprintf("%s\n%s\n",text.no.filters,paste(filters$text,collapse="\n"))

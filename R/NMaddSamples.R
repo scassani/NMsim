@@ -147,7 +147,7 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
     if(missing(CMT)) CMT <- NULL
 
     if(missing(by)) by <- NULL
-    ## if(!is.null(by) && is.na(by)) by <- FALSE
+    ## by default, merge by col.id
     if(is.null(by)) by <- col.id
     if(isFALSE(by)) by <- NULL
     
@@ -204,64 +204,48 @@ NMaddSamples <- function(data,TIME,TAPD,CMT,EVID,DV,col.id="ID",args.NMexpandDos
         
         if(!is.data.frame(TIME)){
             TIME <- as.data.table(setNames(list(TIME),col.time))
-            ## TIME <- data.table(col.time=TIME)
-            ## dt.obs <- egdt(dt.obs,covs.data,quiet=TRUE)
         }
 
         if(!col.time%in%colnames(TIME)) stop(sprintf("When %s is a data.frame, it must contain a column called %s.",col.time,col.time))
         TIME <- as.data.table(TIME)
         
-
-        ## if(extras.are.covs){
-        ## if(!isFALSE(by)){
         ## merge by extra columns
+### cols.by is the subset of by that can be merged by
         cols.by <- by
-### merge by common cols by default
-        ## if(is.null(by)){
-        ##     cols.by <- intersect(colnames(TIME),colnames(covs.data))
-        ##     cols.by <- setdiff(cols.by,cols.not.by)
-        ## }
-### merge by col.id by default
         cols.common <- intersect(colnames(TIME),colnames(covs.data))
         cols.by <- intersect(cols.by,cols.common)
         cols.by <- setdiff(cols.by,cols.not.by)
         
-
         if(length(cols.by) == 0){
-
-            covs.data.add <- covs.data
-            if(length(cols.common)){
-                covs.data.add <- covs.data[,setdiff(colnames(covs.data),cols.common),with=FALSE]
-                ##dt.obs <- egdt(TIME,covs.data[,setdiff(colnames(covs.data),cols.common),with=FALSE],quiet=TRUE)
-                ##dt.obs <- merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
-            } ##else {
-            
+            ## no by columns found
+            ##if(length(cols.common)){
+### drop common columns from covs.data. Since they are
+### not in by they should not be inherited from
+### covs.data.
+            covs.data.add <- covs.data[,setdiff(colnames(covs.data),cols.common),with=FALSE]
             dt.obs <- egdt(TIME,covs.data.add,quiet=TRUE)
-            ##}
+
         } else {
+            ## cols.by found. We need to merge by cols.by - but not other common columns            
+            covs.data.add <- covs.data[
+               ,c(setdiff(colnames(covs.data),setdiff(cols.common,cols.by))),with=FALSE]
+
+            if(col.id%in%cols.by){
+                ## since col.id is to be merged by, we merge covariates onto TIME and re-derive covariates. This is so that id's in TIME not in existing data will still be reused
+                covs.data.add <- merge(unique(TIME[,cols.by,with=FALSE]),covs.data.add,by=cols.by,all.x=TRUE)
+            }
             dt.obs <-
-                ## merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
-                ## merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
-                merge(covs.data,TIME,by=cols.by,allow.cartesian = TRUE)
+                merge(
+                    covs.data.add
+                   ,
+                    TIME
+                   ,by=cols.by,allow.cartesian = TRUE)
             if(!quiet && !nrow(dt.obs)) {
                 message("No samples added. Covariates were found in sample time specifications but no matches found in `data`. Notice that extra columns (covariates) in `TIME` and `TAPD` must be matched in `data` for respective time values to be added.")
             }
         }
         return(dt.obs)
-        ##}
-        
-        ## cols.by <- intersect(colnames(TIME),colnames(covs.data))
-        
-        ## cols.by <- intersect(colnames(TIME),col.id)
-        ## cols.by <- setdiff(cols.by,c(cols.not.by,cols.time))
-        ## cols.covs <- setdiff(colnames(covs.data),c(cols.time,setdiff(colnames(TIME),cols.by)))
-        ## covs.data <- covs.data[,cols.covs,with=FALSE]
-        ## if(length(cols.by) == 0){
-        ##     dt.time <- egdt(TIME,covs.data,quiet=TRUE)
-        ## } else {
-        ##     dt.time <- merge(TIME,covs.data,by=cols.by,all.x=TRUE,allow.cartesian = TRUE)
-        ## }
-        ## dt.time
+
     }
 
     
